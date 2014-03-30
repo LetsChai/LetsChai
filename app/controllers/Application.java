@@ -15,7 +15,6 @@ public class Application extends Controller {
 
     public static Result landing () {
         return ok(landing.render());
-
     }
 
 }
