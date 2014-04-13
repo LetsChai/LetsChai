@@ -5,7 +5,7 @@
 # Home page
 GET     /                           controllers.Application.index()
 GET     /login                      controllers.Login.fbLoginRedirect()
-GET     /login/code                 controllers.Login.extractCode(code)
+GET     /login/code/                controllers.Login.extractCode(code)
 GET     /testuser/create            controllers.Login.createTestUser()
 GET     /testuser/login             controllers.Login.loginTestUser()
 GET     /landing                    controllers.Application.landing()

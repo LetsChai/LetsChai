@@ -1,7 +1,7 @@
 package controllers;
 
 import models.Connection;
-import models.UserProfile;
+import mongo.UserProfile;
 import play.mvc.*;
 
 import views.html.*;

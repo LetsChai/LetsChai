@@ -1,13 +1,14 @@
 package models;
 
-import com.restfb.DefaultFacebookClient;
-import com.restfb.Parameter;
+import com.restfb.*;
 import com.restfb.types.TestUser;
 import controllers.Login;
 import controllers.routes.*;
 import org.jongo.MongoCollection;
 import play.Play;
 import play.mvc.Call;
+
+import java.io.IOException;
 
 /**
  * Created by kedar on 3/27/14.
@@ -30,7 +31,7 @@ public class LetsChaiFacebookClient extends DefaultFacebookClient {
     public String getLoginUrl () {
         return "https://www.facebook.com/dialog/oauth?client_id=" +
                 Play.application().configuration().getString("facebook.app_id") +
-                "&redirect_uri=" + controllers.routes.Login.extractCode("").absoluteURL(Login.request()) +
+                "&redirect_uri=" + "http://localhost:9000/login/code/" +
                 "&scope=" + getScope();
     }
 
@@ -45,14 +46,20 @@ public class LetsChaiFacebookClient extends DefaultFacebookClient {
         return loginScope;
     }
 
-    public AccessToken obtainUserAccessTokenFromCode (String code) {
-        AccessToken token = fetchObject("oauth/access_token", AccessToken.class,
-                Parameter.with("client_id", getAppId()),
-                Parameter.with("client_secret", getAppSecret()),
-                Parameter.with("redirect_uri", controllers.routes.Login.extractCode("").absoluteURL(Login.request())),
-                Parameter.with("code", code));
+    // Credit to Val @ http://stackoverflow.com/questions/13671694/restfb-using-a-facebook-app-to-get-the-users-access-token
+    // for this function
+    public AccessToken obtainUserAccessToken (String code) {
+        WebRequestor wr = new DefaultWebRequestor();
+        WebRequestor.Response accessTokenResponse = null;
+        try {
+            accessTokenResponse = wr.executeGet(
+                    "https://graph.facebook.com/oauth/access_token?client_id=" + getAppId() + "&redirect_uri=" +  "http://localhost:9000/login/code/"
+                            + "&client_secret=" + getAppSecret() + "&code=" + code);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        return token;
+        return DefaultFacebookClient.AccessToken.fromQueryString(accessTokenResponse.getBody());
     }
 
     public String getAppId() {
@@ -63,4 +70,7 @@ public class LetsChaiFacebookClient extends DefaultFacebookClient {
         return appSecret;
     }
 
+    public AccessToken obtainExtendedAccessToken (String token) {
+        return obtainExtendedAccessToken(getAppId(), getAppSecret(), token);
+    }
 }

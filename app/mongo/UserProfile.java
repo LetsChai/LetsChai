@@ -1,4 +1,4 @@
-package models;
+package mongo;
 
 import com.mongodb.DB;
 import com.mongodb.MongoClient;

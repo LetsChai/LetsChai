@@ -4,6 +4,7 @@ import com.restfb.FacebookClient;
 import com.restfb.types.TestUser;
 import models.Connection;
 import models.LetsChaiFacebookClient;
+import org.jongo.MongoCollection;
 import play.mvc.Controller;
 import play.mvc.Result;
 
@@ -19,8 +20,13 @@ public class Login extends Controller {
 
     public static Result extractCode (String code) {
         LetsChaiFacebookClient fb = new LetsChaiFacebookClient();
-        FacebookClient.AccessToken token = fb.obtainUserAccessTokenFromCode(code);
-        return ok(token.toString());
+        FacebookClient.AccessToken token = fb.obtainUserAccessToken(code);
+        FacebookClient.AccessToken extendedToken = fb.obtainExtendedAccessToken(token.getAccessToken());
+        MongoCollection accessTokenCollection = Connection.getJongoInstance().getCollection("facebook_access_tokens");
+
+        accessTokenCollection.save(extendedToken);
+
+        return redirect(controllers.routes.Application.index());
     }
 
     public static Result createTestUser() {
@@ -30,7 +36,7 @@ public class Login extends Controller {
     }
 
     public static Result loginTestUser() {
-        TestUser user = Connection.getJongoInstance().getCollection("facebook_test_users").findOne().as(TestUser.class);
+        TestUser user = Connection.getJongoInstance().getCollection("facebook_test_users").find().sort("{_id:-1}").limit(1).as(TestUser.class).iterator().next();
         return redirect(user.getLoginUrl());
     }
 }
