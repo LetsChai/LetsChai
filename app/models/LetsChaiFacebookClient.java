@@ -2,6 +2,7 @@ package models;
 
 import com.restfb.*;
 import com.restfb.types.TestUser;
+import com.restfb.FacebookClient.AccessToken;
 import org.jongo.MongoCollection;
 import play.Play;
 
@@ -45,7 +46,7 @@ public class LetsChaiFacebookClient extends DefaultFacebookClient {
 
     // Credit to Val @ http://stackoverflow.com/questions/13671694/restfb-using-a-facebook-app-to-get-the-users-access-token
     // for this function
-    public AccessToken obtainUserAccessToken (String code) {
+    public DefaultFacebookClient.AccessToken obtainUserAccessToken (String code) {
         WebRequestor wr = new DefaultWebRequestor();
         WebRequestor.Response accessTokenResponse = null;
         try {
@@ -67,11 +68,11 @@ public class LetsChaiFacebookClient extends DefaultFacebookClient {
         return appSecret;
     }
 
-    public AccessToken obtainExtendedAccessToken (String token) {
+    public com.restfb.FacebookClient.AccessToken obtainExtendedAccessToken (String token) {
         return obtainExtendedAccessToken(getAppId(), getAppSecret(), token);
     }
 
-    public void setAccessToken(AccessToken token) {
+    public void setAccessToken(com.restfb.FacebookClient.AccessToken token) {
         this.accessToken = StringUtils.trimToNull(token.getAccessToken());
     }
 }
