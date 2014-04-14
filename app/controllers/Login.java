@@ -2,11 +2,14 @@ package controllers;
 
 import com.restfb.FacebookClient;
 import com.restfb.types.TestUser;
-import models.Connection;
+import com.restfb.types.User;
+import jongo.Connection;
+import jongo.types.UserProfile;
 import models.LetsChaiFacebookClient;
-import org.jongo.MongoCollection;
 import play.mvc.Controller;
 import play.mvc.Result;
+import views.html.index;
+import views.html.stringdump;
 
 /**
  * Created by kedar on 3/27/14.
@@ -20,13 +23,22 @@ public class Login extends Controller {
 
     public static Result extractCode (String code) {
         LetsChaiFacebookClient fb = new LetsChaiFacebookClient();
+
+        // get and set access token
         FacebookClient.AccessToken token = fb.obtainUserAccessToken(code);
         FacebookClient.AccessToken extendedToken = fb.obtainExtendedAccessToken(token.getAccessToken());
-        MongoCollection accessTokenCollection = Connection.getJongoInstance().getCollection("facebook_access_tokens");
+        fb.setAccessToken(extendedToken);
 
-        accessTokenCollection.save(extendedToken);
+        // save access token
+        Connection.getJongoInstance().getCollection("facebook_access_tokens").save(extendedToken);
 
-        return redirect(controllers.routes.Application.index());
+        // get user info
+        UserProfile me = fb.fetchObject("me", UserProfile.class);
+
+        // save user info
+        Connection.getJongoInstance().getCollection("user_profiles").save(me);
+
+        return ok(index.render(me));
     }
 
     public static Result createTestUser() {

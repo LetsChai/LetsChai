@@ -1,10 +1,7 @@
-@(profile: UserProfile)
+@(profile: jongo.types.UserProfile)
 
 Welcome to Play;
-    @profile.getNationality()
 <html>
-    List:
-    Age: @profile.getAge()
-    Name: @profile.getName()
+    Name: @profile.getFullName()
 
 </html>

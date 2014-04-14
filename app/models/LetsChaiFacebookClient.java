@@ -2,13 +2,11 @@ package models;
 
 import com.restfb.*;
 import com.restfb.types.TestUser;
-import controllers.Login;
-import controllers.routes.*;
 import org.jongo.MongoCollection;
 import play.Play;
-import play.mvc.Call;
 
 import java.io.IOException;
+import com.restfb.util.StringUtils;
 
 /**
  * Created by kedar on 3/27/14.
@@ -17,7 +15,6 @@ public class LetsChaiFacebookClient extends DefaultFacebookClient {
 
     protected String appId;
     private String appSecret;
-    protected AccessToken token;
     protected String loginScope =
         "basic_info,email,user_education_history,user_location,user_birthday,user_photos,friends_about_me,friends_birthday,user_relationships,friends_relationships";
 
@@ -37,7 +34,7 @@ public class LetsChaiFacebookClient extends DefaultFacebookClient {
 
     public TestUser createTestUser () {
         TestUser user = publish(getAppId() + "/accounts/test-users", TestUser.class);
-        MongoCollection testUsers =  Connection.getJongoInstance().getCollection("facebook_test_users");
+        MongoCollection testUsers =  jongo.Connection.getJongoInstance().getCollection("facebook_test_users");
         testUsers.save(user);
         return user;
     }
@@ -72,5 +69,9 @@ public class LetsChaiFacebookClient extends DefaultFacebookClient {
 
     public AccessToken obtainExtendedAccessToken (String token) {
         return obtainExtendedAccessToken(getAppId(), getAppSecret(), token);
+    }
+
+    public void setAccessToken(AccessToken token) {
+        this.accessToken = StringUtils.trimToNull(token.getAccessToken());
     }
 }

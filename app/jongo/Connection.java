@@ -1,4 +1,4 @@
-package models;
+package jongo;
 
 import com.mongodb.MongoClient;
 import org.jongo.Jongo;
