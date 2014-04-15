@@ -46,7 +46,7 @@ public class LetsChaiFacebookClient extends DefaultFacebookClient {
 
     // Credit to Val @ http://stackoverflow.com/questions/13671694/restfb-using-a-facebook-app-to-get-the-users-access-token
     // for this function
-    public DefaultFacebookClient.AccessToken obtainUserAccessToken (String code) {
+    public FacebookClient.AccessToken obtainUserAccessToken (String code) {
         WebRequestor wr = new DefaultWebRequestor();
         WebRequestor.Response accessTokenResponse = null;
         try {
@@ -57,7 +57,7 @@ public class LetsChaiFacebookClient extends DefaultFacebookClient {
             e.printStackTrace();
         }
 
-        return DefaultFacebookClient.AccessToken.fromQueryString(accessTokenResponse.getBody());
+        return FacebookClient.AccessToken.fromQueryString(accessTokenResponse.getBody());
     }
 
     public String getAppId() {
