@@ -51,7 +51,8 @@ public class LetsChaiFacebookClient extends DefaultFacebookClient {
         WebRequestor.Response accessTokenResponse = null;
         try {
             accessTokenResponse = wr.executeGet(
-                    "https://graph.facebook.com/oauth/access_token?client_id=" + getAppId() + "&redirect_uri=" +  "http://localhost:9000/login/code/"
+                    "https://graph.facebook.com/oauth/access_token?client_id=" + getAppId() + "&redirect_uri=" +
+                            Play.application().configuration().getString("application.baseURL") + "login/code/"
                             + "&client_secret=" + getAppSecret() + "&code=" + code);
         } catch (IOException e) {
             e.printStackTrace();
