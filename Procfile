@@ -1,1 +1,1 @@
-web: target/universal/stage/bin/lets-chai -Dhttp.port=${PORT}
+web: target/universal/stage/bin/letschai -Dhttp.port=$PORT
