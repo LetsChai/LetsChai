@@ -29,7 +29,7 @@ public class LetsChaiFacebookClient extends DefaultFacebookClient {
     public String getLoginUrl () {
         return "https://www.facebook.com/dialog/oauth?client_id=" +
                 Play.application().configuration().getString("facebook.app_id") +
-                "&redirect_uri=" + "http://localhost:9000/login/code/" +
+                "&redirect_uri=" + Play.application().configuration().getString("application.baseURL") + "login/code/" +
                 "&scope=" + getScope();
     }
 
