@@ -1,7 +1,9 @@
 package jongo;
 
 import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
 import org.jongo.Jongo;
+import play.Play;
 
 import java.net.UnknownHostException;
 
@@ -19,7 +21,7 @@ public class Connection {
     private static MongoClient getMongoInstance () {
         if (MONGO_INSTANCE == null) {
             try {
-                MONGO_INSTANCE = new MongoClient();
+                MONGO_INSTANCE = new MongoClient(new MongoClientURI(Play.application().configuration().getString("mongo.host")));
             } catch (UnknownHostException e) {
                 e.printStackTrace();
             }
@@ -29,7 +31,7 @@ public class Connection {
 
     public static Jongo getJongoInstance () {
         if (JONGO_INSTANCE == null)
-            JONGO_INSTANCE = new Jongo(getMongoInstance().getDB("LetsChai"));
+            JONGO_INSTANCE = new Jongo(getMongoInstance().getDB(Play.application().configuration().getString("mongo.db")));
         return JONGO_INSTANCE;
     }
 
