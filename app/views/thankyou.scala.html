@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LetsChai - Thank You!</title>
+    <style>
+        body {
+            margin: 0;
+            font-size: 20px;
+            font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
+        }
+        .menu-bar {
+            background-color: #303030;
+            font-size: 16px;
+        }
+        .menu-bar-item {
+            color: white;
+            padding: 1% 3%;
+            display: inline-block;
+        }
+        #letschai-logo {
+            margin: 3% auto 6%;
+            display: block;
+        }
+        h1 {
+            text-align:center;
+        }
+        #get-your-points {
+            text-align:center;
+            margin-bottom:5%;
+        }
+        .red {
+            color: red;
+        }
+        #facebook-share {
+            margin: auto;
+            text-align: center;
+            font-size: 12px;
+        }
+        #fb-share-img {
+            margin-bottom: 1%;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Facebook SDK -->
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=1400180096920626";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+<!-- End Facebook SDK -->
+
+<header class="menu-bar">
+    <div class="menu-bar-item">About</div>
+    <div class="menu-bar-item">How it Works</div>
+    <div class="menu-bar-item">Contact</div>
+</header>
+
+<img id="letschai-logo" src="/assets/images/letschai_logo.png"></img>
+
+<h1>Thank you for signing up</h1>
+<div id="get-your-points">
+    <p>As an early adopter, we reward you <span class="red">1000</span> points</p>
+    <p>We will notify you how to redeem the points when launched. Stay tuned.</p>
+</div>
+
+<!-- Facebook share plugin -->
+<section id="facebook-share">
+    <img id="fb-share-img" data-href="http://www.letschai.com" src="/assets/images/facebook-share.png" alt="Share on Facebook" />
+    <div>Inviting a few friends will help expand your dating network and give you better matches</div>
+</section>
+
+<script>
+document.getElementById("fb-share-img").onclick = function () {
+    FB.ui({
+        method: 'feed',
+        link: 'http://www.letschai.com',
+        caption: 'LetsChai - Dating. Simplified.',
+    }, function(response){});
+}
+</script>
+</body>
+</html>

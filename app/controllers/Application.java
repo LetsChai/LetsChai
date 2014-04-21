@@ -18,6 +18,6 @@ public class Application extends Controller {
     }
 
     public static Result thankyou () {
-        return ok("Thank you for signing up");
+        return ok(thankyou.render());
     }
 }

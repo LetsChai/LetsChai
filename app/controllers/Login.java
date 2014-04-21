@@ -23,6 +23,7 @@ public class Login extends Controller {
 
     public static Result fbLoginRedirect () {
         LetsChaiFacebookClient fb = new LetsChaiFacebookClient();
+        User me = fb.fetchObject("me", UserProfile.class);
         return redirect(fb.getLoginUrl());
     }
 
