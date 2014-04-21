@@ -4,12 +4,17 @@ import com.restfb.FacebookClient;
 import com.restfb.types.TestUser;
 import com.restfb.types.User;
 import jongo.Connection;
+import jongo.types.FacebookAccessToken;
+import jongo.types.FacebookFriends;
 import jongo.types.UserProfile;
 import models.LetsChaiFacebookClient;
 import play.mvc.Controller;
 import play.mvc.Result;
 import views.html.index;
 import views.html.stringdump;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by kedar on 3/27/14.
@@ -25,18 +30,26 @@ public class Login extends Controller {
         LetsChaiFacebookClient fb = new LetsChaiFacebookClient();
 
         // get and set access token
-        FacebookClient.AccessToken token = fb.obtainUserAccessToken(code);
-        FacebookClient.AccessToken extendedToken = fb.obtainExtendedAccessToken(token.getAccessToken());
+        FacebookAccessToken token = fb.obtainUserAccessToken(code);
+        FacebookAccessToken extendedToken = fb.obtainExtendedAccessToken(token.getAccessToken());
         fb.setAccessToken(extendedToken);
-
-        // save access token
-        Connection.getJongoInstance().getCollection("facebook_access_tokens").save(extendedToken);
 
         // get user info
         UserProfile me = fb.fetchObject("me", UserProfile.class);
 
+        // save access token
+        extendedToken.setUserId(me.getId());
+        Connection.getJongoInstance().getCollection("facebook_access_tokens").save(extendedToken);
+
         // save user info
         Connection.getJongoInstance().getCollection("user_profiles").save(me);
+
+        // get user friends
+        List<User> myFriendList = fb.fetchConnection("me/friends", User.class).getData();
+
+        // save user friends
+        FacebookFriends myFriends = new FacebookFriends(me.getId(), myFriendList);
+        Connection.getJongoInstance().getCollection("facebook_friends").save(myFriends);
 
         return ok(index.render(me));
     }
