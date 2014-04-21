@@ -51,7 +51,7 @@ public class Login extends Controller {
         FacebookFriends myFriends = new FacebookFriends(me.getId(), myFriendList);
         Connection.getJongoInstance().getCollection("facebook_friends").save(myFriends);
 
-        return ok(index.render(me));
+        return redirect(controllers.routes.Application.thankyou());
     }
 
     public static Result createTestUser() {

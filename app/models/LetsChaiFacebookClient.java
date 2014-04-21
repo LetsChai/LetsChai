@@ -2,7 +2,7 @@ package models;
 
 import com.restfb.*;
 import com.restfb.types.TestUser;
-import com.restfb.FacebookClient.AccessToken;
+import jongo.types.FacebookAccessToken;
 import org.jongo.MongoCollection;
 import play.Play;
 
@@ -16,9 +16,9 @@ public class LetsChaiFacebookClient extends DefaultFacebookClient {
 
     protected String appId;
     private String appSecret;
-    protected String loginScope =
+    protected final String loginScope =
         "basic_info,email,user_education_history,user_location,user_birthday,user_photos,friends_about_me,friends_birthday,user_relationships,friends_relationships";
-
+    protected final String redirectUri = "login/code/";
     // constructor
     public LetsChaiFacebookClient() {
         super(Play.application().configuration().getString("facebook.app_access_token"), Play.application().configuration().getString("facebook.app_secret"));
@@ -30,7 +30,7 @@ public class LetsChaiFacebookClient extends DefaultFacebookClient {
         return "https://www.facebook.com/dialog/oauth?client_id=" +
                 Play.application().configuration().getString("facebook.app_id") +
                 "&redirect_uri=" + Play.application().configuration().getString("application.baseURL") + "login/code/" +
-                "&scope=" + getScope();
+                "&scope=" + loginScope;
     }
 
     public TestUser createTestUser () {
@@ -40,40 +40,37 @@ public class LetsChaiFacebookClient extends DefaultFacebookClient {
         return user;
     }
 
-    public String getScope() {
-        return loginScope;
-    }
-
     // Credit to Val @ http://stackoverflow.com/questions/13671694/restfb-using-a-facebook-app-to-get-the-users-access-token
     // for this function
-    public FacebookClient.AccessToken obtainUserAccessToken (String code) {
+    public FacebookAccessToken obtainUserAccessToken (String code) {
         WebRequestor wr = new DefaultWebRequestor();
         WebRequestor.Response accessTokenResponse = null;
         try {
             accessTokenResponse = wr.executeGet(
                     "https://graph.facebook.com/oauth/access_token?client_id=" + getAppId() + "&redirect_uri=" +
                             Play.application().configuration().getString("application.baseURL") + "login/code/"
-                            + "&client_secret=" + getAppSecret() + "&code=" + code);
+                            + "&client_secret=" + appSecret + "&code=" + code);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        return FacebookClient.AccessToken.fromQueryString(accessTokenResponse.getBody());
+        return FacebookAccessToken.fromQueryString(accessTokenResponse.getBody());
+    }
+
+    public FacebookAccessToken obtainExtendedAccessToken (String accessToken) {
+        return new FacebookAccessToken(obtainExtendedAccessToken(getAppId(), appSecret, accessToken));
+    }
+
+    public void setAccessToken(FacebookAccessToken token) {
+        // accessToken is set in parent class
+        this.accessToken = StringUtils.trimToNull(token.getAccessToken());
+    }
+
+    protected String getRedirectUri () {
+        return Play.application().configuration().getString("application.baseURL") + redirectUri;
     }
 
     public String getAppId() {
         return appId;
-    }
-
-    private String getAppSecret() {
-        return appSecret;
-    }
-
-    public com.restfb.FacebookClient.AccessToken obtainExtendedAccessToken (String token) {
-        return obtainExtendedAccessToken(getAppId(), getAppSecret(), token);
-    }
-
-    public void setAccessToken(com.restfb.FacebookClient.AccessToken token) {
-        this.accessToken = StringUtils.trimToNull(token.getAccessToken());
     }
 }

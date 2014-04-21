@@ -17,4 +17,7 @@ public class Application extends Controller {
         return ok(landing.render());
     }
 
+    public static Result thankyou () {
+        return ok("Thank you for signing up");
+    }
 }
