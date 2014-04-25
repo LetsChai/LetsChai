@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LetsChai - New User</title>
+    <style>
+        body {
+            margin: 0;
+        }
+        header {
+            height: 70px;
+            border-bottom: 2px solid #C84A49;
+        }
+        header img {
+            height: 100%;
+            padding-left: 1%;
+        }
+
+        .survey-question {
+            padding: 1.5%;
+            background-color: gray;
+            border-radius: 10px;
+            margin: 2% auto;
+            width: 30%;
+        }
+        .survey-question .question, .survey-question .answers, .survey-question .buttons {
+            background-color: white;
+            padding: 5%;
+            border-radius: 5px;
+        }
+        .survey-question .question {
+            margin-bottom: 5%;
+            text-align: center;
+        }
+        .survey-question .answers {}
+        .survey-question .buttons {
+            text-align: right;
+            padding:0;
+        }
+        .survey-question .next {
+            background-color: #C84A49;
+            color: white;
+            border: none;
+        }
+        .survey-question .back {
+            background-color: white;
+            border: 1px solid #C84A49;
+            color: black;
+        }
+        .survey-question .row {
+            margin-bottom: 5%;
+        }
+
+        .religion {
+            cursor:pointer;
+        }
+        .religion-label {
+            margin-left: 5%;
+            vertical-align: middle;
+            cursor: pointer;
+        }
+        label[for=no-preference] {
+            font-style: italic;
+        }
+
+        #email-wrapper {
+            text-align: center;
+        }
+        #email {
+            width: 80%;
+        }
+    </style>
+</head>
+<body>
+
+<!--jQuery and Bootstrap from CDN-->
+<script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
+<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+
+<!--Page Header-->
+<header>
+    <img src="/assets/images/letschai_logo.png" />
+</header>
+
+<!--Survey-->
+<form class="survey" onsubmit="return false">
+
+    <!--Age, Gender, Orientation-->
+    <div class="survey-question">
+        <div class="question">Who are you looking for?</div>
+        <div class="answers">
+            <div class="row">
+                <div class="col-md-3">
+                    <label for="ageMin">Age</label>
+                </div>
+
+                <div class="col-md-9">
+                    <select name id="ageMin">
+                      @for(age <- 18 to 35) {
+                        <option value="@age">@age</option>
+                      }
+                    </select>
+
+                    &nbsp;&nbsp;to&nbsp;&nbsp;
+
+                    <select name id="ageMax">
+                        @for(age <- 18 to 34){
+                            <option value="@age">@age</option>
+                        }
+                        <option value="35" selected="selected">35</option>
+                    </select>
+                </div>
+            </div>
+
+            <!--Gender and orientation-->
+            <div class="row">
+                <div class="col-md-3">
+                    <label for="orientation">Gender</label>
+                </div>
+
+                <div class="col-md-9">
+                    <select id="orientation">
+                        <option>Male</option>
+                        <option>Female</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="buttons">
+                <button class="back btn">Back</button>
+                <button class="next btn">Next</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Religious Preferences -->
+    <div class="survey-question">
+        <div class="question">Cool, now tell us your religious preferences</div>
+        <div class="answers">
+            <div class="row">
+                <div class="col-lg-6">
+                    <input id="hindu" class="religion" type="checkbox"/>
+                    <label for="hindu" class="religion-label">Hindu</label>
+                </div>
+                <div class="col-lg-6">
+                    <input id="sikh" type="checkbox" class="religion"/>
+                    <label for="sikh" class="religion-label">Sikh</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-6">
+                    <input id="muslim" class="religion" type="checkbox"/>
+                    <label for="muslim" class="religion-label">Muslim</label>
+                </div>
+                <div class="col-lg-6">
+                    <input id="buddhist" type="checkbox" class="religion"/>
+                    <label for="buddhist" class="religion-label">Buddhist</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-6">
+                    <input id="christian" class="religion" type="checkbox"/>
+                    <label for="christian" class="religion-label">Christian</label>
+                </div>
+                <div class="col-lg-6">
+                    <input id="other" type="checkbox" class="religion"/>
+                    <label for="other" class="religion-label">Other</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-6">
+                    <input id="no-preference" class="religion" type="checkbox"/>
+                    <label for="no-preference" class="religion-label">No Preference</label>
+                </div>
+            </div>
+
+            <div class="buttons">
+                <button class="back btn">Back</button>
+                <button class="next btn">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <!--Your Religion-->
+    <div class="survey-question">
+        <div class="question">Cool, now tell us your religious preferences</div>
+        <div class="answers">
+            <div class="row">
+                <div class="col-lg-6">
+                    <input id="hindu" class="religion" type="checkbox"/>
+                    <label for="hindu" class="religion-label">Hindu</label>
+                </div>
+                <div class="col-lg-6">
+                    <input id="sikh" type="checkbox" class="religion"/>
+                    <label for="sikh" class="religion-label">Sikh</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-6">
+                    <input id="muslim" class="religion" type="checkbox"/>
+                    <label for="muslim" class="religion-label">Muslim</label>
+                </div>
+                <div class="col-lg-6">
+                    <input id="buddhist" type="checkbox" class="religion"/>
+                    <label for="buddhist" class="religion-label">Buddhist</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-6">
+                    <input id="christian" class="religion" type="checkbox"/>
+                    <label for="christian" class="religion-label">Christian</label>
+                </div>
+                <div class="col-lg-6">
+                    <input id="other" type="checkbox" class="religion"/>
+                    <label for="other" class="religion-label">Other</label>
+                </div>
+            </div>
+
+            <div class="buttons">
+                <button class="back btn">Back</button>
+                <button class="next btn">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <!--Your Email-->
+    <div class="survey-question">
+        <div class="question">Is this the email you would like your matches to be sent to?</div>
+        <div class="answers">
+            <div class="row" id="email-wrapper">
+                <input type="email" id="email" />
+            </div>
+
+            <div class="buttons">
+                <button class="back btn">Back</button>
+                <button class="next btn">Next</button>
+            </div>
+        </div>
+
+    </div>
+
+</form>
+
+<script>
+// JS for No Preference checkbox
+$('#no-preference').click(function() {
+    if ($(this).is(':checked')) {
+        $('.religion:not(#no-preference)').removeAttr('checked');
+    }
+});
+$('.religion:not(#no-preference)').click(function() {
+    if ($(this).is(':checked'))  {
+        $('#no-preference').removeAttr('checked');
+    }
+});
+
+
+
+</script>
+</body>
+</html>

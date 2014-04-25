@@ -1,6 +1,5 @@
 package controllers;
 
-import com.restfb.FacebookClient;
 import com.restfb.types.TestUser;
 import com.restfb.types.User;
 import jongo.Connection;
@@ -10,10 +9,9 @@ import jongo.types.UserProfile;
 import models.LetsChaiFacebookClient;
 import play.mvc.Controller;
 import play.mvc.Result;
-import views.html.index;
-import views.html.stringdump;
+import scala.Function0;
+import scala.concurrent.Promise;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
