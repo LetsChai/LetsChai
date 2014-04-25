@@ -9,7 +9,7 @@ GET     /login/code/                controllers.Login.extractCode(code)
 GET     /testuser/create            controllers.Login.createTestUser()
 GET     /testuser/login             controllers.Login.loginTestUser()
 GET     /landing                    controllers.Application.landing()
-GET     /thankyou                   controllers.Application.thankyou()
+GET     /da39a3ee5e6b4b0d3255bfef95601890afd80709                   controllers.Application.thankyou()
 GET     /newusersurvey              controllers.Application.newusersurvey()
 
 # Full Launch
