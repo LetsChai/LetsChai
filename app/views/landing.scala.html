@@ -14,7 +14,8 @@
         }
         #letschai-logo {
             margin: 3% auto;
-            margin-top: 4%;
+            margin-top: 3%;
+            width: 32%;
         }
 
         #welcome-text p {
@@ -45,11 +46,17 @@
         .sign-up-wrapper > * {
             margin: 2% auto;
         }
-        .why-facebook {
-            font-size: 12px;
-            text-align:center;
-            margin: 0 auto;
+        #get-started-btn {
+            background-color: #C84A49;
+            border: none;
+            height: 55px;
             width: 30%;
+            font-size: 24px;
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: -1px 5px 5px gray;
         }
     </style>
 </head>
@@ -70,16 +77,16 @@
 
 <section class="sign-up-wrapper">
     <div><strong>Request exclusive access</strong></div>
-    <a href="login"><img src="/assets/images/login-with-facebook.png" id="login-with-facebook"></img></a>
+    <a href="newusersurvey"><button id="get-started-btn">Get Started Now</button></a>
 </section>
 
 
-<div class="why-facebook">Why Facebook Login? It will help us validate user profiles while creating
-    the best possible matches through your mutual friends.</div>
 
 <!--Google Analytics-->
 <script>
-(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(function(i,s,o,g,r,a,m){i['GoogleAnaly
+<div class="why-facebook">Why Facebook Login? It will help us validate user profiles while creating
+    the best possible matches through your mutual friends.</div>ticsObject']=r;i[r]=i[r]||function(){
 (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
 m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
@@ -87,8 +94,8 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 ga('create', 'UA-50393909-1', 'letschai.com');
 ga('send', 'pageview');
 
-document.getElementById('login-with-facebook').onclick = function () {
-    _trackEvent('Signups', 'Login with Facebook', 'landing page login button', null, true);
+document.getElementById('get-started-btn').onclick = function () {
+    _trackEvent('Signups', 'New User Survey', 'landing page login button', null, true);
 }
 </script>
 </body>
