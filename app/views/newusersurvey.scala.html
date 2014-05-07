@@ -46,8 +46,11 @@
             border: 1px solid #C84A49;
             color: black;
         }
+        .survey-question:not(#ageGender) {
+            display:none;
+        }
         .survey-question .row {
-            margin-bottom: 5%;
+            margin: 0 0 5%;
         }
 
         .religion {
@@ -61,6 +64,10 @@
         label[for=no-preference] {
             font-style: italic;
         }
+        #other-religion-input {
+            display:none;
+            width: 100%;
+        }
 
         #email-wrapper {
             text-align: center;
@@ -68,13 +75,23 @@
         #email {
             width: 80%;
         }
+
+        #login-with-facebook {
+            display:block;
+            margin: auto;
+            width: 70%;
+        }
+
+        .lc-red {
+            color: #C84A49;
+        }
     </style>
 </head>
 <body>
 
 <!--jQuery and Bootstrap from CDN-->
-<script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
-<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+<script src="/assets/javascripts/jquery-1.11.0.min.js"></script>
+<link rel="stylesheet" href="/assets/stylesheets/bootstrap.min.css">
 
 <!--Page Header-->
 <header>
@@ -85,48 +102,36 @@
 <form class="survey" onsubmit="return false">
 
     <!--Age, Gender, Orientation-->
-    <div class="survey-question">
+    <div class="survey-question" id="ageGender" data-slide="0">
         <div class="question">Who are you looking for?</div>
         <div class="answers">
             <div class="row">
-                <div class="col-md-3">
-                    <label for="ageMin">Age</label>
-                </div>
-
-                <div class="col-md-9">
-                    <select name id="ageMin">
-                      @for(age <- 18 to 35) {
-                        <option value="@age">@age</option>
-                      }
-                    </select>
-
-                    &nbsp;&nbsp;to&nbsp;&nbsp;
-
-                    <select name id="ageMax">
-                        @for(age <- 18 to 34){
-                            <option value="@age">@age</option>
-                        }
-                        <option value="35" selected="selected">35</option>
-                    </select>
-                </div>
+                I am looking for &nbsp;&nbsp;
+                <select id="orientation">
+                    <option>Men</option>
+                    <option>Women</option>
+                </select>
             </div>
 
-            <!--Gender and orientation-->
             <div class="row">
-                <div class="col-md-3">
-                    <label for="orientation">Gender</label>
-                </div>
+                Between the ages of &nbsp;&nbsp;
+                <select name id="ageMin">
+                  @for(age <- 18 to 35) {
+                    <option value="@age">@age</option>
+                  }
+                </select>
 
-                <div class="col-md-9">
-                    <select id="orientation">
-                        <option>Male</option>
-                        <option>Female</option>
-                    </select>
-                </div>
+                &nbsp;&nbsp;and&nbsp;&nbsp;
+
+                <select name id="ageMax">
+                    @for(age <- 18 to 34){
+                        <option value="@age">@age</option>
+                    }
+                    <option value="35" selected="selected">35</option>
+                </select>
             </div>
 
             <div class="buttons">
-                <button class="back btn">Back</button>
                 <button class="next btn">Next</button>
             </div>
         </div>
@@ -134,7 +139,7 @@
     </div>
 
     <!-- Religious Preferences -->
-    <div class="survey-question">
+    <div class="survey-question" id="religion-preference" data-slide="1">
         <div class="question">Cool, now tell us your religious preferences</div>
         <div class="answers">
             <div class="row">
@@ -182,8 +187,8 @@
     </div>
 
     <!--Your Religion-->
-    <div class="survey-question">
-        <div class="question">Cool, now tell us your religious preferences</div>
+    <div class="survey-question" id="your-religion" data-slide="2">
+        <div class="question">Awesome, now tell us your religion</div>
         <div class="answers">
             <div class="row">
                 <div class="col-lg-6">
@@ -213,6 +218,7 @@
                 <div class="col-lg-6">
                     <input id="other" type="checkbox" class="religion"/>
                     <label for="other" class="religion-label">Other</label>
+                    <input id="other-religion-input" />
                 </div>
             </div>
 
@@ -239,6 +245,18 @@
 
     </div>
 
+    <!-- Facebook Login -->
+    <div class="survey-question" data-slide="3">
+        <div class="question">
+            <div class="row">Facebook ensures the safety our users by verifying their identity and helps us find you better matches through mutual friends</div>
+            <div class="row">We <strong class="lc-red">DO NOT</strong> post to your Facebook. This is an anonymous service and we respect your privacy.</div>
+        </div>
+        <div class="answers">
+            <a href="login"><img id="login-with-facebook" src="/assets/images/login-with-facebook.png" /></a>
+        </div>
+
+    </div>
+
 </form>
 
 <script>
@@ -252,6 +270,25 @@ $('.religion:not(#no-preference)').click(function() {
     if ($(this).is(':checked'))  {
         $('#no-preference').removeAttr('checked');
     }
+});
+
+// JS for other religion text box show/hide
+$('#your-religion #other').click(function() {
+    $("#other-religion-input").toggle();
+});
+
+// JS for Next and Back buttons
+$('.next').click(function() {
+    var slide = parseInt($(this).parents('.survey-question').data('slide'));
+    var nextSlide = slide + 1;
+    $('.survey-question').hide();
+    $(".survey-question[data-slide=" + nextSlide + "]").show();
+});
+$('.back').click(function() {
+    var slide = parseInt($(this).parents('.survey-question').data('slide'));
+    var nextSlide = slide - 1;
+    $('.survey-question').hide();
+    $(".survey-question[data-slide=" + nextSlide + "]").show();
 });
 
 

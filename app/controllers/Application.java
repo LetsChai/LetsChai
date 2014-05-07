@@ -19,4 +19,8 @@ public class Application extends Controller {
     public static Result newusersurvey () {
         return ok(newusersurvey.render());
     }
+
+    public static Result chai () {
+        return ok(chai.render());
+    }
 }

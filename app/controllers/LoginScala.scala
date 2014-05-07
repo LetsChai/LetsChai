@@ -2,8 +2,8 @@ package controllers
 
 import play.api.mvc._
 import models.LetsChaiFacebookClient
-import scala.concurrent.{Promise, Future}
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import scala.concurrent._
+import jongo.types.FacebookAccessToken
 
 /**
  * Created by kedar on 4/21/14.
@@ -19,15 +19,16 @@ object LoginScala extends Controller {
 //    val fb = new LetsChaiFacebookClient
 //
 //    // swap user token for code
-//    val userTokenFuture = scala.concurrent.future { fb.obtainUserAccessToken(code) }
+//    val userTokenFuture: Future[FacebookAccessToken] = future { fb.obtainUserAccessToken(code) }
 //
 //    // set access token on FB client
-//    val clientWithTokenFuture: Unit = userTokenFuture.map { userToken =>
+//    val clientWithTokenFuture: Future[FacebookAccessToken] = userTokenFuture.map { userToken =>
 //      fb.setAccessToken(userToken)
+//      return fb
 //    }
 //
 //    // swap user token for extended token
-//    val extendedTokenFuture = userTokenFuture.map {userToken => scala.concurrent.future {
+//    val extendedTokenFuture = userTokenFuture.map {userToken => future {
 //      fb.obtainExtendedAccessToken(userToken.getAccessToken)
 //    }}
 //

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LetsChai - Chai of the Day</title>
+    <style>
+        .lcred {
+            color: #C84A49;
+        }
+        .lcred-bg {
+            background-color: #C84A49;
+        }
+
+        header {
+            height: 70px;
+            border-bottom: 2px solid #C84A49;
+        }
+        header img {
+            height: 100%;
+            padding-left: 1%;
+        }
+        #header-links {
+            position:absolute;
+            right: 1%;
+            top: 25px;
+            text-align: right;
+            width:50%;
+            height:45px;
+        }
+        #header-links a {
+            color:black;
+            margin: 0 3%;
+            cursor: pointer;
+        }
+
+        #sidebar {
+            height:100%;
+            width: 20%;
+            padding-top: 10%;
+        }
+        #sidebar button {
+            display:block;
+            margin: 5% auto;
+            width: 75%;
+            background-color: white;
+            border: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Bootstrap CDN -->
+<link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet" />
+
+<!--Page Header-->
+<header>
+    <img src="/assets/images/letschai_logo.png" />
+    <div id="header-links">
+        <a>Profile</a>
+        <a>Settings</a>
+        <a>Logout</a>
+    </div>
+</header>
+
+<!-- Sidebar -->
+<div id="sidebar" class="lcred-bg">
+    <button>My Preferences</button>
+    <button>Chai History</button>
+    <button>My Matches</button>
+</div>
+
+
+</body>
+</html>
