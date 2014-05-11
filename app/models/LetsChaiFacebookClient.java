@@ -94,6 +94,7 @@ public class LetsChaiFacebookClient extends DefaultFacebookClient {
                 }
         );
         return tokenPromise;
+
     }
 
     public void setAccessToken(FacebookAccessToken token) {
