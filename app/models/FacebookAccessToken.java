@@ -1,4 +1,4 @@
-package jongo.types;
+package models;
 
 import com.restfb.FacebookClient;
 

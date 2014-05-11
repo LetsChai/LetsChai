@@ -4,7 +4,7 @@
 
 # Soft Beta Launch
 GET     /                           controllers.Application.landing()
-GET     /login                      controllers.LoginScala.fbLoginRedirect()
+GET     /login                      controllers.Login.fbLoginRedirect()
 GET     /login/code/                controllers.Login.extractCode(code)
 GET     /testuser/create            controllers.Login.createTestUser()
 GET     /testuser/login             controllers.Login.loginTestUser()

@@ -1,7 +1,5 @@
 package controllers;
 
-import jongo.Connection;
-import jongo.types.UserProfile;
 import play.mvc.*;
 
 import views.html.*;
