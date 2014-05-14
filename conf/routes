@@ -13,6 +13,8 @@ GET     /da39a3ee5e6b4b0d3255bfef95601890afd80709                   controllers.
 GET     /newusersurvey              controllers.Application.newusersurvey()
 GET     /chai                       controllers.Application.chai()
 GET     /editprofile                controllers.Application.editprofile()
+GET     /preferences                controllers.Application.preferences()
+GET     /settings                   controllers.Application.settings()
 
 # Full Launch
 

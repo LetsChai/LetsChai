@@ -25,4 +25,12 @@ public class Application extends Controller {
     public static Result editprofile () {
         return ok(chai.render(true));
     }
+
+    public static Result preferences () {
+        return ok(preferences.render());
+    }
+
+    public static Result settings () {
+        return ok(settings.render());
+    }
 }

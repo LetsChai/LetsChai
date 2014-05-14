@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LetsChai - Account Settings</title>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/assets/images/favicon.png" />
+
+    <!-- Bootstrap CDN -->
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet" />
+
+    <style>
+        @sitewide.style()
+        @header.style()
+        @sidebar.style()
+
+        h2 {
+            margin-left: 2%
+        }
+        h4 {
+            font-weight: bold;
+            margin-bottom: 5%;
+        }
+        #preference-wrapper {
+            margin-top: 5%;
+            background-color: #F8CB8C;
+            padding: 1% 2% 2%;
+            border-radius: 5px;
+            position: relative;
+        }
+        #private {
+            font-style: italic;
+            position: absolute;
+            top: 2%;
+            right: 2%;
+        }
+        .entry {
+            margin-top: 3%;
+        }
+        .religion-option {
+            margin-bottom: 1.5%;
+        }
+        #disclaimer {
+            font-style: italic;
+            margin-top: 1%;
+        }
+        #button-array {
+            float:right;
+        }
+
+    </style>
+</head>
+<body>
+
+@header.content()
+@sidebar.content()
+
+
+<div class="row">
+    <div class="col-sm-offset-2">
+        <div id="content">
+            <h2>Account Settings</h2>
+            <div class="row">
+                <div id="preference-wrapper" class="col-md-6 col-md-offset-3">
+                    <div class="row entry">
+                        <div class="col-md-3 col-md-offset-1">
+                            <label for="email">Email</label>
+                        </div>
+                        <div class="col-md-8">
+                            <input type="email" />
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="row"><div class="col-md-6 col-md-offset-3">
+                    <div id="button-array">
+                        <button>Cancel</button>
+                        <button>Save</button>
+                    </div>
+                </div></div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>

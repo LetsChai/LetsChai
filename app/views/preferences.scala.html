@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LetsChai - My Preferences</title>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/assets/images/favicon.png" />
+
+    <!-- Bootstrap CDN -->
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet" />
+
+    <style>
+        @sitewide.style()
+        @header.style()
+        @sidebar.style()
+
+        h2 {
+            margin-left: 2%
+        }
+        h4 {
+            font-weight: bold;
+            margin-bottom: 5%;
+        }
+        #preference-wrapper {
+            margin-top: 5%;
+            background-color: #F8CB8C;
+            padding: 1% 2% 2%;
+            border-radius: 5px;
+            position: relative;
+        }
+        #private {
+            font-style: italic;
+            position: absolute;
+            top: 2%;
+            right: 2%;
+        }
+        .entry {
+            margin-top: 3%;
+        }
+        .religion-option {
+            margin-bottom: 1.5%;
+        }
+        #disclaimer {
+            font-style: italic;
+            margin-top: 1%;
+        }
+        #button-array {
+            float:right;
+        }
+
+    </style>
+</head>
+<body>
+
+@header.content()
+@sidebar.content()
+
+
+<div class="row">
+    <div class="col-sm-offset-2">
+        <div id="content">
+            <h2>My Preferences</h2>
+            <div class="row">
+                <div id="preference-wrapper" class="col-md-6 col-md-offset-3">
+                    <h4>I am looking for:</h4>
+                    <div id="private">private*</div>
+                    <div class="row entry">
+                        <div class="col-md-3 col-md-offset-1">
+                            <label for="ageMin">Age</label>
+                        </div>
+                        <div class="col-md-8">
+                            <select name id="ageMin">
+                                @for(age <- 18 to 35) {
+                                <option value="@age">@age</option>
+                                }
+                            </select>
+
+                            &nbsp;&nbsp;to&nbsp;&nbsp;
+
+                            <select>
+                                @for(age <- 18 to 34){
+                                <option value="@age">@age</option>
+                                }
+                                <option value="35" selected="selected">35</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row entry">
+                        <div class="col-md-3 col-md-offset-1">
+                            <label for="orientation">Gender</label>
+                        </div>
+                        <div class="col-md-8">
+                            <select id="orientation">
+                                <option>Men</option>
+                                <option>Women</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row entry">
+                        <div class="col-md-3 col-md-offset-1">
+                            <label for="religion">Religion</label>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="row">
+                                <div class="col-xs-6 religion-option">
+                                    <input id="hindu" class="religion" type="checkbox"/>
+                                    <label for="hindu" class="religion-label">Hindu</label>
+                                </div>
+                                <div class="col-xs-6 religion-option">
+                                    <input id="sikh" type="checkbox" class="religion"/>
+                                    <label for="sikh" class="religion-label">Sikh</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-6 religion-option">
+                                    <input id="muslim" class="religion" type="checkbox"/>
+                                    <label for="muslim" class="religion-label">Muslim</label>
+                                </div>
+                                <div class="col-xs-6 religion-option">
+                                    <input id="buddhist" type="checkbox" class="religion"/>
+                                    <label for="buddhist" class="religion-label">Buddhist</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-6 religion-option">
+                                    <input id="christian" class="religion" type="checkbox"/>
+                                    <label for="christian" class="religion-label">Christian</label>
+                                </div>
+                                <div class="col-xs-6 religion-option">
+                                    <input id="jain" type="checkbox" class="religion"/>
+                                    <label for="jain" class="religion-label">Jain</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-6 religion-entry">
+                                    <input id="no-preference" class="religion" type="checkbox" checked="checked"/>
+                                    <label for="no-preference" class="religion-label">No Preference</label>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="row"><div class="col-md-6 col-md-offset-3" id="disclaimer">
+                    * private information will not be shared with others
+                </div></div>
+
+                <div class="row"><div class="col-md-6 col-md-offset-3">
+                    <div id="button-array">
+                        <button>Cancel</button>
+                        <button>Save</button>
+                    </div>
+                </div></div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>

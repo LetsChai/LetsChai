@@ -2,17 +2,16 @@
 <html>
 <head>
     <title>LetsChai - New User</title>
+
+    <!-- Bootstrap CDN -->
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet" />
+
     <style>
-        body {
-            margin: 0;
-        }
-        header {
-            height: 70px;
-            border-bottom: 2px solid #C84A49;
-        }
-        header img {
-            height: 100%;
-            padding-left: 1%;
+        @sitewide.style()
+        @header.style()
+
+        #header-links {
+            display: none;
         }
 
         .survey-question {
@@ -89,14 +88,11 @@
 </head>
 <body>
 
-<!--jQuery and Bootstrap from CDN-->
+<!--jQuery CDN-->
 <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
-<link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet" />
 
 <!--Page Header-->
-<header>
-    <img src="/assets/images/letschai_logo.png" />
-</header>
+@header.content()
 
 <!--Survey-->
 <form class="survey" onsubmit="return false">
@@ -168,13 +164,13 @@
                     <label for="christian" class="religion-label">Christian</label>
                 </div>
                 <div class="col-lg-6">
-                    <input id="other" type="checkbox" class="religion"/>
-                    <label for="other" class="religion-label">Other</label>
+                    <input id="jain" type="checkbox" class="religion"/>
+                    <label for="jain" class="religion-label">Jain</label>
                 </div>
             </div>
             <div class="row">
                 <div class="col-lg-6">
-                    <input id="no-preference" class="religion" type="checkbox"/>
+                    <input id="no-preference" class="religion" type="checkbox" checked="checked"/>
                     <label for="no-preference" class="religion-label">No Preference</label>
                 </div>
             </div>
@@ -188,37 +184,11 @@
 
     <!--Your Religion-->
     <div class="survey-question" id="your-religion" data-slide="2">
-        <div class="question">Awesome, now tell us your religion</div>
+        <div class="question">OK, great! Now tell us your pincode so we can find you nearby matches.</div>
         <div class="answers">
             <div class="row">
-                <div class="col-lg-6">
-                    <input id="hindu" class="religion" type="checkbox"/>
-                    <label for="hindu" class="religion-label">Hindu</label>
-                </div>
-                <div class="col-lg-6">
-                    <input id="sikh" type="checkbox" class="religion"/>
-                    <label for="sikh" class="religion-label">Sikh</label>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-6">
-                    <input id="muslim" class="religion" type="checkbox"/>
-                    <label for="muslim" class="religion-label">Muslim</label>
-                </div>
-                <div class="col-lg-6">
-                    <input id="buddhist" type="checkbox" class="religion"/>
-                    <label for="buddhist" class="religion-label">Buddhist</label>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-6">
-                    <input id="christian" class="religion" type="checkbox"/>
-                    <label for="christian" class="religion-label">Christian</label>
-                </div>
-                <div class="col-lg-6">
-                    <input id="other" type="checkbox" class="religion"/>
-                    <label for="other" class="religion-label">Other</label>
-                    <input id="other-religion-input" />
+                <div class="col-md-6 col-md-offset-3">
+                    <input id="pincode" />
                 </div>
             </div>
 
@@ -227,22 +197,6 @@
                 <button class="next btn">Next</button>
             </div>
         </div>
-    </div>
-
-    <!--Your Email-->
-    <div class="survey-question">
-        <div class="question">Is this the email you would like your matches to be sent to?</div>
-        <div class="answers">
-            <div class="row" id="email-wrapper">
-                <input type="email" id="email" />
-            </div>
-
-            <div class="buttons">
-                <button class="back btn">Back</button>
-                <button class="next btn">Next</button>
-            </div>
-        </div>
-
     </div>
 
     <!-- Facebook Login -->
