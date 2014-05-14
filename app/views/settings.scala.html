@@ -21,12 +21,17 @@
             font-weight: bold;
             margin-bottom: 5%;
         }
-        #preference-wrapper {
+        #settings, #deactivate {
             margin-top: 5%;
-            background-color: #F8CB8C;
             padding: 1% 2% 2%;
             border-radius: 5px;
             position: relative;
+        }
+        #settings {
+            background-color: #F8CB8C;
+        }
+        #deactivate {
+            background-color: lightgray;
         }
         #private {
             font-style: italic;
@@ -34,8 +39,12 @@
             top: 2%;
             right: 2%;
         }
-        .entry {
+        #settings .entry {
             margin-top: 3%;
+        }
+        #deactivate .entry {
+            margin-top: 3%;
+            margin-left: 10%;
         }
         .religion-option {
             margin-bottom: 1.5%;
@@ -44,8 +53,9 @@
             font-style: italic;
             margin-top: 1%;
         }
-        #button-array {
+        .button-array {
             float:right;
+            margin-top: 1%;
         }
 
     </style>
@@ -61,24 +71,69 @@
         <div id="content">
             <h2>Account Settings</h2>
             <div class="row">
-                <div id="preference-wrapper" class="col-md-6 col-md-offset-3">
+                <div id="settings" class="col-md-6 col-md-offset-3">
+                    <h4>Settings</h4>
                     <div class="row entry">
                         <div class="col-md-3 col-md-offset-1">
                             <label for="email">Email</label>
                         </div>
                         <div class="col-md-8">
-                            <input type="email" />
+                            <input id="email" type="email" />
+                        </div>
+                    </div>
+
+                    <div class="row entry">
+                        <div class="col-md-3 col-md-offset-1">
+                            <label for="subscribe">Subscribe</label>
+                        </div>
+                        <div class="col-md-8">
+                            <div>
+                                <input type="checkbox" id="chai-mail"/>
+                                <label for="chai-mail">Chai of the Day</label>
+                            </div>
+                            <div>
+                                <input type="checkbox" id="tips-mail" />
+                                <label for="tips-mail">Tips and Info</label>
+                            </div>
+                            <div>
+                                <input type="checkbox" id="matches-mail" />
+                                <label for="matches-mail">Matches and Message Alerts</label>
+                            </div>
                         </div>
                     </div>
 
                 </div>
 
                 <div class="row"><div class="col-md-6 col-md-offset-3">
-                    <div id="button-array">
+                    <div class="button-array">
                         <button>Cancel</button>
                         <button>Save</button>
                     </div>
                 </div></div>
+
+                <div id="deactivate" class="col-md-6 col-md-offset-3">
+                    <h4>Deactivate</h4>
+                    <div class="row entry">
+                        <input type="checkbox" />
+                        <label>I found my match on Let's Chai</label>
+                    </div>
+                    <div class="row entry">
+                        <input type="checkbox" />
+                        <label>I am not satisfied with the service</label>
+                    </div>
+                    <div class="row entry">
+                        <input type="checkbox" />
+                        <label>Temporary, I will be back soon</label>
+                    </div>
+                    <div class="row entry">
+                        <input type="checkbox" id="other" />
+                        <label for="other">Other</label>
+                        <input type="text"/>
+                    </div>
+                    <div class="row entry">
+                        <button>Deactivate</button>
+                    </div>
+                </div>
 
             </div>
         </div>

@@ -1,11 +1,15 @@
-<div id="mutualfriends">
-    <div class="row">
-        <span class="text">Mutual Friends: </span>
-        <span>
-            <img src="/assets/images/Anushka-Sharma42.jpg" title="Anushka Sharma"/>
-            <img src="/assets/images/bangalore-guy.png" />
-            <img src="/assets/images/bangalore-girl.jpeg" />
-            <a href="//facebook.com/kedar.iyer.1"><img src="//fbcdn-profile-a.akamaihd.net/hprofile-ak-prn2/t1.0-1/c0.0.160.160/p160x160/1798707_10203454757709153_1675162974_n.jpg" /></a>
-        </span>
+@(editable: Boolean)
+
+@if(!editable) {
+    <div id="mutualfriends">
+        <div class="row">
+            <span class="text">Mutual Friends: </span>
+            <span>
+                <img src="/assets/images/Anushka-Sharma42.jpg" title="Anushka Sharma"/>
+                <img src="/assets/images/bangalore-guy.png" />
+                <img src="/assets/images/bangalore-girl.jpeg" />
+                <a href="//facebook.com/kedar.iyer.1"><img src="//fbcdn-profile-a.akamaihd.net/hprofile-ak-prn2/t1.0-1/c0.0.160.160/p160x160/1798707_10203454757709153_1675162974_n.jpg" /></a>
+            </span>
+        </div>
     </div>
-</div>
+}
