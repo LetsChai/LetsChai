@@ -1,0 +1,71 @@
+@(editable: Boolean)
+
+<div id="about-me">
+    <div class="row">
+        <h3 class="col-md-12 small-caps lc-red">About Me</h3>
+    </div>
+
+@if(editable) {
+    <div class="information">
+        <div class="row entry name">
+            <div class="col-md-4 field">Name</div>
+            <div class="col-md-8 content"><input /></div>
+        </div>
+        <div class="row entry">
+            <div class="col-md-4 field">Age</div>
+            <div class="col-md-8 content"><input /></div>
+        </div>
+        <div class="row entry">
+            <div class="col-md-4 field">Height</div>
+            <div class="col-md-8 content"><input /></div>
+        </div>
+        <div class="row entry">
+            <div class="col-md-4 field">Current City</div>
+            <div class="col-md-8 content"><input /></div>
+        </div>
+        <div class="row entry">
+            <div class="col-md-4 field">Religion</div>
+            <div class="col-md-8 content"><input /></div>
+        </div>
+        <div class="row entry">
+            <div class="col-md-4 field">Education</div>
+            <div class="col-md-8 content"><input /></div>
+        </div>
+        <div class="row entry">
+            <div class="col-md-4 field">Occupation</div>
+            <div class="col-md-8 content"><input /></div>
+        </div>
+    </div>
+} else {
+    <div class="information">
+        <div class="row entry name">
+            <div class="col-md-4 field">Name</div>
+            <div class="col-md-8 content">Name is hidden until mutual acceptance</div>
+        </div>
+        <div class="row entry">
+            <div class="col-md-4 field">Age</div>
+            <div class="col-md-8 content">Age</div>
+        </div>
+        <div class="row entry">
+            <div class="col-md-4 field">Height</div>
+            <div class="col-md-8 content">Height</div>
+        </div>
+        <div class="row entry">
+            <div class="col-md-4 field">Current City</div>
+            <div class="col-md-8 content">Current City</div>
+        </div>
+        <div class="row entry">
+            <div class="col-md-4 field">Religion</div>
+            <div class="col-md-8 content">Religion</div>
+        </div>
+        <div class="row entry">
+            <div class="col-md-4 field">Education</div>
+            <div class="col-md-8 content">Education</div>
+        </div>
+        <div class="row entry">
+            <div class="col-md-4 field">Occupation</div>
+            <div class="col-md-8 content">Occupation</div>
+        </div>
+    </div>
+}
+</div>

@@ -19,6 +19,10 @@ public class Application extends Controller {
     }
 
     public static Result chai () {
-        return ok(chai.render());
+        return ok(chai.render(false));
+    }
+
+    public static Result editprofile () {
+        return ok(chai.render(true));
     }
 }

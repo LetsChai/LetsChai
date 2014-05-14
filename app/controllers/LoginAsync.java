@@ -8,6 +8,7 @@ import play.mvc.Controller;
 import play.mvc.Result;
 
 import play.libs.F.Promise;
+import uk.co.panaxiom.playjongo.PlayJongo;
 
 import java.util.List;
 
