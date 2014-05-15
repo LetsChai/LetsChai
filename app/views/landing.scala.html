@@ -18,6 +18,7 @@
         }
         section {
             height: 100%;
+            padding-top: 45px;
         }
 
         #letschai-logo {
@@ -35,14 +36,23 @@
             font-style: italic;
             font-weight: bold;
         }
-        .menu-bar {
+        header {
             background-color: #303030;
             font-size: 16px;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            height: 45px;
         }
         .menu-bar-item {
             color: white;
             padding: 1% 3%;
             display: inline-block;
+        }
+        .menu-bar-item a {
+            color: white;
+            font-weight: bold;
+            text-decoration: none;
         }
         .sign-up-wrapper {
             margin: 4% auto;
@@ -70,20 +80,32 @@
         h1 {
             color: #c84A49;
             text-align: center;
+            margin-top: 5%;
         }
-        #howitoworks img {
+        #howitworks img {
             width: 65%;
+            margin-top: 5%;
         }
         #howitworks-text {
             text-align: center;
-            width: 65%;
-            margin: 1% auto;
+            width: 70%;
+            margin: 2% 0 2% 16%;
             font-size: 15px;
         }
         .image-text {
             width: 25%;
             display: inline-block;
-            padding: 0 4%;
+            padding: 0 3.5%;
+            vertical-align: top;
+        }
+        @@media screen and (max-width: 992px) {
+            #howitworks img {
+                width: 105%;
+            }
+            #howitworks-text {
+                width: 100%;
+                margin: 2% 0;
+            }
         }
 
 
@@ -91,19 +113,17 @@
 </head>
 <body>
 
+<header>
+    <div class="menu-bar-item"><a href="#about">About</a></div>
+    <div class="menu-bar-item"><a href="#howitworks">How it Works</a></div>
+    <div class="menu-bar-item"><a>Contact</a></div>
+</header>
 
 <section id="main">
-
-    <header class="menu-bar">
-        <div class="menu-bar-item">About</div>
-        <div class="menu-bar-item">How it Works</div>
-        <div class="menu-bar-item">Contact</div>
-    </header>
-
     <img id="letschai-logo" src="/assets/images/letschai_logo.png"></img>
 
     <div id="welcome-text">
-        <p>Connect through friends. Get one new match every day at noon.</p>
+        <p>Connect through friends. Get a new match every day.</p>
         <p>It's <span class="red-text">private</span>, <span class="red-text">secure</span>, and <span class="red-text">free</span>.</p>
     </div>
 
@@ -120,16 +140,13 @@
     <img src="/assets/images/howitworks.jpg" />
     <div id="howitworks-text">
         <div class="image-text">
-            Facebook helps us create a safe network by validating your potential matches and filtering by mutual friends. We never post anything on your profile.
-            <br />This is a PRIVATE SERVICE.
+            Login with Facebook to verify your identity. Let's Chai never posts on your wall.
         </div>
         <div class="image-text">
-            Chai of the Day is your potential match who will be sent to you once everyday. “like” or “pass” your match.
-            <br />Responses are anonymous until both parties hit "like"
+            Receive a new "Chai" every day through mutual friends.
         </div>
         <div class="image-text">
-            Match is made when you and your "Chai of the Day" like each other and your name will be revealed. Start chatting on our secure messenger.
-            <br />We NEVER reveal your phone numbers
+            Chat with your matches after mutual acceptance. Chai on!
         </div>
     </div>
 
