@@ -64,39 +64,39 @@ public class LetsChaiFacebookClient extends DefaultFacebookClient {
         return FacebookAccessToken.fromQueryString(accessTokenResponse.getBody());
     }
 
-    public Promise<FacebookAccessToken> obtainUserAccessTokenAsync (String code) {
-        final Promise<FacebookAccessToken> tokenPromise = WS.url(
-                "https://graph.facebook.com/oauth/access_token?client_id=" + getAppId() + "&redirect_uri=" +
-                        Play.application().configuration().getString("application.baseURL") + "login/code/"
-                        + "&client_secret=" + appSecret + "&code=" + code
-        ).get().map(
-                new Function<WS.Response, FacebookAccessToken>() {
-                    public FacebookAccessToken apply (WS.Response response) {
-                        return FacebookAccessToken.fromQueryString(response.getBody());
-                    }
-                }
-        );
-        return tokenPromise;
-    }
+//    public Promise<FacebookAccessToken> obtainUserAccessTokenAsync (String code) {
+//        final Promise<FacebookAccessToken> tokenPromise = WS.url(
+//                "https://graph.facebook.com/oauth/access_token?client_id=" + getAppId() + "&redirect_uri=" +
+//                        Play.application().configuration().getString("application.baseURL") + "login/code/"
+//                        + "&client_secret=" + appSecret + "&code=" + code
+//        ).get().map(
+//                new Function<WS.Response, FacebookAccessToken>() {
+//                    public FacebookAccessToken apply (WS.Response response) {
+//                        return FacebookAccessToken.fromQueryString(response.getBody());
+//                    }
+//                }
+//        );
+//        return tokenPromise;
+//    }
 
     public UserAccessToken obtainExtendedAccessToken (String accessToken) {
         return new UserAccessToken(obtainExtendedAccessToken(getAppId(), appSecret, accessToken));
     }
 
-    public Promise<FacebookAccessToken> obtainExtendedAccessTokenAsync (String accessToken) {
-        final Promise<FacebookAccessToken> tokenPromise = WS.url(
-                "https://graph.facebook.com/oauth/access_token?grant_type=fb_exchnage_token&client_id=" + getAppId()
-                        + "&client_secret=" + appSecret + "&fb_exchange_token=" + accessToken
-        ).get().map(
-                new Function<WS.Response, FacebookAccessToken>() {
-                    public FacebookAccessToken apply (WS.Response response) {
-                        return FacebookAccessToken.fromQueryString(response.getBody());
-                    }
-                }
-        );
-        return tokenPromise;
-
-    }
+//    public Promise<FacebookAccessToken> obtainExtendedAccessTokenAsync (String accessToken) {
+//        final Promise<FacebookAccessToken> tokenPromise = WS.url(
+//                "https://graph.facebook.com/oauth/access_token?grant_type=fb_exchnage_token&client_id=" + getAppId()
+//                        + "&client_secret=" + appSecret + "&fb_exchange_token=" + accessToken
+//        ).get().map(
+//                new Function<WS.Response, FacebookAccessToken>() {
+//                    public FacebookAccessToken apply (WS.Response response) {
+//                        return FacebookAccessToken.fromQueryString(response.getBody());
+//                    }
+//                }
+//        );
+//        return tokenPromise;
+//
+//    }
 
     public void setAccessToken(String token) {
         // accessToken is set in parent class
@@ -111,11 +111,11 @@ public class LetsChaiFacebookClient extends DefaultFacebookClient {
         return appId;
     }
 
-    public <T> Promise<T> fetchObjectAsync(String object, Class<T> objectType, Parameter... parameters) {
-        verifyParameterPresence("object", object);
-        verifyParameterPresence("objectType", objectType);
-        return WS.url("http://graph.facebook.com/" + object + "&access_token=" + accessToken).get().map(response ->
-            jsonMapper.toJavaObject(response.getBody(), objectType)
-        );
-    }
+//    public <T> Promise<T> fetchObjectAsync(String object, Class<T> objectType, Parameter... parameters) {
+//        verifyParameterPresence("object", object);
+//        verifyParameterPresence("objectType", objectType);
+//        return WS.url("http://graph.facebook.com/" + object + "&access_token=" + accessToken).get().map(response ->
+//            jsonMapper.toJavaObject(response.getBody(), objectType)
+//        );
+//    }
 }
