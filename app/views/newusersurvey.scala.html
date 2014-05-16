@@ -29,6 +29,7 @@
         .survey-question .question {
             margin-bottom: 5%;
             text-align: center;
+            font-weight: bold;
         }
         .survey-question .answers {}
         .survey-question .buttons {
@@ -79,10 +80,45 @@
             display:block;
             margin: auto;
             width: 70%;
+            cursor: pointer;
         }
 
         .lc-red {
             color: #C84A49;
+        }
+        select {
+            background: white;
+            border:none;
+            border-bottom: 1px dotted black;
+            cursor: pointer;
+            color: #C84A49;
+        }
+        #ageGender {
+            font-size: 1.4em;
+            text-align: center;
+        }
+        #ageGender .row {
+            line-height: 3em;
+        }
+        #pincode {
+            width: 100%;
+        }
+        #pincode:invalid {
+            border: 3px solid red;
+        }
+        .dumbass-helper {
+            display: none;
+            color: red;
+        }
+        #facebook-justify {
+            text-align: left;
+            padding-left: 15%;
+        }
+        #facebook-justify li {
+            font-weight: normal;
+        }
+        #facebook-justify ul {
+            margin-bottom: 25px;
         }
     </style>
 </head>
@@ -95,37 +131,47 @@
 @header.content()
 
 <!--Survey-->
-<form class="survey" onsubmit="return false">
+<form id="survey" method="get" action="register">
 
     <!--Age, Gender, Orientation-->
     <div class="survey-question" id="ageGender" data-slide="0">
-        <div class="question">Who are you looking for?</div>
+        <div class="question">My cup of chai..</div>
         <div class="answers">
             <div class="row">
-                I am looking for &nbsp;&nbsp;
-                <select id="orientation">
-                    <option>Men</option>
-                    <option>Women</option>
-                </select>
-            </div>
+                I am a
 
-            <div class="row">
-                Between the ages of &nbsp;&nbsp;
-                <select name id="ageMin">
-                  @for(age <- 18 to 35) {
+                <select name="gender" id="gender" name="gender">
+                    <option value="FEMALE">female</option>
+                    <option value="MALE">male</option>
+                </select>
+
+                looking for a
+
+                <select name="gender_pref" id="orientation">
+                    <option value="MALE">male</option>
+                    <option value="FEMALE">female</option>
+                </select>
+
+                between the ages of
+
+                <select name="age_min" id="ageMin">
+                  @for(age <- 18 to 30) {
                     <option value="@age">@age</option>
                   }
                 </select>
 
-                &nbsp;&nbsp;and&nbsp;&nbsp;
+                and
 
-                <select name id="ageMax">
-                    @for(age <- 18 to 34){
+                <select name="age_max" id="ageMax">
+                    @for(age <- 18 to 29){
                         <option value="@age">@age</option>
                     }
-                    <option value="35" selected="selected">35</option>
+                    <option value="30" selected="selected">30</option>
                 </select>
+
+
             </div>
+            <div class="row"></div>
 
             <div class="buttons">
                 <button class="next btn">Next</button>
@@ -134,61 +180,14 @@
 
     </div>
 
-    <!-- Religious Preferences -->
-    <div class="survey-question" id="religion-preference" data-slide="1">
-        <div class="question">Cool, now tell us your religious preferences</div>
-        <div class="answers">
-            <div class="row">
-                <div class="col-lg-6">
-                    <input id="hindu" class="religion" type="checkbox"/>
-                    <label for="hindu" class="religion-label">Hindu</label>
-                </div>
-                <div class="col-lg-6">
-                    <input id="sikh" type="checkbox" class="religion"/>
-                    <label for="sikh" class="religion-label">Sikh</label>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-6">
-                    <input id="muslim" class="religion" type="checkbox"/>
-                    <label for="muslim" class="religion-label">Muslim</label>
-                </div>
-                <div class="col-lg-6">
-                    <input id="buddhist" type="checkbox" class="religion"/>
-                    <label for="buddhist" class="religion-label">Buddhist</label>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-6">
-                    <input id="christian" class="religion" type="checkbox"/>
-                    <label for="christian" class="religion-label">Christian</label>
-                </div>
-                <div class="col-lg-6">
-                    <input id="jain" type="checkbox" class="religion"/>
-                    <label for="jain" class="religion-label">Jain</label>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-6">
-                    <input id="no-preference" class="religion" type="checkbox" checked="checked"/>
-                    <label for="no-preference" class="religion-label">No Preference</label>
-                </div>
-            </div>
-
-            <div class="buttons">
-                <button class="back btn">Back</button>
-                <button class="next btn">Next</button>
-            </div>
-        </div>
-    </div>
-
-    <!--Your Religion-->
-    <div class="survey-question" id="your-religion" data-slide="2">
+    <!-- Pincode -->
+    <div class="survey-question" id="your-religion" data-slide="1">
         <div class="question">OK, great! Now tell us your pincode so we can find you nearby matches.</div>
         <div class="answers">
             <div class="row">
                 <div class="col-md-6 col-md-offset-3">
-                    <input id="pincode" />
+                    <div class="dumbass-helper">Pincode must have 6 digits</div>
+                    <input name="pincode" id="pincode" placeholder="Pincode" pattern="^\d{6}$"/>
                 </div>
             </div>
 
@@ -200,13 +199,19 @@
     </div>
 
     <!-- Facebook Login -->
-    <div class="survey-question" data-slide="3">
-        <div class="question">
-            <div class="row">Facebook ensures the safety our users by verifying their identity and helps us find you better matches through mutual friends</div>
-            <div class="row">We <strong class="lc-red">DO NOT</strong> post to your Facebook. This is an anonymous service and we respect your privacy.</div>
+    <div class="survey-question" data-slide="2">
+        <div class="question" id="facebook-justify">
+            Facebook Login helps us:
+            <ul>
+                <li>Verify the identity of your matches</li>
+                <li>Keep out fake profiles</li>
+                <li>Find better matches through mutual friends</li>
+            </ul>
+            We <span class="lc-red">DO NOT</span> post to your Facebook. This is an anonymous service and we respect your privacy.
         </div>
         <div class="answers">
-            <a href="login"><img id="login-with-facebook" src="/assets/images/login-with-facebook.png" /></a>
+            <img id="login-with-facebook" src="/assets/images/login-with-facebook.png" />
+            <input type="hidden" name="access_token" id="access_token" />
         </div>
 
     </div>
@@ -214,39 +219,60 @@
 </form>
 
 <script>
-// JS for No Preference checkbox
-$('#no-preference').click(function() {
-    if ($(this).is(':checked')) {
-        $('.religion:not(#no-preference)').removeAttr('checked');
-    }
-});
-$('.religion:not(#no-preference)').click(function() {
-    if ($(this).is(':checked'))  {
-        $('#no-preference').removeAttr('checked');
-    }
-});
-
-// JS for other religion text box show/hide
-$('#your-religion #other').click(function() {
-    $("#other-religion-input").toggle();
-});
 
 // JS for Next and Back buttons
 $('.next').click(function() {
     var slide = parseInt($(this).parents('.survey-question').data('slide'));
     var nextSlide = slide + 1;
+
+    // pincode validation
+    if (slide == 1  && $("#pincode").val().match(/^\d{6}$/) == null) {
+        $('.dumbass-helper').show();
+        return false;
+    }
+
     $('.survey-question').hide();
     $(".survey-question[data-slide=" + nextSlide + "]").show();
+    if (nextSlide == 1)
+        $('#pincode').focus();
+
+    return false;
 });
 $('.back').click(function() {
     var slide = parseInt($(this).parents('.survey-question').data('slide'));
     var nextSlide = slide - 1;
     $('.survey-question').hide();
     $(".survey-question[data-slide=" + nextSlide + "]").show();
+
+    return false;
 });
 
+// Facebook SDK
+window.fbAsyncInit = function() {
+    FB.init({
+      appId      : '1400180096920626',
+      xfbml      : true,
+      version    : 'v2.0'
+    });
+};
+(function(d, s, id){
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) {return;}
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/en_US/sdk.js";
+    fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));
 
-
+// FB login
+$('#login-with-facebook').click(function() {
+    FB.login(function(response) {
+        if (response.authResponse) {
+            var access_token =   FB.getAuthResponse().accessToken;
+            $("#access_token").val(access_token);
+            $('#survey').submit();
+        }
+    }, {scope: "public_profile,user_friends,email,user_education_history,user_location,user_birthday,user_photos"});
+});
 </script>
 </body>
 </html>

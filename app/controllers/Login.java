@@ -3,6 +3,10 @@ package controllers;
 import com.restfb.types.TestUser;
 import com.restfb.types.User;
 import models.*;
+import models.UserProfile;
+import models.mongo.*;
+import models.preferences.Gender;
+import org.apache.commons.lang3.Range;
 import play.mvc.Controller;
 import play.mvc.Result;
 
@@ -13,39 +17,6 @@ import java.util.List;
  */
 public class Login extends Controller {
 
-    public static Result fbLoginRedirect () {
-        LetsChaiFacebookClient fb = new LetsChaiFacebookClient();
-        return redirect(fb.getLoginUrl());
-    }
-
-    public static Result extractCode (String code) {
-        LetsChaiFacebookClient fb = new LetsChaiFacebookClient();
-
-        // get and set access token
-        FacebookAccessToken token = fb.obtainUserAccessToken(code);
-        FacebookAccessToken extendedToken = fb.obtainExtendedAccessToken(token.getAccessToken());
-        fb.setAccessToken(extendedToken);
-
-        // get user info
-        UserProfile me = fb.fetchObject("me", UserProfile.class);
-
-        // save access token
-        extendedToken.setUserId(me.getId());
-        Connection.getJongoInstance().getCollection("facebook_access_tokens").save(extendedToken);
-
-        // save user info
-        Connection.getJongoInstance().getCollection("user_profiles").save(me);
-
-        // get user friends
-        List<User> myFriendList = fb.fetchConnection("me/friends", User.class).getData();
-
-        // save user friends
-        FacebookFriends myFriends = new FacebookFriends(me.getId(), myFriendList);
-        Connection.getJongoInstance().getCollection("facebook_friends").save(myFriends);
-
-        return redirect(controllers.routes.Application.thankyou());
-    }
-
     public static Result createTestUser() {
         LetsChaiFacebookClient fb = new LetsChaiFacebookClient();
         TestUser user = fb.createTestUser();
@@ -55,5 +26,30 @@ public class Login extends Controller {
     public static Result loginTestUser() {
         TestUser user = Connection.getJongoInstance().getCollection("facebook_test_users").find().sort("{_id:-1}").limit(1).as(TestUser.class).iterator().next();
         return redirect(user.getLoginUrl());
+    }
+
+    public static Result register(String accessToken, int ageMin, int ageMax, String genderPref, String gender, int pincode) {
+
+        // setup client with access token
+        LetsChaiFacebookClient fb = new LetsChaiFacebookClient();
+        fb.setAccessToken(accessToken);
+
+        // get user profile
+        models.mongo.UserProfile profile = fb.fetchObject("me", models.mongo.UserProfile.class);
+        profile.setPincode(pincode);
+        profile.setGenderGiven(Gender.valueOf(gender));
+        // swap for extended access token
+        UserAccessToken extendedAccessToken = fb.obtainExtendedAccessToken(accessToken);
+        extendedAccessToken.setUserId(profile.getId());
+
+        // create user preferences object
+        UserPreference preferences = new UserPreference(profile.getId(), Gender.valueOf(genderPref), Range.between(ageMin, ageMax));
+
+        // save them all
+        models.mongo.UserProfile.getCollection().save(profile);
+        UserAccessToken.getCollection().save(extendedAccessToken);
+        UserPreference.getCollection().save(preferences);
+
+        return redirect(controllers.routes.Application.thankyou());
     }
 }

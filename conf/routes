@@ -15,6 +15,7 @@ GET     /chai                       controllers.Application.chai()
 GET     /editprofile                controllers.Application.editprofile()
 GET     /preferences                controllers.Application.preferences()
 GET     /settings                   controllers.Application.settings()
+GET     /register                   controllers.Login.register(access_token: String, age_min: Int, age_max: Int, gender_pref: String, gender: String, pincode: Int)
 
 # Full Launch
 

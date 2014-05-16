@@ -9,6 +9,7 @@ import java.util.List;
  */
 public class UserProfile extends User {
 
+
     // empty constructor for Jongo and RestFB to use
     private UserProfile () {}
 

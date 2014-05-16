@@ -2,6 +2,7 @@ package models;
 
 import com.restfb.*;
 import com.restfb.types.TestUser;
+import models.mongo.UserAccessToken;
 import org.jongo.MongoCollection;
 import play.Play;
 
@@ -78,8 +79,8 @@ public class LetsChaiFacebookClient extends DefaultFacebookClient {
         return tokenPromise;
     }
 
-    public FacebookAccessToken obtainExtendedAccessToken (String accessToken) {
-        return new FacebookAccessToken(obtainExtendedAccessToken(getAppId(), appSecret, accessToken));
+    public UserAccessToken obtainExtendedAccessToken (String accessToken) {
+        return new UserAccessToken(obtainExtendedAccessToken(getAppId(), appSecret, accessToken));
     }
 
     public Promise<FacebookAccessToken> obtainExtendedAccessTokenAsync (String accessToken) {
@@ -97,9 +98,9 @@ public class LetsChaiFacebookClient extends DefaultFacebookClient {
 
     }
 
-    public void setAccessToken(FacebookAccessToken token) {
+    public void setAccessToken(String token) {
         // accessToken is set in parent class
-        this.accessToken = StringUtils.trimToNull(token.getAccessToken());
+        this.accessToken = StringUtils.trimToNull(token);
     }
 
     protected String getRedirectUri () {
