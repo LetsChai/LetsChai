@@ -3,6 +3,8 @@
 <head>
     <title>Lets Chai</title>
     <style>
+        @prelaunchheader.style()
+
         html {
             height: 100%;
         }
@@ -36,24 +38,7 @@
             font-style: italic;
             font-weight: bold;
         }
-        header {
-            background-color: #303030;
-            font-size: 16px;
-            position: fixed;
-            width: 100%;
-            top: 0;
-            height: 45px;
-        }
-        .menu-bar-item {
-            color: white;
-            padding: 1% 3%;
-            display: inline-block;
-        }
-        .menu-bar-item a {
-            color: white;
-            font-weight: bold;
-            text-decoration: none;
-        }
+
         .sign-up-wrapper {
             margin: 4% auto;
             margin-bottom: 1%;
@@ -76,7 +61,6 @@
             font-weight: bold;
             box-shadow: -1px 5px 5px gray;
         }
-
         h1 {
             color: #c84A49;
             text-align: center;
@@ -107,17 +91,48 @@
                 margin: 2% 0;
             }
         }
-
-
+        #about img {
+            border-radius: 50%;
+            border: 3px solid white;
+        }
+        #about img:hover {
+            border: 3px solid #FFDF7D;
+        }
+        #about .image-container {
+            margin: 5% auto;
+            width: 70%;
+            color: #303030;
+        }
+        #about .column {
+            display: inline-block;
+            margin: 0 9%;
+            width: 30%;
+        }
+        #about .name {
+            text-align: center;
+            margin-top: 8%;
+            font-size: 1.4em;
+            font-weight: bold;
+        }
+        #about .title {
+            text-align: center;
+            font-size: 0.9em;
+            margin-top: 1%;
+        }
+        #about .email {
+            text-align: center;
+            font-size: 0.8em;
+            margin-top: 1%;
+        }
+        #about .email a {
+            color: blue;
+            text-decoration: none;
+        }
     </style>
 </head>
 <body>
 
-<header>
-    <div class="menu-bar-item"><a href="#about">About</a></div>
-    <div class="menu-bar-item"><a href="#howitworks">How it Works</a></div>
-    <div class="menu-bar-item"><a>Contact</a></div>
-</header>
+@prelaunchheader.content()
 
 <section id="main">
     <img id="letschai-logo" src="/assets/images/letschai_logo.png"></img>
@@ -156,21 +171,22 @@
 
 <section id="about">
 
+    <h1>About</h1>
+    <div class="image-container">
+        <div class="column">
+            <img src="/assets/images/about_varun.jpg" />
+            <div class="name">Varun S</div>
+            <div class="title">Founder & Chai Curator</div>
+            <div class="email"><a href="mailto:varun@@letschai.com">varun@@letschai.com</a></div>
+        </div>
+        <div class="column">
+            <img src="/assets/images/about_kedar.jpg" />
+            <div class="name">Kedar I</div>
+            <div class="title">Founder & Chai Infuser</div>
+            <div class="email"><a href="mailto:kedar@@letschai.com">kedar@@letschai.com</a></div>
+        </div>
+    </div>
 </section>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 <!--Google Analytics-->

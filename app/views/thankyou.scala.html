@@ -3,19 +3,11 @@
 <head>
     <title>LetsChai - Thank You!</title>
     <style>
+        @prelaunchheader.style()
         body {
             margin: 0;
             font-size: 20px;
             font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
-        }
-        .menu-bar {
-            background-color: #303030;
-            font-size: 16px;
-        }
-        .menu-bar-item {
-            color: white;
-            padding: 1% 3%;
-            display: inline-block;
         }
         #letschai-logo {
             margin: 3% auto 6%;
@@ -57,18 +49,14 @@
 }(document, 'script', 'facebook-jssdk'));</script>
 <!-- End Facebook SDK -->
 
-<header class="menu-bar">
-    <div class="menu-bar-item">About</div>
-    <div class="menu-bar-item">How it Works</div>
-    <div class="menu-bar-item">Contact</div>
-</header>
+@prelaunchheader.content()
 
 <a href="/"><img id="letschai-logo" src="/assets/images/letschai_logo.png"></img></a>
 
 <h1>Thank you for signing up</h1>
 <div id="get-your-points">
-    <p>As an early adopter, we reward you <span class="red-text">1000</span> points</p>
-    <p>We will notify you how to redeem the points when launched. Stay tuned.</p>
+    <p>We are currently in the process of building the chai stall.</p>
+    <p>We will notify you when your chai is ready. Stay tuned.</p>
 </div>
 
 <!-- Facebook share plugin -->
