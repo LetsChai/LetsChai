@@ -6,7 +6,7 @@
 GET     /                           controllers.Application.landing()
 GET     /da39a3ee5e6b4b0d3255bfef95601890afd80709                   controllers.Application.thankyou()
 GET     /newusersurvey              controllers.Application.newusersurvey()
-GET     /register                   controllers.Login.register(access_token: String, age_min: Int, age_max: Int, gender_pref: String, gender: String, pincode: Int)
+POST    /register                   controllers.Login.register()
 
 # Full Launch
 GET     /chai                       controllers.Application.chai()
