@@ -23,6 +23,7 @@ GET     /session/populate           controllers.Session.populate()
 GET     /session/dump               controllers.Session.dump()
 GET     /session/profile            controllers.Session.profile()
 GET     /session/questions          controllers.Session.questions()
+GET     /session/clear              controllers.Session.clear()
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

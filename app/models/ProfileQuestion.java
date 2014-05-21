@@ -8,6 +8,9 @@ public class ProfileQuestion {
     private String question;
     private String answer;
 
+    // for Jackson
+    public ProfileQuestion () {}
+
     public ProfileQuestion (String question) {
         this.question = question;
     }

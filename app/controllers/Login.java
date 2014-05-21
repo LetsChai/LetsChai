@@ -8,6 +8,7 @@ import org.apache.commons.lang3.Range;
 import play.mvc.Controller;
 import play.mvc.Result;
 import uk.co.panaxiom.playjongo.PlayJongo;
+import views.html.thankyou;
 
 /**
  * Created by kedar on 3/27/14.
@@ -36,6 +37,11 @@ public class Login extends Controller {
         profile.setPincode(pincode);
         profile.setGenderGiven(Gender.valueOf(gender));
         profile.generateQuestions();
+
+        // check to make sure user hasn't registered before
+        if (UserProfile.findOne(profile.getId()) != null) {
+            return redirect(controllers.routes.Application.thankyou());
+        }
 
         // swap for extended access token
         UserAccessToken extendedAccessToken = fb.obtainExtendedAccessToken(accessToken);

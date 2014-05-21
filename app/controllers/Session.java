@@ -23,7 +23,10 @@ public class Session extends Controller {
 
     public static Result profile () {
         String user = session("user");
-        return ok(UserProfile.findOne(user).toString());
+        UserProfile usere = UserProfile.findOne(user);
+        if (usere == null)
+            return ok("empty");
+        return ok(usere.toString());
     }
 
     public static Result questions () {
@@ -32,5 +35,10 @@ public class Session extends Controller {
         for (ProfileQuestion q: questions)
             result = result + q.toString();
         return ok(result);
+    }
+
+    public static Result clear () {
+        session().clear();
+        return ok("session cleared");
     }
 }

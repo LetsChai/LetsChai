@@ -1,5 +1,6 @@
 package models.mongo;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.restfb.types.User;
 import models.ProfileQuestion;
 import models.QuestionGenerator;
@@ -11,6 +12,8 @@ import org.joda.time.Years;
 import org.jongo.MongoCollection;
 import uk.co.panaxiom.playjongo.PlayJongo;
 
+import java.util.List;
+
 /**
  * Created by kedar on 5/14/14.
  */
@@ -20,6 +23,7 @@ public class UserProfile extends User implements MongoModel {
     private Gender genderGiven;
     private int height; // centimeters
     private Religion religion = Religion.valueOf("NO_PREFERENCE");
+
     private ProfileQuestion[] questions;
 
     public static MongoCollection getCollection() {
