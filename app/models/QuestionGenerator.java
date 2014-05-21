@@ -36,7 +36,7 @@ public class QuestionGenerator {
         ArrayList<String> optionalCopy = (ArrayList<String>) optionalQuestions.clone();
 
         for (int j=2; j < amount; j++) {
-            int index = (int) Math.round(Math.random()*optionalCopy.size());
+            int index = (int) Math.random()*optionalCopy.size();
             result[j] = new ProfileQuestion(optionalCopy.get(index));
             optionalCopy.remove(index);
         }
