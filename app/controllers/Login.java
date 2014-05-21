@@ -1,16 +1,13 @@
 package controllers;
 
 import com.restfb.types.TestUser;
-import com.restfb.types.User;
 import models.*;
-import models.UserProfile;
 import models.mongo.*;
 import models.preferences.Gender;
 import org.apache.commons.lang3.Range;
 import play.mvc.Controller;
 import play.mvc.Result;
-
-import java.util.List;
+import uk.co.panaxiom.playjongo.PlayJongo;
 
 /**
  * Created by kedar on 3/27/14.
@@ -24,7 +21,7 @@ public class Login extends Controller {
     }
 
     public static Result loginTestUser() {
-        TestUser user = Connection.getJongoInstance().getCollection("facebook_test_users").find().sort("{_id:-1}").limit(1).as(TestUser.class).iterator().next();
+        TestUser user = PlayJongo.getCollection("facebook_test_users").find().sort("{_id:-1}").limit(1).as(TestUser.class).iterator().next();
         return redirect(user.getLoginUrl());
     }
 
@@ -38,6 +35,8 @@ public class Login extends Controller {
         models.mongo.UserProfile profile = fb.fetchObject("me", models.mongo.UserProfile.class);
         profile.setPincode(pincode);
         profile.setGenderGiven(Gender.valueOf(gender));
+        profile.generateQuestions();
+
         // swap for extended access token
         UserAccessToken extendedAccessToken = fb.obtainExtendedAccessToken(accessToken);
         extendedAccessToken.setUserId(profile.getId());

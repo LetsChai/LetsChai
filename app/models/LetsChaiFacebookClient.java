@@ -10,6 +10,7 @@ import java.io.IOException;
 import com.restfb.util.StringUtils;
 import play.libs.WS;
 import play.mvc.Result;
+import uk.co.panaxiom.playjongo.PlayJongo;
 
 import static play.libs.F.Function;
 import static play.libs.F.Promise;
@@ -42,27 +43,27 @@ public class LetsChaiFacebookClient extends DefaultFacebookClient {
 
     public TestUser createTestUser () {
         TestUser user = publish(getAppId() + "/accounts/test-users", TestUser.class);
-        MongoCollection testUsers =  Connection.getJongoInstance().getCollection("facebook_test_users");
+        MongoCollection testUsers =  PlayJongo.getCollection("facebook_test_users");
         testUsers.save(user);
         return user;
     }
 
     // Credit to Val @ http://stackoverflow.com/questions/13671694/restfb-using-a-facebook-app-to-get-the-users-access-token
     // for this function
-    public FacebookAccessToken obtainUserAccessToken (String code) {
-        WebRequestor wr = new DefaultWebRequestor();
-        WebRequestor.Response accessTokenResponse = null;
-        try {
-            accessTokenResponse = wr.executeGet(
-                    "https://graph.facebook.com/oauth/access_token?client_id=" + getAppId() + "&redirect_uri=" +
-                            Play.application().configuration().getString("application.baseURL") + "login/code/"
-                            + "&client_secret=" + appSecret + "&code=" + code);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return FacebookAccessToken.fromQueryString(accessTokenResponse.getBody());
-    }
+//    public FacebookAccessToken obtainUserAccessToken (String code) {
+//        WebRequestor wr = new DefaultWebRequestor();
+//        WebRequestor.Response accessTokenResponse = null;
+//        try {
+//            accessTokenResponse = wr.executeGet(
+//                    "https://graph.facebook.com/oauth/access_token?client_id=" + getAppId() + "&redirect_uri=" +
+//                            Play.application().configuration().getString("application.baseURL") + "login/code/"
+//                            + "&client_secret=" + appSecret + "&code=" + code);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//        return FacebookAccessToken.fromQueryString(accessTokenResponse.getBody());
+//    }
 
 //    public Promise<FacebookAccessToken> obtainUserAccessTokenAsync (String code) {
 //        final Promise<FacebookAccessToken> tokenPromise = WS.url(

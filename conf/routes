@@ -4,22 +4,25 @@
 
 # Soft Beta Launch
 GET     /                           controllers.Application.landing()
-GET     /login                      controllers.Login.fbLoginRedirect()
-GET     /login/code/                controllers.Login.extractCode(code)
-GET     /testuser/create            controllers.Login.createTestUser()
-GET     /testuser/login             controllers.Login.loginTestUser()
-GET     /landing                    controllers.Application.landing()
 GET     /da39a3ee5e6b4b0d3255bfef95601890afd80709                   controllers.Application.thankyou()
 GET     /newusersurvey              controllers.Application.newusersurvey()
-GET     /chai                       controllers.Application.chai()
-GET     /editprofile                controllers.Application.editprofile()
-GET     /preferences                controllers.Application.preferences()
-GET     /settings                   controllers.Application.settings()
 GET     /register                   controllers.Login.register(access_token: String, age_min: Int, age_max: Int, gender_pref: String, gender: String, pincode: Int)
 
 # Full Launch
+GET     /chai                       controllers.Application.chai()
+GET     /editprofile                controllers.Application.editprofile()
+POST    /editprofile                controllers.Application.updateProfile()
+GET     /preferences                controllers.Application.preferences()
+GET     /settings                   controllers.Application.settings()
 
 
+# Testing Routes
+GET     /testuser/create            controllers.Login.createTestUser()
+GET     /testuser/login             controllers.Login.loginTestUser()
+GET     /session/populate           controllers.Session.populate()
+GET     /session/dump               controllers.Session.dump()
+GET     /session/profile            controllers.Session.profile()
+GET     /session/questions          controllers.Session.questions()
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

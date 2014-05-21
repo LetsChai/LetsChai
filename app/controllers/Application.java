@@ -1,5 +1,7 @@
 package controllers;
 
+import models.mongo.UserProfile;
+import play.data.Form;
 import play.mvc.*;
 
 import views.html.*;
@@ -19,11 +21,19 @@ public class Application extends Controller {
     }
 
     public static Result chai () {
-        return ok(chai.render(false));
+        UserProfile user = UserProfile.findOne(session().get("user"));
+        Form<UserProfile> profileForm = Form.form(UserProfile.class);
+        return ok(chai.render(user, profileForm, false));
     }
 
     public static Result editprofile () {
-        return ok(chai.render(true));
+        UserProfile user = UserProfile.findOne(session().get("user"));
+        Form<UserProfile> profileForm = Form.form(UserProfile.class);
+        return ok(chai.render(user, profileForm, true));
+    }
+
+    public static Result updateProfile () {
+        return ok();
     }
 
     public static Result preferences () {

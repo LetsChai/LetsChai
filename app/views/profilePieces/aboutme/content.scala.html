@@ -1,4 +1,4 @@
-@(editable: Boolean)
+@(profile: mongo.UserProfile, profileForm: Form[mongo.UserProfile], editable: Boolean)
 
 <div id="about-me">
     <div class="row">
@@ -9,23 +9,33 @@
     <div class="information">
         <div class="row entry name">
             <div class="col-md-4 field">Name</div>
-            <div class="col-md-8 content"><input /></div>
+            <div class="col-md-8 content"><input name="name" value="@profile.getName"/></div>
         </div>
         <div class="row entry">
             <div class="col-md-4 field">Age</div>
-            <div class="col-md-8 content"><input /></div>
+            <div class="col-md-8 content"><input name="birthday" value="@profile.getBirthday" /></div>
         </div>
         <div class="row entry">
             <div class="col-md-4 field">Height</div>
-            <div class="col-md-8 content"><input /></div>
+            <div class="col-md-8 content"><input name="height" value="@if(profile.getHeight>0){profile.getHeight}" /></div>
         </div>
         <div class="row entry">
             <div class="col-md-4 field">Current City</div>
-            <div class="col-md-8 content"><input /></div>
+            <div class="col-md-8 content"><input name="location" value="@profile.getCity" /></div>
         </div>
         <div class="row entry">
             <div class="col-md-4 field">Religion</div>
-            <div class="col-md-8 content"><input /></div>
+            <div class="col-md-8 content">
+                <select name="religion" />
+                    @for(religion <- profile.religionValues()) {
+                        <option value="@religion.toString"
+                        @if(religion.toString == profile.getReligionAsEnum().toString()) {
+                            selected="selected"
+                        }
+                        >@religion.toString.replace('_', ' ').toLowerCase.capitalize</option>
+                    }
+                </select>
+            </div>
         </div>
         <div class="row entry">
             <div class="col-md-4 field">Education</div>
@@ -44,23 +54,23 @@
         </div>
         <div class="row entry">
             <div class="col-md-4 field">Age</div>
-            <div class="col-md-8 content">Age</div>
+            <div class="col-md-8 content">@profile.getAge()</div>
         </div>
         <div class="row entry">
             <div class="col-md-4 field">Height</div>
-            <div class="col-md-8 content">Height</div>
+            <div class="col-md-8 content">@profile.getHeight()</div>
         </div>
         <div class="row entry">
             <div class="col-md-4 field">Current City</div>
-            <div class="col-md-8 content">Current City</div>
+            <div class="col-md-8 content">@profile.getCity()</div>
         </div>
         <div class="row entry">
             <div class="col-md-4 field">Religion</div>
-            <div class="col-md-8 content">Religion</div>
+            <div class="col-md-8 content">@profile.getReligion()</div>
         </div>
         <div class="row entry">
             <div class="col-md-4 field">Education</div>
-            <div class="col-md-8 content">Education</div>
+            <div class="col-md-8 content">@profile.getCollege()</div>
         </div>
         <div class="row entry">
             <div class="col-md-4 field">Occupation</div>
