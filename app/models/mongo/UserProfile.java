@@ -11,8 +11,6 @@ import org.joda.time.Years;
 import org.jongo.MongoCollection;
 import uk.co.panaxiom.playjongo.PlayJongo;
 
-import java.util.function.Predicate;
-
 /**
  * Created by kedar on 5/14/14.
  */
