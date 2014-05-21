@@ -5,6 +5,8 @@ import models.*;
 import models.mongo.*;
 import models.preferences.Gender;
 import org.apache.commons.lang3.Range;
+import play.data.DynamicForm;
+import play.data.Form;
 import play.mvc.Controller;
 import play.mvc.Result;
 import uk.co.panaxiom.playjongo.PlayJongo;
@@ -26,7 +28,15 @@ public class Login extends Controller {
         return redirect(user.getLoginUrl());
     }
 
-    public static Result register(String accessToken, int ageMin, int ageMax, String genderPref, String gender, int pincode) {
+    public static Result register() {
+        // get POST data
+        DynamicForm post = Form.form().bindFromRequest();
+        String accessToken = post.get("access_token");
+        int ageMin = Integer.parseInt(post.get("age_min"));
+        int ageMax = Integer.parseInt(post.get("age_max"));
+        String genderPref = post.get("gender_pref");
+        int pincode = Integer.parseInt(post.get("pincode"));
+        String gender = post.get("gender");
 
         // setup client with access token
         LetsChaiFacebookClient fb = new LetsChaiFacebookClient();
