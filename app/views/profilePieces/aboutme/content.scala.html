@@ -1,4 +1,4 @@
-@(profile: mongo.UserProfile, profileForm: Form[mongo.UserProfile], editable: Boolean)
+@(profile: mongo.UserProfile, editable: Boolean)
 
 <div id="about-me">
     <div class="row">
@@ -7,21 +7,45 @@
 
 @if(editable) {
     <div class="information">
-        <div class="row entry name">
-            <div class="col-md-4 field">Name</div>
-            <div class="col-md-8 content"><input name="name" value="@profile.getName"/></div>
-        </div>
         <div class="row entry">
-            <div class="col-md-4 field">Age</div>
-            <div class="col-md-8 content"><input name="birthday" value="@profile.getBirthday" /></div>
+            <div class="col-md-4 field">Birthday</div>
+            <div class="col-md-8 content">
+                <select name="month">
+                    @for(month <- java.time.Month.values()) {
+                        <option value="@month.getValue()"
+                            @if(profile.getBirthday().getMonth() == month.getValue()) {
+                                selected="selected"
+                            }
+                        >@month</option>
+                    }
+                </select>
+                <select name="day">
+                    @for(day <- 1 to 31) {
+                        <option value="@day"
+                            @if(profile.getBirthday().getDate() == day) {
+                                selected="selected"
+                            }
+                        >@day</option>
+                    }
+                </select>
+                <select name="year">
+                    @for(year <- 1978 to 1996) {
+                        <option value="@year"
+                            @if(profile.getBirthday().getYear() + 1900 == year) {
+                                selected="selected"
+                            }
+                        >@year</option>
+                    }
+                </select>
+            </div>
         </div>
         <div class="row entry">
             <div class="col-md-4 field">Height</div>
-            <div class="col-md-8 content"><input name="height" value="@if(profile.getHeight>0){profile.getHeight}" /></div>
+            <div class="col-md-8 content"><input name="height" value="@if(profile.getHeight>0){@profile.getHeight}" /> cm</div>
         </div>
         <div class="row entry">
             <div class="col-md-4 field">Current City</div>
-            <div class="col-md-8 content"><input name="location" value="@profile.getCity" /></div>
+            <div class="col-md-8 content"><input name="city" value="@profile.getCity" /></div>
         </div>
         <div class="row entry">
             <div class="col-md-4 field">Religion</div>
@@ -39,11 +63,20 @@
         </div>
         <div class="row entry">
             <div class="col-md-4 field">Education</div>
-            <div class="col-md-8 content"><input /></div>
+            <div class="col-md-8 content">
+                @for(e <- profile.getEducationForView()) {
+                    <input name="education"/>
+                    <select name="education">
+                        @for(t <- profile.getEducationTypes()) {
+                            <option value="@t.toString()">@t.capitalized()</option>
+                        }
+                    </select>
+                }
+            </div>
         </div>
         <div class="row entry">
             <div class="col-md-4 field">Occupation</div>
-            <div class="col-md-8 content"><input /></div>
+            <div class="col-md-8 content"><input name="occupation" value="@profile.getOccupation()"/></div>
         </div>
     </div>
 } else {
@@ -70,7 +103,7 @@
         </div>
         <div class="row entry">
             <div class="col-md-4 field">Education</div>
-            <div class="col-md-8 content">@profile.getCollege()</div>
+            <div class="col-md-8 content"></div>
         </div>
         <div class="row entry">
             <div class="col-md-4 field">Occupation</div>

@@ -3,6 +3,7 @@ package controllers;
 import com.restfb.types.TestUser;
 import models.*;
 import models.mongo.*;
+import models.preferences.AgeRange;
 import models.preferences.Gender;
 import org.apache.commons.lang3.Range;
 import play.data.DynamicForm;
@@ -11,6 +12,7 @@ import play.mvc.Controller;
 import play.mvc.Result;
 import uk.co.panaxiom.playjongo.PlayJongo;
 import views.html.thankyou;
+import views.html.unverified;
 
 /**
  * Created by kedar on 3/27/14.
@@ -42,11 +44,15 @@ public class Login extends Controller {
         LetsChaiFacebookClient fb = new LetsChaiFacebookClient();
         fb.setAccessToken(accessToken);
 
-        // get user profile
-        models.mongo.UserProfile profile = fb.fetchObject("me", models.mongo.UserProfile.class);
+        // get and set user profile
+        models.mongo.UserProfile profile = new UserProfile(fb.fetchObject("me", com.restfb.types.User.class));
         profile.setPincode(pincode);
         profile.setGenderGiven(Gender.valueOf(gender));
         profile.generateQuestions();
+
+        // check for verified profile
+        if (!profile.isVerified())
+            return redirect(controllers.routes.Login.unverified());
 
         // check to make sure user hasn't registered before
         if (UserProfile.findOne(profile.getId()) != null) {
@@ -58,7 +64,7 @@ public class Login extends Controller {
         extendedAccessToken.setUserId(profile.getId());
 
         // create user preferences object
-        UserPreference preferences = new UserPreference(profile.getId(), Gender.valueOf(genderPref), Range.between(ageMin, ageMax));
+        UserPreference preferences = new UserPreference(profile.getId(), Gender.valueOf(genderPref), new AgeRange(ageMin, ageMax));
 
         // save them all
         models.mongo.UserProfile.getCollection().save(profile);
@@ -66,5 +72,9 @@ public class Login extends Controller {
         UserPreference.getCollection().save(preferences);
 
         return redirect(controllers.routes.Application.thankyou());
+    }
+
+    public static Result unverified () {
+        return ok(unverified.render());
     }
 }

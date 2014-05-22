@@ -1,4 +1,4 @@
-@(profile: mongo.UserProfile, profileForm: Form[mongo.UserProfile], editable: Boolean)
+@(profile: mongo.UserProfile, editable: Boolean)
 
 <!DOCTYPE html>
 <html>
@@ -45,6 +45,9 @@
 @sidebar.content()
 
 <!-- Main -->
+@if(editable) {
+    <form id="profile-form" method="post" action="editprofile">
+}
 <div id="content">
     <div class="row">
         <div class="col-md-4 col-sm-offset-2">
@@ -62,15 +65,20 @@
 
         <div class="col-md-4">
             <div class="row">
-                @profilePieces.aboutme.content(profile, profileForm, editable)
+                @if(editable) {
+                    <button id="save-profile">Save Profile</button>
+                }
+                @profilePieces.aboutme.content(profile, editable)
             </div>
 
             <div class="row">
-                @profilePieces.questions.content(editable)
+                @profilePieces.questions.content(profile, editable)
             </div>
         </div>
     </div>
 </div>
-
+@if(editable) {
+    </form>
+}
 </body>
 </html>

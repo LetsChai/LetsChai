@@ -29,15 +29,15 @@ public class QuestionGenerator {
             "What's my idea of a perfect date?"));
     }
 
-    public static ProfileQuestion[] generate (int amount) {
-        ProfileQuestion[] result = new ProfileQuestion[amount];
-        result[0] = new ProfileQuestion(mandatoryQuestions.get(0));
-        result[1] = new ProfileQuestion(mandatoryQuestions.get(1));
+    public static List<ProfileQuestion> generate (int amount) {
+        List<ProfileQuestion> result = new ArrayList<ProfileQuestion>();
+        result.add(new ProfileQuestion(mandatoryQuestions.get(0)));
+        result.add(new ProfileQuestion(mandatoryQuestions.get(1)));
         ArrayList<String> optionalCopy = (ArrayList<String>) optionalQuestions.clone();
 
         for (int j=2; j < amount; j++) {
-            int index = (int) Math.random()*optionalCopy.size();
-            result[j] = new ProfileQuestion(optionalCopy.get(index));
+            int index = (int) (Math.random()*optionalCopy.size());
+            result.add(new ProfileQuestion(optionalCopy.get(index)));
             optionalCopy.remove(index);
         }
 

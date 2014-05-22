@@ -7,14 +7,16 @@ GET     /                           controllers.Application.landing()
 GET     /da39a3ee5e6b4b0d3255bfef95601890afd80709                   controllers.Application.thankyou()
 GET     /newusersurvey              controllers.Application.newusersurvey()
 POST    /register                   controllers.Login.register()
+GET     /unverified                 controllers.Login.unverified()
 
 # Full Launch
 GET     /chai                       controllers.Application.chai()
 GET     /editprofile                controllers.Application.editprofile()
 POST    /editprofile                controllers.Application.updateProfile()
 GET     /preferences                controllers.Application.preferences()
+POST    /preferences                controllers.Application.updatePreferences()
 GET     /settings                   controllers.Application.settings()
-
+POST    /settings                   controllers.Application.updateSettings()
 
 # Testing Routes
 GET     /testuser/create            controllers.Login.createTestUser()
