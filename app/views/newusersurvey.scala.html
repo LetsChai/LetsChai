@@ -247,6 +247,25 @@ $('.back').click(function() {
     return false;
 });
 
+// age validation
+$("#ageMin").change(function() {
+    var min = parseInt($(this).val());
+    $.each($("#ageMax option"), function(i, el) {
+        var maxOption = parseInt($(el).attr("value"));
+        if (maxOption < min)
+            $(el).prop('disabled', true);
+    });
+});
+$("#ageMax").change(function() {
+    var max = parseInt($(this).val());
+    $.each($("#ageMin option"), function(i, el) {
+        var minOption = parseInt($(el).attr("value"));
+        if (minOption > max)
+            $(el).prop('disabled', true);
+    });
+});
+
+
 // Facebook SDK
 window.fbAsyncInit = function() {
     FB.init({

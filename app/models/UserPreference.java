@@ -1,25 +1,22 @@
-package models.mongo;
+package models;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import models.preferences.AgeRange;
-import models.preferences.Gender;
-import models.preferences.Religion;
 import org.jongo.MongoCollection;
 import uk.co.panaxiom.playjongo.PlayJongo;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * Created by kedar on 5/14/14.
  */
-public class UserPreference implements MongoModel {
+public class UserPreference {
 
-    private String userId;
     private Gender gender;
-    private AgeRange age;
-    private List<Religion> religion;
+    private AgeRange age = new AgeRange();
+    private List<Religion> religion = Arrays.asList(Religion.NO_PREFERENCE);
 
     public UserPreference () {}
 
@@ -33,14 +30,9 @@ public class UserPreference implements MongoModel {
         return getCollection().findOne("{'userId': '#'}", userId).as(UserPreference.class);
     }
 
-    public UserPreference (String userId, Gender gender, AgeRange age) {
-        this.userId = userId;
+    public UserPreference (Gender gender, AgeRange age) {
         this.gender = gender;
         this.age = age;
-    }
-
-    public String getUserId() {
-        return userId;
     }
 
     public Gender getGender() {

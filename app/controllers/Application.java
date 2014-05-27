@@ -1,13 +1,7 @@
 package controllers;
 
-import models.Education;
-import models.mongo.UserPreference;
-import models.mongo.UserProfile;
-import models.preferences.AgeRange;
-import models.preferences.Gender;
-import models.preferences.Religion;
+import models.*;
 import org.joda.time.DateTime;
-import play.data.Form;
 import play.mvc.*;
 
 import views.html.*;
@@ -29,12 +23,12 @@ public class Application extends Controller {
     }
 
     public static Result chai () {
-        UserProfile user = UserProfile.findOne(session().get("user"));
+        User user = User.findOne(session().get("user"));
         return ok(chai.render(user, false));
     }
 
     public static Result editprofile () {
-        UserProfile user = UserProfile.findOne(session().get("user"));
+        User user = User.findOne(session().get("user"));
         return ok(chai.render(user, true));
     }
 

@@ -2,16 +2,14 @@ package controllers;
 
 import com.restfb.types.TestUser;
 import models.*;
-import models.mongo.*;
-import models.preferences.AgeRange;
-import models.preferences.Gender;
-import org.apache.commons.lang3.Range;
+import models.User;
+import models.AgeRange;
+import models.Gender;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.mvc.Controller;
 import play.mvc.Result;
 import uk.co.panaxiom.playjongo.PlayJongo;
-import views.html.thankyou;
 import views.html.unverified;
 
 /**
@@ -45,36 +43,52 @@ public class Login extends Controller {
         fb.setAccessToken(accessToken);
 
         // get and set user profile
-        models.mongo.UserProfile profile = new UserProfile(fb.fetchObject("me", com.restfb.types.User.class));
-        profile.setPincode(pincode);
-        profile.setGenderGiven(Gender.valueOf(gender));
-        profile.generateQuestions();
+        User user = new User(fb.fetchObject("me", com.restfb.types.User.class));
+        user.setPincode(pincode);
+        user.setGenderGiven(Gender.valueOf(gender));
+        user.generateQuestions();
 
-        // check for verified profile
-        if (!profile.isVerified())
+        // check for verified profile and age
+        if (!user.isVerified())
             return redirect(controllers.routes.Login.unverified());
+        if (user.getAge() < 18)
+            return redirect(controllers.routes.Login.tooYoung());
+        if (user.getAge() > 30)
+            return redirect(controllers.routes.Login.tooOld());
 
         // check to make sure user hasn't registered before
-        if (UserProfile.findOne(profile.getId()) != null) {
+        if (UserProfile.findOne(user.getUserId()) != null) {
             return redirect(controllers.routes.Application.thankyou());
         }
 
         // swap for extended access token
-        UserAccessToken extendedAccessToken = fb.obtainExtendedAccessToken(accessToken);
-        extendedAccessToken.setUserId(profile.getId());
+        user.setAccessToken(fb.obtainExtendedAccessToken(accessToken));
 
         // create user preferences object
-        UserPreference preferences = new UserPreference(profile.getId(), Gender.valueOf(genderPref), new AgeRange(ageMin, ageMax));
+        user.setPreferences(
+                new UserPreference(
+                        Gender.valueOf(genderPref), new AgeRange(ageMin, ageMax)));
 
         // save them all
-        models.mongo.UserProfile.getCollection().save(profile);
-        UserAccessToken.getCollection().save(extendedAccessToken);
-        UserPreference.getCollection().save(preferences);
+        User.getCollection().save(user);
 
         return redirect(controllers.routes.Application.thankyou());
     }
 
     public static Result unverified () {
-        return ok(unverified.render());
+        return ok(unverified.render("Your profile cannot be verified"));
+    }
+
+    public static Result tooYoung () {
+        return ok(unverified.render("You are too young to use this site."));
+    }
+
+    public static Result tooOld () {
+        return ok(unverified.render("You are too old to use this site."));
+    }
+
+    public static Result logout () {
+        session().clear();
+        return redirect(controllers.routes.Application.landing());
     }
 }

@@ -1,3 +1,5 @@
+@(message: String = "")
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -13,7 +15,7 @@
             margin: 3% auto 6%;
             display: block;
         }
-        h1 {
+        h1, h2 {
             text-align:center;
         }
         #get-your-points {
@@ -33,7 +35,8 @@
 
 <a href="/"><img id="letschai-logo" src="/assets/images/letschai_logo.png"></img></a>
 
-<h1>We're sorry. Your profile <span class="ugly-red-text">cannot be verified.</span></h1>
+<h1>We're sorry. @message</span></h1>
+
 <div id="get-your-points">
     <p>If you feel you have reached this page in error, please contact Let's Chai Support</p>
     <p><a href="mailto:varun@@letschai.com">varun@@letschai.com</a></p>

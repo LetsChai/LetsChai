@@ -1,4 +1,4 @@
-package models.mongo;
+package models;
 
 import com.restfb.FacebookClient;
 import org.jongo.MongoCollection;
@@ -11,7 +11,6 @@ import java.util.Date;
  */
 public class UserAccessToken {
 
-    protected String userId;
     protected String accessToken;
     protected Date expires;
 
@@ -19,16 +18,15 @@ public class UserAccessToken {
         return PlayJongo.getCollection("user_access_tokens");
     }
 
+    public static UserAccessToken findOne (String userId) {
+        return getCollection().findOne("{'userId': '#'}", userId).as(UserAccessToken.class);
+    }
+
+    public UserAccessToken () {}
+
     public UserAccessToken (FacebookClient.AccessToken token) {
         this.accessToken = token.getAccessToken();
         this.expires = token.getExpires();
-    }
-    public void setUserId (String id) {
-        userId = id;
-    }
-
-    public String getUserId () {
-        return userId;
     }
 
     public static UserAccessToken fromQueryString (String query) {

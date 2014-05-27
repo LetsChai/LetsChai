@@ -1,17 +1,10 @@
-package models.mongo;
+package models;
 
 import com.restfb.types.User;
-import models.Education;
-import models.ProfileQuestion;
-import models.QuestionGenerator;
-import models.preferences.Gender;
-import models.preferences.Religion;
 import org.apache.commons.lang3.text.WordUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Years;
 import org.jongo.MongoCollection;
-import org.jongo.marshall.jackson.oid.Id;
-import org.jongo.marshall.jackson.oid.ObjectId;
 import uk.co.panaxiom.playjongo.PlayJongo;
 
 import java.util.ArrayList;
@@ -21,7 +14,7 @@ import java.util.List;
 /**
  * Created by kedar on 5/14/14.
  */
-public class UserProfile implements MongoModel {
+public class UserProfile {
 
     // from com.restfb.types.User
     private String id;
@@ -94,7 +87,7 @@ public class UserProfile implements MongoModel {
     }
 
     public Religion[] religionValues () {
-        return religion.values();
+        return Religion.values();
     }
 
     public void generateQuestions () {

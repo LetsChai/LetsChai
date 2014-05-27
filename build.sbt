@@ -16,7 +16,8 @@ libraryDependencies ++= Seq(
   "uk.co.panaxiom" %% "play-jongo" % "0.6.0-jongo1.0",
   "com.google.guava" % "guava" % "17.0",
   "leodagdag" %% "play2-morphia-plugin" % "0.0.17",
-  "joda-time" % "joda-time" % "2.3"
+  "joda-time" % "joda-time" % "2.3",
+  "com.google.code.geocoder-java" % "geocoder-java" % "0.16"
 )
 
 // resolver for play2-morphia plugin

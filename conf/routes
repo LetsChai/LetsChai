@@ -8,6 +8,8 @@ GET     /da39a3ee5e6b4b0d3255bfef95601890afd80709                   controllers.
 GET     /newusersurvey              controllers.Application.newusersurvey()
 POST    /register                   controllers.Login.register()
 GET     /unverified                 controllers.Login.unverified()
+GET     /tooyoung                   controllers.Login.tooYoung()
+GET     /tooold                     controllers.Login.tooOld()
 
 # Full Launch
 GET     /chai                       controllers.Application.chai()
@@ -17,6 +19,7 @@ GET     /preferences                controllers.Application.preferences()
 POST    /preferences                controllers.Application.updatePreferences()
 GET     /settings                   controllers.Application.settings()
 POST    /settings                   controllers.Application.updateSettings()
+GET     /logout                     controllers.Login.logout()
 
 # Testing Routes
 GET     /testuser/create            controllers.Login.createTestUser()
@@ -26,6 +29,13 @@ GET     /session/dump               controllers.Session.dump()
 GET     /session/profile            controllers.Session.profile()
 GET     /session/questions          controllers.Session.questions()
 GET     /session/clear              controllers.Session.clear()
+GET     /test/test                  controllers.Test.test()
+GET     /test/algorithm             controllers.Test.algorithm()
+GET     /test/test2                 controllers.Test.test2()
+
+# DB Seeds
+GET     /seed/users/:seedSize       controllers.Seed.users(seedSize: Int)
+GET     /seed/preferences/:seedSize controllers.Seed.preferences(seedSize: Int)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

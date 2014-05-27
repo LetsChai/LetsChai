@@ -1,4 +1,6 @@
-package models.preferences;
+package models;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * Created by kedar on 5/22/14.
@@ -8,7 +10,16 @@ public class AgeRange {
     private int minimum;
     private int maximum;
 
-    public AgeRange () {}   // for Jackson
+    @JsonIgnore
+    private final int MAXIMUM_AGE = 30;
+
+    @JsonIgnore
+    private final int MINIMUM_AGE = 18;
+
+    public AgeRange () {
+        minimum = MINIMUM_AGE;
+        maximum = MAXIMUM_AGE;
+    }
 
     public AgeRange(int minimum, int maximum) {
         this.minimum = minimum;
@@ -28,5 +39,9 @@ public class AgeRange {
 
     public void setMaximum(int maximum) {
         this.maximum = maximum;
+    }
+
+    public boolean contains (int age) {
+        return age >= minimum && age <= maximum;
     }
 }

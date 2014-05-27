@@ -2,18 +2,11 @@ package models;
 
 import com.restfb.*;
 import com.restfb.types.TestUser;
-import models.mongo.UserAccessToken;
 import org.jongo.MongoCollection;
 import play.Play;
 
-import java.io.IOException;
 import com.restfb.util.StringUtils;
-import play.libs.WS;
-import play.mvc.Result;
 import uk.co.panaxiom.playjongo.PlayJongo;
-
-import static play.libs.F.Function;
-import static play.libs.F.Promise;
 
 /**
  * Created by kedar on 3/27/14.

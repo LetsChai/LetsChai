@@ -1,4 +1,4 @@
-@(profile: mongo.UserProfile, editable: Boolean)
+@(profile: User, editable: Boolean)
 
 <div id="about-me">
     <div class="row">
@@ -51,9 +51,9 @@
             <div class="col-md-4 field">Religion</div>
             <div class="col-md-8 content">
                 <select name="religion" />
-                    @for(religion <- profile.religionValues()) {
+                    @for(religion <- Religion.values()) {
                         <option value="@religion.toString"
-                        @if(religion.toString == profile.getReligionAsEnum().toString()) {
+                        @if(religion.toString == profile.getReligion().toString()) {
                             selected="selected"
                         }
                         >@religion.toString.replace('_', ' ').toLowerCase.capitalize</option>
@@ -67,7 +67,7 @@
                 @for(e <- profile.getEducationForView()) {
                     <input name="education"/>
                     <select name="education">
-                        @for(t <- profile.getEducationTypes()) {
+                        @for(t <- Education.EducationType.values()) {
                             <option value="@t.toString()">@t.capitalized()</option>
                         }
                     </select>
@@ -87,7 +87,7 @@
         </div>
         <div class="row entry">
             <div class="col-md-4 field">Age</div>
-            <div class="col-md-8 content">@profile.getAge()</div>
+            <div class="col-md-8 content">@profile.getAge() (@profile.getZodiacSign().capitalize())</div>
         </div>
         <div class="row entry">
             <div class="col-md-4 field">Height</div>

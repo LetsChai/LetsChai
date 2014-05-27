@@ -2,7 +2,7 @@ package controllers;
 
 import models.ProfileQuestion;
 import models.QuestionGenerator;
-import models.mongo.UserProfile;
+import models.UserProfile;
 import play.mvc.Controller;
 import play.mvc.Result;
 
