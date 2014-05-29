@@ -122,9 +122,19 @@
         }
     </style>
 
+    <!--Google Analytics-->
     <script>
-    // Google Analytics
-    @googleanalytics.api()
+        @googleanalytics.api()
+
+        ga('send', 'screenView', {'screenName': 'NewUserSurvey age and gender' });
+
+        function gaScreenTrack (slide) {
+            console.log(slide);
+            if (slide == 1)
+                ga('send', 'screenView', {'screenName': 'NewUserSurvey pincode' });
+            else if (slide == 2)
+                ga('send', 'screenView', {'screenName': 'NewUserSurvey facebook login' });
+        }
     </script>
 
 </head>
@@ -242,6 +252,8 @@ $('.next').click(function() {
     if (nextSlide == 1)
         $('#pincode').focus();
 
+    gaScreenTrack(nextSlide);   // google analytics screen tracking
+
     return false;
 });
 $('.back').click(function() {
@@ -300,7 +312,6 @@ $('#login-with-facebook').click(function() {
     }, {scope: "public_profile,user_friends,email,user_location,user_birthday,user_photos"});
 });
 </script>
-
 
 
 </body>
