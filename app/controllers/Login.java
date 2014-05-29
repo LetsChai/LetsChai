@@ -57,7 +57,7 @@ public class Login extends Controller {
             return redirect(controllers.routes.Login.tooOld());
 
         // check to make sure user hasn't registered before
-        if (UserProfile.findOne(user.getUserId()) != null) {
+        if (User.findOne(user.getUserId()) != null) {
             return redirect(controllers.routes.Application.thankyou());
         }
 
