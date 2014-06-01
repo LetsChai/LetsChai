@@ -14,19 +14,33 @@
             font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
             height:100%;
         }
+        section {
+            padding-top: 45px;
+        }
+        @@media screen and (min-width: 992px) {
+            section {
+                height: 100%;
+            }
+        }
+        @@media screen and (max-width: 991px) {
+            section {
+                padding-bottom: 50px;
+            }
+        }
         img {
             display:block;
             margin: 0 auto;
-        }
-        section {
-            height: 100%;
-            padding-top: 45px;
         }
 
         #letschai-logo {
             margin: 3% auto;
             margin-top: 3%;
-            width: 32%;
+            width: 450px;
+        }
+        @@media screen and (max-width: 600px) {
+            #letschai-logo {
+                width: 300px;
+            }
         }
 
         #welcome-text p {
@@ -53,7 +67,7 @@
             background-color: #C84A49;
             border: none;
             height: 55px;
-            width: 30%;
+            padding: 0 5%;
             font-size: 24px;
             color: white;
             border-radius: 10px;
@@ -91,42 +105,11 @@
                 margin: 2% 0;
             }
         }
-        #about img {
-            border-radius: 50%;
-            border: 3px solid white;
-        }
-        #about img:hover {
-            border: 3px solid #FFDF7D;
-        }
-        #about .image-container {
+        #about-text {
             margin: 5% auto;
-            width: 70%;
-            color: #303030;
-        }
-        #about .column {
-            display: inline-block;
-            margin: 0 9%;
-            width: 30%;
-        }
-        #about .name {
-            text-align: center;
-            margin-top: 8%;
-            font-size: 1.4em;
-            font-weight: bold;
-        }
-        #about .title {
-            text-align: center;
-            font-size: 0.9em;
-            margin-top: 1%;
-        }
-        #about .email {
-            text-align: center;
+            width: 75%;
             font-size: 0.8em;
-            margin-top: 1%;
-        }
-        #about .email a {
-            color: blue;
-            text-decoration: none;
+            line-height: 2em;
         }
     </style>
 
@@ -176,19 +159,12 @@
 <section id="about">
 
     <h1>About</h1>
-    <div class="image-container">
-        <div class="column">
-            <img src="/assets/images/about_varun.jpg" />
-            <div class="name">Varun S</div>
-            <div class="title">Founder & Chai Curator</div>
-            <div class="email"><a href="mailto:varun@@letschai.com">varun@@letschai.com</a></div>
-        </div>
-        <div class="column">
-            <img src="/assets/images/about_kedar.jpg" />
-            <div class="name">Kedar I</div>
-            <div class="title">Founder & Chai Infuser</div>
-            <div class="email"><a href="mailto:kedar@@letschai.com">kedar@@letschai.com</a></div>
-        </div>
+
+    <div id="about-text" class="">Dating doesn't have to be hard. Forget the awkward bride/groom seeking meetings under parental guidance.
+        Don't waste your time glancing at your "potential spouse" across the room when you can meet someone interesting
+        through a common friend. Better yet, over a steaming cup of chai. <span class="red-text">Let's Chai</span> connects
+        people with common interets on a secure platform. With a little help from us, your online chai-walas, find your right
+        cup of chai today.
     </div>
 </section>
 
