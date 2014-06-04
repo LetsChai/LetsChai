@@ -1,14 +1,17 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.http.client.fluent.Request;
 import org.joda.time.DateTime;
 import org.joda.time.Years;
 import org.jongo.MongoCollection;
 import uk.co.panaxiom.playjongo.PlayJongo;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * Created by kedar on 5/22/14.
@@ -37,10 +40,11 @@ public class User {
     private List<models.Education> education = new ArrayList<Education>(); // currently set to size of 2
     private List<ProfileQuestion> questions;
     private String occupation;
+    private List<Chai> chais = new ArrayList<Chai>();
 
     // non-stored fields
     @JsonIgnore
-    private List<com.restfb.types.User> friends;
+    private Friends friends;
 
     // for Jackson
     private User () {}
@@ -54,7 +58,14 @@ public class User {
         this.email = user.getEmail();
         this.gender = user.getGender();
         this.verified = user.getVerified();
-        this.city = user.getLocation().getName();
+        if (user.getLocation() != null)
+            this.city = user.getLocation().getName();
+    }
+
+    public User(String id, String firstName, String lastName) {
+        this.userId = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
     }
 
     public static MongoCollection getCollection() {
@@ -218,34 +229,73 @@ public class User {
         this.occupation = occupation;
     }
 
-    public List<com.restfb.types.User> loadFriends () {
-        if (friends != null)
-            return friends;
-
-        // lazy loading
-        LetsChaiFacebookClient fb = new LetsChaiFacebookClient();
-        fb.setAccessToken(accessToken.getAccessToken());
-        return fb.fetchConnection("user/friends", com.restfb.types.User.class).getData();
+    public ZodiacSign getZodiacSign () {
+        return ZodiacSign.fromDate(birthday);
     }
 
-    public boolean isFriendsWith(String userId) {
-        loadFriends();
-        for (com.restfb.types.User friend: friends) {
-            if (friend.getId() == userId) {
-                return true;
-            }
+    public Friends getFriends () {
+        if (friends != null)
+            return friends;
+        friends = getMutualFriends(userId);
+        return friends;
+    }
+
+    public Friends getMutualFriends (String userId) {
+        String url = String.format("https://graph.facebook.com/v2.0/%s?fields=context&access_token=%s", userId, accessToken.getAccessToken());
+        String jsonString = null;
+        try {
+            jsonString = Request.Get(url).execute().returnContent().asString();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode response = null;
+        try {
+            response = mapper.readTree(jsonString);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Friends friends = new Friends();
+        for(JsonNode j: response.path("context").path("mutual_friends").path("data")) {
+            friends.addFriend(j);
+        }
+        friends.setCount(response.path("context").path("mutual_friends").path("summary").path("total_count").asInt());
+        return friends;
+    }
+
+    public Boolean isFriendsWith(String userId) {
+        String url = String.format("https://graph.facebook.com/v2.0/%s/friends/%s?access_token=%s", this.userId, userId, accessToken.getAccessToken());
+        String jsonString = null;
+        try {
+            jsonString = Request.Get(url).execute().returnContent().asString();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode response = null;
+        try {
+            response = mapper.readTree(jsonString);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (response.path("data").has(0))
+            return true;
+
         return false;
     }
 
-    public void getMutualFriends () {
-        LetsChaiFacebookClient fb = new LetsChaiFacebookClient();
-        fb.setAccessToken(accessToken.getAccessToken());
-
+    public Chai getChaiWith (String userId) {
+        for (Chai chai: chais) {
+            if (chai.contains(userId))
+                return chai;
+        }
+        return null;
     }
 
-    public ZodiacSign getZodiacSign () {
-        return ZodiacSign.fromDate(birthday);
+    public void addChai (Chai chai) {
+        chais.add(chai);
     }
 
 }

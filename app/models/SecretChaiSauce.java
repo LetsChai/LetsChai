@@ -33,11 +33,30 @@ public class SecretChaiSauce {
         }
 
         // algorithm
-        for (User current: userIterable) {
-            for (User candidate: userIterable) {
+        for (User user: users.values()) {
+            user.addChai(getBestMatch(user));
+        }
+    }
 
+    public Chai getBestMatch (User user) {
+        double bestScore = 0;
+        User bestMatch = null;
+        for (User partner: users.values()) {
+            if (user.getChaiWith(partner.getUserId()) == null)
+                continue;
+            double chaiScore = chaiScore(user,partner);
+            if (chaiScore > bestScore) {
+                bestScore = chaiScore;
+                bestMatch = partner;
             }
         }
+        return new Chai(user.getUserId(), bestMatch.getUserId());
+    }
+
+    public double chaiScore (User user, User partner) {
+        return booleanChecks(user, partner) *
+                (0.14 * distanceScore(user.getPincode(), partner.getPincode()) + 0.35 * mutualFriendScore(user, partner)) +
+        0.51 * matchScore(user,partner);
     }
 
     // returns the integer value of the boolean check (true: 1, false: 0)
@@ -88,6 +107,27 @@ public class SecretChaiSauce {
     }
 
     public double mutualFriendScore (User current, User other) {
+        Friends mutualFriends = current.getMutualFriends(other.getUserId());
+        if (mutualFriends.getFriends().size() > 0)
+            return 1;
+        int count = mutualFriends.getCount();
+        if (count <= 0)
+            return 0;
+        else if (count == 1)
+            return 0.5;
+        else if (count == 2)
+            return 0.65;
+        else if (count == 3)
+            return 0.8;
+        return 0.95;
+    }
+
+    public double matchScore (User user, User partner) {
+        Chai chai = user.getChaiWith(partner.getUserId());
+        if (chai == null)
+            return 0;
+        if (chai.getChoice(partner.getUserId()) == true)
+            return 1;
         return 0;
     }
 

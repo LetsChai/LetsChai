@@ -13,13 +13,11 @@
         #header-links {
             display: none;
         }
-
         .survey-question {
             padding: 1.5%;
             background-color: gray;
             border-radius: 10px;
             margin: 2% auto;
-            width: 35%;
         }
         .survey-question .question, .survey-question .answers, .survey-question .buttons {
             background-color: white;
@@ -27,7 +25,7 @@
             border-radius: 5px;
         }
         .survey-question .question {
-            margin-bottom: 5%;
+            margin-bottom: 2%;
             text-align: center;
             font-weight: bold;
         }
@@ -147,7 +145,7 @@
 @header.content()
 
 <!--Survey-->
-<form id="survey" method="post" action="register">
+<form id="survey" method="post" action="register" class="col-md-5 col-md-offset-3 col-sm-8 col-sm-offset-2">
 
     <!--Age, Gender, Orientation-->
     <div class="survey-question" id="ageGender" data-slide="0">

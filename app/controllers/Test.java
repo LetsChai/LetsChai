@@ -1,11 +1,25 @@
 package controllers;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.restfb.Parameter;
+import models.LetsChaiFacebookClient;
 import models.Location;
 import models.SecretChaiSauce;
+import models.User;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.http.client.fluent.Request;
+import org.apache.http.client.fluent.Response;
+import org.apache.http.client.methods.HttpGet;
+import org.jongo.MongoCollection;
 import play.mvc.Controller;
 import play.mvc.Result;
-import seeds.PincodeSeed;
 import uk.co.panaxiom.playjongo.PlayJongo;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by kedar on 5/23/14.
@@ -13,15 +27,18 @@ import uk.co.panaxiom.playjongo.PlayJongo;
 public class Test extends Controller {
 
     public static Result test() {
-        PincodeSeed start = PlayJongo.getCollection("pincodes_gmaps").findOne("{'pincode': 560001}").as(PincodeSeed.class);
-        PincodeSeed end = PlayJongo.getCollection("pincodes_gmaps").findOne("{'pincode': 560002}").as(PincodeSeed.class);
-        double distance = Location.distFrom(start.latitude, start.longitude, end.latitude, end.longitude);
-        return ok(String.valueOf(distance));
+        MongoCollection userColl = PlayJongo.getCollection("production_users");
+        User user = userColl.findOne("{'userId':'#'}", "10154096696385538").as(User.class);
+        User partner = userColl.findOne("{'userId': '#'}", "10152481121747442").as(User.class);
+        SecretChaiSauce sauce = new SecretChaiSauce();
+        Double rating = sauce.chaiScore(user, partner);
+        return ok(rating.toString());
     }
 
 
     public static Result test2 () {
-        return ok();
+        User user = User.getCollection().findOne().as(User.class);
+        return ok(String.format("https://graph.facebook.com/v2.0/%s/friends/%s?access_token=%s", user.getUserId(), "10152471075807154", user.getAccessToken().getAccessToken()));
     }
 
     public static Result algorithm () {

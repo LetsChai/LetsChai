@@ -27,6 +27,11 @@ public class LetsChaiFacebookClient extends DefaultFacebookClient {
         appSecret = Play.application().configuration().getString("facebook.app_secret");
     }
 
+    public LetsChaiFacebookClient (String accessToken) {
+        this();
+        this.setAccessToken(accessToken);
+    }
+
     public String getLoginUrl () {
         return "https://www.facebook.com/dialog/oauth?client_id=" +
                 Play.application().configuration().getString("facebook.app_id") +

@@ -17,7 +17,8 @@ libraryDependencies ++= Seq(
   "com.google.guava" % "guava" % "17.0",
   "leodagdag" %% "play2-morphia-plugin" % "0.0.17",
   "joda-time" % "joda-time" % "2.3",
-  "com.google.code.geocoder-java" % "geocoder-java" % "0.16"
+  "com.google.code.geocoder-java" % "geocoder-java" % "0.16",
+  "org.apache.httpcomponents" % "fluent-hc" % "4.3.3"
 )
 
 // resolver for play2-morphia plugin

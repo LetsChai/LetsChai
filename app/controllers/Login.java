@@ -48,19 +48,6 @@ public class Login extends Controller {
         user.setGenderGiven(Gender.valueOf(gender));
         user.generateQuestions();
 
-        // check for verified profile and age
-        if (!user.isVerified())
-            return redirect(controllers.routes.Login.unverified());
-        if (user.getAge() < 18)
-            return redirect(controllers.routes.Login.tooYoung());
-        if (user.getAge() > 30)
-            return redirect(controllers.routes.Login.tooOld());
-
-        // check to make sure user hasn't registered before
-        if (User.findOne(user.getUserId()) != null) {
-            return redirect(controllers.routes.Application.thankyou());
-        }
-
         // swap for extended access token
         user.setAccessToken(fb.obtainExtendedAccessToken(accessToken));
 
@@ -69,7 +56,26 @@ public class Login extends Controller {
                 new UserPreference(
                         Gender.valueOf(genderPref), new AgeRange(ageMin, ageMax)));
 
-        // save them all
+        // check to make sure user hasn't registered before
+        if (User.findOne(user.getUserId()) != null) {
+            return redirect(controllers.routes.Application.thankyou());
+        }
+
+        // check for verified profile and age
+        if (!user.isVerified()) {
+            PlayJongo.getCollection("unverified_users").save(user);
+            return redirect(controllers.routes.Login.unverified());
+        }
+        if (user.getAge() < 18) {
+            PlayJongo.getCollection("too_young_users").save(user);
+            return redirect(controllers.routes.Login.tooYoung());
+        }
+        if (user.getAge() > 30) {
+            PlayJongo.getCollection("too_old_users").save(user);
+            return redirect(controllers.routes.Login.tooOld());
+        }
+
+        // if it passes all checks
         User.getCollection().save(user);
 
         return redirect(controllers.routes.Application.thankyou());
