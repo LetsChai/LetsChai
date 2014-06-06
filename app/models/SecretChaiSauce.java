@@ -5,6 +5,7 @@ import uk.co.panaxiom.playjongo.PlayJongo;
 
 import java.lang.Iterable;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by kedar on 5/24/14.
@@ -12,25 +13,22 @@ import java.util.HashMap;
 
 public class SecretChaiSauce {
 
-    private HashMap<String, User> users = new HashMap<>();
-    private HashMap<Integer, Pincode> pincodes = new HashMap<>();
+    private Map<String, User> users;
+    private Map<Integer, Pincode> pincodes;
 
 
     public SecretChaiSauce () {}
 
+    // user and pincode injection for testing purposes
+    public SecretChaiSauce (Map<String, User> users, Map<Integer, Pincode> pincodes) {
+        this();
+        this.users = users;
+        this.pincodes = pincodes;
+    }
+
     public void run () {
-
-        // create giant table of all the users
-        Iterable<User> userIterable = PlayJongo.getCollection("test_users").find().as(User.class);
-        for (User u: userIterable) {
-            users.put(u.getUserId(), u);
-        }
-
-        // get all the pincodes
-        Iterable<Pincode> pincodeIterable = PlayJongo.getCollection("profiles_gmaps").find("{'city':'Bangalore'}").as(Pincode.class);
-        for (Pincode p: pincodeIterable) {
-            pincodes.put(p.getPincode(), p);
-        }
+        loadPincodes();
+        loadUsers();
 
         // algorithm
         for (User user: users.values()) {
@@ -129,6 +127,29 @@ public class SecretChaiSauce {
         if (chai.getChoice(partner.getUserId()) == true)
             return 1;
         return 0;
+    }
+
+    public void loadPincodes () {
+        if (pincodes != null)
+            return;
+
+        pincodes = new HashMap<>();
+        Iterable<Pincode> pincodeIterable = PlayJongo.getCollection("profiles_gmaps").find("{'city':'Bangalore'}").as(Pincode.class);
+        for (Pincode p: pincodeIterable) {
+            pincodes.put(p.getPincode(), p);
+        }
+    }
+
+    // create giant table of all the users
+    public void loadUsers () {
+        if (users != null)
+            return;
+
+        users = new HashMap<>();
+        Iterable<User> userIterable = PlayJongo.getCollection("test_users").find().as(User.class);
+        for (User u: userIterable) {
+            users.put(u.getUserId(), u);
+        }
     }
 
 }

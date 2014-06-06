@@ -18,6 +18,7 @@ import uk.co.panaxiom.playjongo.PlayJongo;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -38,7 +39,7 @@ public class Test extends Controller {
 
     public static Result test2 () {
         User user = User.getCollection().findOne().as(User.class);
-        return ok(String.format("https://graph.facebook.com/v2.0/%s/friends/%s?access_token=%s", user.getUserId(), "10152471075807154", user.getAccessToken().getAccessToken()));
+        return ok(String.format("%d %d", user.getBirthday().getTime(), new Date().getTime()));
     }
 
     public static Result algorithm () {

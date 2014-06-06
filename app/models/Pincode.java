@@ -1,5 +1,8 @@
 package models;
 
+import org.jongo.MongoCollection;
+import uk.co.panaxiom.playjongo.PlayJongo;
+
 /**
  * Created by kedar on 5/26/14.
  */
@@ -12,6 +15,14 @@ public class Pincode {
     private String city;
     private double latitude;
     private double longitude;
+
+    public static MongoCollection getCollection () {
+        return PlayJongo.getCollection("pincodes_gmaps");
+    }
+
+    public static Iterable<Pincode> findAll () {
+        return getCollection().find().as(Pincode.class);
+    }
 
     public String getCountry() {
         return country;
@@ -46,6 +57,7 @@ public class Pincode {
     }
 
     public double distanceFrom (Pincode otherPincode) {
-        return Location.calculateLatLngDistance(getLatitude(), getLongitude(), otherPincode.getLatitude(), otherPincode.getLongitude());
+        return Location.distFrom(getLatitude(), getLongitude(), otherPincode.getLatitude(), otherPincode.getLongitude());
+
     }
 }

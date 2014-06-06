@@ -1,5 +1,3 @@
-@(message1: String = "", message2: String = "")
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -18,17 +16,21 @@
         h1, h2 {
             text-align:center;
             width: 75%;
-            margin: 1% auto;
+            margin: 0 auto;
         }
         #get-your-points {
             text-align:center;
-            margin-top: 5%;
             margin-bottom:5%;
         }
         .ugly-red-text {
             color: red;
             font-weight: bold;
             text-decoration: underline;
+        }
+        #login-with-facebook {
+            display: block;
+            margin: 3% auto;
+            cursor: pointer;
         }
     </style>
 
@@ -37,19 +39,42 @@
         @googleanalytics.api()
     </script>
 </head>
+
 <body>
+
+<script>
+    @facebook.sdk()
+</script>
 
 @prelaunchheader.content()
 
-<a href="/"><img id="letschai-logo" src="/assets/images/letschai_logo.png"></img></a>
+<img id="letschai-logo" src="/assets/images/letschai_logo.png" />
 
-<h2>@message1</h2>
-<h2>@message2</h2>
+<h2>We need your birthday to validate your age and identity.</h2>
+<h2>Please login again.</h2>
+
+<img id="login-with-facebook" src="/assets/images/login-with-facebook.png" />
 
 <div id="get-your-points">
     <p>If you feel you have reached this page in error, please contact Let's Chai Support</p>
     <p><a href="mailto:varun@@letschai.com">varun@@letschai.com</a></p>
 </div>
+
+<form id="token" method="post" action="updatebirthday">
+    <input type="hidden" name="access_token" id="access_token" />
+</form>
+
+<script>
+document.getElementById('login-with-facebook').onclick = function () {
+    FB.login(function(response) {
+        if (response.authResponse) {
+            var access_token =   FB.getAuthResponse().accessToken;
+            document.getElementById("access_token").value = access_token;
+            document.getElementById("token").submit();
+        }
+    }, {scope: "user_birthday", auth_type: "rerequest"});
+}
+</script>
 
 </body>
 

@@ -10,6 +10,8 @@ import play.data.Form;
 import play.mvc.Controller;
 import play.mvc.Result;
 import uk.co.panaxiom.playjongo.PlayJongo;
+import views.html.nobirthday;
+import views.html.thankyou;
 import views.html.unverified;
 
 /**
@@ -66,6 +68,10 @@ public class Login extends Controller {
             PlayJongo.getCollection("unverified_users").save(user);
             return redirect(controllers.routes.Login.unverified());
         }
+        if (user.getBirthday() == null)  {
+            PlayJongo.getCollection("nobirthday_users").save(user);
+            return redirect(controllers.routes.Login.noBirthday());
+        }
         if (user.getAge() < 18) {
             PlayJongo.getCollection("too_young_users").save(user);
             return redirect(controllers.routes.Login.tooYoung());
@@ -81,20 +87,42 @@ public class Login extends Controller {
         return redirect(controllers.routes.Application.thankyou());
     }
 
+    public static Result noBirthdayToVerified () {
+        DynamicForm post = Form.form().bindFromRequest();
+        String access_token = post.get("access_token");
+        LetsChaiFacebookClient fb = new LetsChaiFacebookClient(access_token);
+
+        com.restfb.types.User fbUser = fb.fetchObject("me", com.restfb.types.User.class);
+        String query = String.format("{'userId': '%s'}", fbUser.getId());
+        User mongoUser = PlayJongo.getCollection("nobirthday_users").findOne(query).as(User.class);
+
+        mongoUser.setBirthday(fbUser.getBirthdayAsDate());
+
+        User.getCollection().save(mongoUser);
+        PlayJongo.getCollection("nobirthday_users").remove(query);
+
+        return ok(thankyou.render());
+    }
+
     public static Result unverified () {
-        return ok(unverified.render("Your profile cannot be verified"));
+        return ok(unverified.render("We're sorry", "Your profile cannot be verified"));
     }
 
     public static Result tooYoung () {
-        return ok(unverified.render("You are too young to use this site."));
+        return ok(unverified.render("Are you between 18 and 30?", "We see that you might be too young to use Let's Chai."));
     }
 
     public static Result tooOld () {
-        return ok(unverified.render("You are too old to use this site."));
+        return ok(unverified.render("Are you between 18 and 30?", "We see that you might be too old to use Let's Chai."));
+    }
+
+    public static Result noBirthday () {
+        return ok(nobirthday.render());
     }
 
     public static Result logout () {
         session().clear();
         return redirect(controllers.routes.Application.landing());
     }
+
 }

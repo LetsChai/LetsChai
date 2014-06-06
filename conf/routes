@@ -10,6 +10,8 @@ POST    /register                   controllers.Login.register()
 GET     /unverified                 controllers.Login.unverified()
 GET     /tooyoung                   controllers.Login.tooYoung()
 GET     /tooold                     controllers.Login.tooOld()
+POST    /updatebirthday             controllers.Login.noBirthdayToVerified()
+GET     /nobirthday                 controllers.Login.noBirthday()
 
 # Full Launch
 GET     /chai                       controllers.Application.chai()
