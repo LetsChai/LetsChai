@@ -57,7 +57,9 @@ public class Pincode {
     }
 
     public double distanceFrom (Pincode otherPincode) {
-        return Location.distFrom(getLatitude(), getLongitude(), otherPincode.getLatitude(), otherPincode.getLongitude());
+        if (otherPincode == null)
+            throw new IllegalArgumentException("otherPincode cannot be null");
 
+        return Location.distFrom(getLatitude(), getLongitude(), otherPincode.getLatitude(), otherPincode.getLongitude());
     }
 }

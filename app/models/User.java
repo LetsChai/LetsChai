@@ -2,12 +2,15 @@ package models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.fluent.Request;
 import org.joda.time.DateTime;
 import org.joda.time.Years;
 import org.jongo.MongoCollection;
+import play.Logger;
 import uk.co.panaxiom.playjongo.PlayJongo;
 
 import java.io.IOException;
@@ -41,6 +44,8 @@ public class User {
     private List<ProfileQuestion> questions;
     private String occupation;
     private List<Chai> chais = new ArrayList<Chai>();
+    private EnumSet<Flag> flags = EnumSet.noneOf(Flag.class);
+    private EnumSet<Permission> permissions = EnumSet.noneOf(Permission.class);
 
     // non-stored fields
     @JsonIgnore
@@ -242,21 +247,27 @@ public class User {
 
     public Friends getMutualFriends (String userId) {
         String url = String.format("https://graph.facebook.com/v2.0/%s?fields=context&access_token=%s", userId, accessToken.getAccessToken());
-        String jsonString = null;
+        String jsonString;
+        Friends friends = new Friends();
+
         try {
             jsonString = Request.Get(url).execute().returnContent().asString();
         } catch (IOException e) {
-            e.printStackTrace();
+            Logger.error("IOException in " + url, e);
+            friends.setCount(0);
+            return friends;
         }
         ObjectMapper mapper = new ObjectMapper();
         JsonNode response = null;
         try {
             response = mapper.readTree(jsonString);
         } catch (IOException e) {
-            e.printStackTrace();
+            friends.setCount(0);
+            return friends;
+        } catch (NullPointerException e) {
+            throw new RuntimeException("No JSON was returned by " + url, e);
         }
 
-        Friends friends = new Friends();
         for(JsonNode j: response.path("context").path("mutual_friends").path("data")) {
             friends.addFriend(j);
         }
@@ -278,6 +289,9 @@ public class User {
             response = mapper.readTree(jsonString);
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (NullPointerException e) {
+            Logger.error("no JSON returned by: " + url);
+            return false;
         }
 
         if (response.path("data").has(0))
@@ -286,6 +300,7 @@ public class User {
         return false;
     }
 
+    // get the chai between this user and the specified userId, returns null if none exists
     public Chai getChaiWith (String userId) {
         for (Chai chai: chais) {
             if (chai.contains(userId))
@@ -298,4 +313,61 @@ public class User {
         chais.add(chai);
     }
 
+    public EnumSet<Flag> getFlags () {
+        return flags;
+    }
+
+    public void addFlag (Flag flag) {
+        flags.add(flag);
+    }
+
+    public EnumSet<Permission> getPermissions() {
+        return permissions;
+    }
+
+    public void updatePermissions () {
+        String url = String.format("https://graph.facebook.com/v2.0/%s/permissions?access_token=%s", userId, accessToken.getAccessToken());
+        String jsonString = null;
+        try {
+            jsonString = Request.Get(url).execute().returnContent().asString();
+        } catch (ClientProtocolException e) {
+            Logger.error("ClientProtocolException during request: " + url);
+            return;
+        } catch (IOException e) {
+            Logger.error("IOException during request: " + url);
+            return;
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode response = null;
+        try {
+            response = mapper.readTree(jsonString);
+        } catch (JsonProcessingException e) {
+            Logger.error("JsonProcessingException in JSON: " + jsonString);
+            e.printStackTrace();
+            return;
+        } catch (IOException e) {
+            Logger.error("IOException while parsing JSON: " + jsonString);
+            e.printStackTrace();
+            return;
+        } catch (NullPointerException e) {
+            Logger.error(url + " returned an empty response");
+            return;
+        }
+        if (!response.has("data")) {
+            Logger.error(" node 'data' could not be found in JSON response");
+            return;
+        }
+
+        permissions.clear();
+        for (JsonNode j: response.path("data")) {
+            if (j.path("status").asText().equals("granted"))
+                permissions.add(Permission.valueOf(j.path("permission").asText().toUpperCase()));
+        }
+    }
+
+    public void updateMongo () {
+        String query = String.format("{'userId': '%s'}", userId);
+        getCollection().update(query).with(this);
+    }
 }

@@ -1,3 +1,5 @@
+import models.Friends;
+import models.Permission;
 import models.User;
 import org.joda.time.DateTime;
 import org.jongo.Jongo;
@@ -60,6 +62,15 @@ public class UserTest {
             error = String.format("user %s is older than 30", user.getUserId());
             assertTrue(error, user.getBirthday().getTime() >  new Date().getTime() - (long)31*(long)365*(long)86400*(long)1000);
         }
+    }
+
+    @Test
+    public void apiCalls () {
+        User user = users.get(0);
+        user.updatePermissions();
+        Friends friends = user.getFriends();
+        assertTrue("user.getFriends() returned no friends", friends.getCount() > 0);
+        user.getMutualFriends("1219293476");
     }
 
 }

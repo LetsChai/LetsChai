@@ -3,6 +3,7 @@ package controllers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.restfb.Parameter;
+import exceptions.InvalidPincodeException;
 import models.LetsChaiFacebookClient;
 import models.Location;
 import models.SecretChaiSauce;
@@ -28,14 +29,9 @@ import java.util.List;
 public class Test extends Controller {
 
     public static Result test() {
-        MongoCollection userColl = PlayJongo.getCollection("production_users");
-        User user = userColl.findOne("{'userId':'#'}", "10154096696385538").as(User.class);
-        User partner = userColl.findOne("{'userId': '#'}", "10152481121747442").as(User.class);
-        SecretChaiSauce sauce = new SecretChaiSauce();
-        Double rating = sauce.chaiScore(user, partner);
-        return ok(rating.toString());
+        User user = User.getCollection().findOne().as(User.class);
+        return ok(user.getFriends().getCount().toString());
     }
-
 
     public static Result test2 () {
         User user = User.getCollection().findOne().as(User.class);

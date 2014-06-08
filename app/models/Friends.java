@@ -34,4 +34,8 @@ public class Friends {
     public HashMap<String, String> getFriends() {
         return friends;
     }
+
+    public String toString () {
+        return friends.toString() + ", count:" + count;
+    }
 }

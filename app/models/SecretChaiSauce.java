@@ -1,6 +1,6 @@
 package models;
 
-import seeds.PincodeSeed;
+import exceptions.InvalidPincodeException;
 import uk.co.panaxiom.playjongo.PlayJongo;
 
 import java.lang.Iterable;
@@ -15,7 +15,6 @@ public class SecretChaiSauce {
 
     private Map<String, User> users;
     private Map<Integer, Pincode> pincodes;
-
 
     public SecretChaiSauce () {}
 
@@ -32,17 +31,36 @@ public class SecretChaiSauce {
 
         // algorithm
         for (User user: users.values()) {
-            user.addChai(getBestMatch(user));
+            try {
+                user.addChai(getBestMatch(user));
+            }
+            catch (InvalidPincodeException pi) {
+                user.addFlag(Flag.INVALID_PINCODE);
+            }
+            PlayJongo.getCollection("algorithm_test_saves").save(user);
         }
     }
 
-    public Chai getBestMatch (User user) {
+    public Chai getBestMatch (User user) throws InvalidPincodeException {
+        if (user == null)
+            throw new IllegalArgumentException("user cannot be null");
+
+        if (pincodes.get(user.getPincode()) == null)
+            throw new InvalidPincodeException(user.getPincode(), user.getUserId());
+
         double bestScore = 0;
         User bestMatch = null;
         for (User partner: users.values()) {
-            if (user.getChaiWith(partner.getUserId()) == null)
+            if (user.getChaiWith(partner.getUserId()) != null)  // if a chai exists, continue
                 continue;
-            double chaiScore = chaiScore(user,partner);
+
+            double chaiScore = 0;
+            try {
+                chaiScore = chaiScore(user,partner);
+            }
+            catch (InvalidPincodeException e) { // partner has an invalid pincode
+                chaiScore = 0;
+            }
             if (chaiScore > bestScore) {
                 bestScore = chaiScore;
                 bestMatch = partner;
@@ -51,19 +69,30 @@ public class SecretChaiSauce {
         return new Chai(user.getUserId(), bestMatch.getUserId());
     }
 
-    public double chaiScore (User user, User partner) {
+    public double chaiScore (User user, User partner) throws InvalidPincodeException {
         return booleanChecks(user, partner) *
                 (0.14 * distanceScore(user.getPincode(), partner.getPincode()) + 0.35 * mutualFriendScore(user, partner)) +
         0.51 * matchScore(user,partner);
     }
 
     // returns the integer value of the boolean check (true: 1, false: 0)
-    public int booleanChecks (User current, User candidate) {
+    public int booleanChecks (User current, User candidate) throws InvalidPincodeException {
+        if (current == null || candidate == null)
+            throw new IllegalArgumentException("User arguments cannot be null");
+
         UserPreference currentPref = current.getPreferences();
         UserPreference candidatePref = candidate.getPreferences();
 
         Pincode userPincode = pincodes.get(current.getPincode());
         Pincode candidatePincode = pincodes.get(candidate.getPincode());
+
+        // handle invalid pincodes
+        if (userPincode == null) {
+            throw new InvalidPincodeException(current.getPincode());
+        }
+        if (candidatePincode == null) {
+            throw new InvalidPincodeException(candidate.getPincode());
+        }
 
         boolean check =
             // age
@@ -85,7 +114,14 @@ public class SecretChaiSauce {
         return check ? 1:0;
     }
 
-    public double distanceScore (int userPincode, int candidatePincode) {
+    public double distanceScore (int userPincode, int candidatePincode) throws InvalidPincodeException {
+        if (pincodes.get(userPincode) == null) {
+            throw new InvalidPincodeException(userPincode);
+        }
+        if (pincodes.get(candidatePincode) == null) {
+            throw new InvalidPincodeException(candidatePincode);
+        }
+
         double distance = pincodes.get(userPincode).distanceFrom(pincodes.get(candidatePincode));
         int score = 0; // out of 6 for now
         if (distance < 2.5) {
@@ -101,7 +137,7 @@ public class SecretChaiSauce {
         } else if (distance < 25) {
             score = 1;
         }
-        return score / 6;
+        return (double)score / 6;
     }
 
     public double mutualFriendScore (User current, User other) {
@@ -134,7 +170,7 @@ public class SecretChaiSauce {
             return;
 
         pincodes = new HashMap<>();
-        Iterable<Pincode> pincodeIterable = PlayJongo.getCollection("profiles_gmaps").find("{'city':'Bangalore'}").as(Pincode.class);
+        Iterable<Pincode> pincodeIterable = PlayJongo.getCollection("pincodes_gmaps").find("{'city':'Bangalore'}").as(Pincode.class);
         for (Pincode p: pincodeIterable) {
             pincodes.put(p.getPincode(), p);
         }
@@ -146,7 +182,7 @@ public class SecretChaiSauce {
             return;
 
         users = new HashMap<>();
-        Iterable<User> userIterable = PlayJongo.getCollection("test_users").find().as(User.class);
+        Iterable<User> userIterable = PlayJongo.getCollection("production_users").find().as(User.class);
         for (User u: userIterable) {
             users.put(u.getUserId(), u);
         }

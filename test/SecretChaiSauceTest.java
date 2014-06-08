@@ -1,3 +1,5 @@
+import exceptions.InvalidPincodeException;
+import models.Chai;
 import models.Pincode;
 import models.SecretChaiSauce;
 import models.User;
@@ -15,9 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Created by kedar on 6/4/14.
@@ -49,24 +49,36 @@ public class SecretChaiSauceTest {
     }
 
     @Test
-    public void distanceScore () {
+    public void distanceScore () throws InvalidPincodeException {
         double[][] distances = {
-                {560001, 560014, 2.0/6.0},
-                {560020, 560021, 6.0/6.0},
-                {560080, 560001, 5.0/6.0},
-                {560021, 560045, 3.0/6.0},
-                {560005, 560007, 5.0/6.0},
-                {560005, 560005, 6.0/6.0},
-                {560003, 560004, 4.0/6.0},
-                {560004, 560082, 1.0/6.0},
-                {560057, 560099, 0/6.0}
+                {560001, 560014, (double)2/6},
+                {560020, 560021, (double)6/6},
+                {560080, 560001, (double)5/6},
+                {560021, 560045, 0.5},
+                {560005, 560007, (double)5/6},
+                {560005, 560005, 1},
+                {560003, 560004, (double)4/6},
+                {560004, 560082, (double)1/6},
+                {560057, 560099, 0}
         };
         for (double[] entry: distances) {
             double score = sauce.distanceScore((int)entry[0], (int)entry[1]);
-            String error = String.format("Wrong score assigned, calculated:%d, actual:%d ", entry[2], score);
+            String error = String.format("Wrong score assigned for %d to %d, calculated:%f, actual:%f ", (int)entry[0], (int)entry[1], score, entry[2]);
             assertFalse(error + "less than 0", score < 0);
             assertTrue(error, entry[2] == score);
         }
+    }
+
+    @Test
+    public void bestMatch () throws InvalidPincodeException {
+        for (User user: users.values()) {
+            Chai match = sauce.getBestMatch(user);
+        }
+    }
+
+    @Test
+    public void chaiScore () {
+
     }
 
     public void loadUsers () {
@@ -85,7 +97,7 @@ public class SecretChaiSauceTest {
             return;
 
         pincodes = new HashMap<Integer, Pincode>();
-        Iterable<Pincode> pincodeIterable = jongo.getCollection("pincode_gmaps").find().as(Pincode.class);
+        Iterable<Pincode> pincodeIterable = jongo.getCollection("pincodes_gmaps").find().as(Pincode.class);
         for (Pincode pin: pincodeIterable) {
             pincodes.put(pin.getPincode(), pin);
         }

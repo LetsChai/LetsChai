@@ -53,6 +53,9 @@ public class Login extends Controller {
         // swap for extended access token
         user.setAccessToken(fb.obtainExtendedAccessToken(accessToken));
 
+        // check and set which permissions got authorized
+        user.updatePermissions();
+
         // create user preferences object
         user.setPreferences(
                 new UserPreference(
