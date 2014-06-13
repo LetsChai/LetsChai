@@ -12,19 +12,21 @@ public class Chai {
     private Map<String, Boolean> userChoices = new HashMap<>(); // null: no choice made yet, true: like, false: pass
     private RejectReason reason;
     private Date date;
+    private double score;
 
     private Chai () {}  // for Jackson
 
-    public Chai (String user1, String user2) {
+    public Chai (String user1, String user2, double score) {
         Validate.notNull(user1, "user1 can't be null");
         Validate.notNull(user2, "user2 can't be null");
         userChoices.put(user1, false);
         userChoices.put(user2, false);
         date = new Date();
+        this.score = score;
     }
 
-    public Chai (String user1, String user2, RejectReason reason) {
-        this(user1, user2);
+    public Chai (String user1, String user2, double score, RejectReason reason) {
+        this(user1, user2, score);
         this.reason = reason;
     }
 

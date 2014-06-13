@@ -41,12 +41,29 @@ public class SecretChaiSauce {
         }
     }
 
+    public void runForUser (User user) {
+        loadPincodes();
+        loadUsers();
+        try {
+            user.addChai(getBestMatch(user));
+        } catch (InvalidPincodeException e) {
+            user.addFlag(Flag.INVALID_PINCODE);
+        }
+        PlayJongo.getCollection("algorithm_test_saves").save(user);
+    }
+
     public Chai getBestMatch (User user) throws InvalidPincodeException {
         if (user == null)
             throw new IllegalArgumentException("user cannot be null");
 
-        if (pincodes.get(user.getPincode()) == null)
-            throw new InvalidPincodeException(user.getPincode(), user.getUserId());
+        if (pincodes.get(user.getPincode()) == null) {
+            if (user.getPincode() > 560000 && user.getPincode() < 560999) {
+                user.addFlag(Flag.INVALID_PINCODE);
+                user.setPincode(560001);
+            }
+            else
+                throw new InvalidPincodeException(user.getPincode(), user.getUserId());
+        }
 
         double bestScore = 0;
         User bestMatch = null;
@@ -66,7 +83,7 @@ public class SecretChaiSauce {
                 bestMatch = partner;
             }
         }
-        return new Chai(user.getUserId(), bestMatch.getUserId());
+        return new Chai(user.getUserId(), bestMatch.getUserId(), bestScore);
     }
 
     public double chaiScore (User user, User partner) throws InvalidPincodeException {

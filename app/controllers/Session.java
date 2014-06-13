@@ -13,8 +13,7 @@ import java.util.List;
  */
 public class Session extends Controller {
 
-    public static Result populate () {
-        String id = "1219293476";
+    public static Result populate (String id) {
         session("user", id);
         return ok("populated user id: " + id);
     }

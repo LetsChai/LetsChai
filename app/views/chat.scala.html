@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Let's Chai - Chat</title>
+    <script src="/assets/javascripts/strophe.js"></script>
+    <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+</head>
+<body>
+
+<div id="incoming"></div>
+<input id="chat" />
+<button id="send">Send</button>
+
+<script>
+    var socket = new WebSocket("ws://localhost:9000/chat/socket");
+    socket.onopen = function (event) {
+        socket.onmessage = function (event) {
+            console.log(event);
+            var json = JSON.parse(event.data);
+            $("#incoming").append( $("<div>").text(json.from + ":" + json.message) );
+        }
+    }
+
+    $("#send").click(function() {
+        var chat = {
+            to: "varun",
+            message: $("#chat").val()
+        };
+        $("#chat").val('');
+        console.log(chat);
+        socket.send(JSON.stringify(chat));
+    });
+</script>
+
+</body>
+</html>

@@ -96,4 +96,8 @@ public class Application extends Controller {
 
         return redirect(controllers.routes.Application.settings());
     }
+
+    public static Result editPictures () {
+        return ok(editpictures.render());
+    }
 }

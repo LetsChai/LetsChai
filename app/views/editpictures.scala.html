@@ -2,8 +2,32 @@
 <html>
 <head>
     <title></title>
+
+    <!--Buttons-->
+    <link href="/assets/modern-buttons/css/m-buttons.css" rel="stylesheet" />
+
+    <style>
+        @sitewide.style()
+        @header.style()
+        @sidebar.style()
+    </style>
 </head>
 <body>
+
+<!--Page Header-->
+@header.content()
+
+<!-- Sidebar -->
+@sidebar.content()
+
+<div class="row"><div class="col-lg-offset-3 col-lg-9">
+    <input type="file"/>
+    <input type="file"/>
+    <input type="file"/>
+    <input type="file"/>
+    <button class="m-btn green">Upload</button>
+    <button class="m-btn">Cancel</button>
+</div></div>
 
 </body>
 </html>

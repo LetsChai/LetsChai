@@ -79,7 +79,9 @@
             <div class="col-md-8 content"><input name="occupation" value="@profile.getOccupation()"/></div>
         </div>
     </div>
+
 } else {
+
     <div class="information">
         <div class="row entry name">
             <div class="col-md-4 field">Name</div>
@@ -91,7 +93,7 @@
         </div>
         <div class="row entry">
             <div class="col-md-4 field">Height</div>
-            <div class="col-md-8 content">@profile.getHeight()</div>
+            <div class="col-md-8 content">@profile.getHeight() cm</div>
         </div>
         <div class="row entry">
             <div class="col-md-4 field">Current City</div>
@@ -99,15 +101,15 @@
         </div>
         <div class="row entry">
             <div class="col-md-4 field">Religion</div>
-            <div class="col-md-8 content">@profile.getReligion()</div>
+            <div class="col-md-8 content">@profile.getReligion().capitalize()</div>
         </div>
         <div class="row entry">
             <div class="col-md-4 field">Education</div>
-            <div class="col-md-8 content"></div>
+            <div class="col-md-8 content">Mount Carmel College, Bachelors</div>
         </div>
         <div class="row entry">
             <div class="col-md-4 field">Occupation</div>
-            <div class="col-md-8 content">Occupation</div>
+            <div class="col-md-8 content">Actress</div>
         </div>
     </div>
 }

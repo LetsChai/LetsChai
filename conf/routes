@@ -22,11 +22,16 @@ POST    /preferences                controllers.Application.updatePreferences()
 GET     /settings                   controllers.Application.settings()
 POST    /settings                   controllers.Application.updateSettings()
 GET     /logout                     controllers.Login.logout()
+GET     /editpictures               controllers.Application.editPictures()
+
+# Chat
+GET     /chat                       controllers.Chat.chat()
+GET     /chat/socket                controllers.Chat.socket()
 
 # Testing Routes
 GET     /testuser/create            controllers.Login.createTestUser()
 GET     /testuser/login             controllers.Login.loginTestUser()
-GET     /session/populate           controllers.Session.populate()
+GET     /session/populate           controllers.Session.populate(id: String ?= "1219293476")
 GET     /session/dump               controllers.Session.dump()
 GET     /session/profile            controllers.Session.profile()
 GET     /session/questions          controllers.Session.questions()
@@ -34,6 +39,7 @@ GET     /session/clear              controllers.Session.clear()
 GET     /test/test                  controllers.Test.test()
 GET     /test/algorithm             controllers.Test.algorithm()
 GET     /test/test2                 controllers.Test.test2()
+GET     /test/websocket             controllers.Test.webSocket()
 
 # DB Seeds
 GET     /seed/users/:seedSize       controllers.Seed.users(seedSize: Int)
