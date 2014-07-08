@@ -1,58 +1,77 @@
 package models;
 
-import org.apache.commons.lang3.Validate;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.gson.Gson;
+import play.Logger;
+import play.api.libs.json.JsPath;
+import play.libs.Json;
 
-import java.util.*;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.Date;
 
 /**
- * Created by kedar on 6/3/14.
+ * Created by kedar on 6/12/14.
  */
 public class Chai {
-    // there can only be 2 users in a match
-    private Map<String, Boolean> userChoices = new HashMap<>(); // null: no choice made yet, true: like, false: pass
-    private RejectReason reason;
+    private String userId;
     private Date date;
-    private double score;
+    private boolean decision = false;    // like, pass -> true, false
+    private Date decisionTimestamp;
+    private RejectReason reason = null;  // if rejected, the reason
+    private double chaiScore;
+    private boolean match = false;
 
-    private Chai () {}  // for Jackson
-
-    public Chai (String user1, String user2, double score) {
-        Validate.notNull(user1, "user1 can't be null");
-        Validate.notNull(user2, "user2 can't be null");
-        userChoices.put(user1, false);
-        userChoices.put(user2, false);
+    public Chai(String userId, double chaiScore) {
+        this.userId = userId;
+        this.chaiScore = chaiScore;
         date = new Date();
-        this.score = score;
     }
 
-    public Chai (String user1, String user2, double score, RejectReason reason) {
-        this(user1, user2, score);
+    public void setDecision (boolean choice) {
+        this.decision = choice;
+        decisionTimestamp = new Date();
+    }
+
+    public void setDecisionWithReason (boolean choice, RejectReason reason) {
+        setDecision(choice);
         this.reason = reason;
     }
 
-    public boolean contains (String userId) {
-        if (userChoices.containsKey(userId))
-            return true;
-        return false;
+    public boolean getDecision() {
+        return decision;
     }
 
-    public boolean contains (String user1, String user2) {
-        if (userChoices.containsKey(user1) && userChoices.containsKey(user2))
-            return true;
-        return false;
+    public String getUserId() {
+        return userId;
     }
 
-    public boolean isMatch () {
-        for (Boolean choice: userChoices.values()) {
-            if (!choice)
-                return false;
+    public void setMatch (boolean isMatch) {
+        this.match = isMatch;
+    }
+
+    public boolean isMatch() {
+        return match;
+    }
+
+    public ObjectNode toJson () {
+        Gson gson = new Gson();
+        String jsonString = gson.toJson(this);
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode json = null;
+        try {
+            json = mapper.readTree(jsonString);
+        } catch (IOException e) {
+            Logger.error("Error parsing JSON in Chai.toJson()");
+            e.printStackTrace();
         }
-        return true;
-    }
 
-    public Boolean getChoice (String userId) {
-        if (!contains(userId))
-            throw new IllegalArgumentException("Chai does not contain userId");
-        return userChoices.get(userId);
+        if (!json.isObject()) {
+            throw new ClassCastException("chai.toJSON(): JsonNode cannot be cast to ObjectNode, the node contains a value instead of an object");
+        }
+
+        return (ObjectNode) json;
     }
 }

@@ -1,15 +1,102 @@
+@(matches: List[User])
+
 <!DOCTYPE html>
 <html>
 <head>
     <title>Let's Chai - Chat</title>
-    <script src="/assets/javascripts/strophe.js"></script>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/assets/images/favicon.png" />
+    <!-- Bootstrap -->
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet" />
+    <!--Buttons-->
+    <link href="/assets/modern-buttons/css/m-buttons.css" rel="stylesheet" />
+
+    <!-- jQuery -->
     <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+
+    <style>
+        @sitewide.style()
+        @header.style()
+        @sidebar.style()
+
+        #content { margin-top: 4%; }
+        .match {
+            padding: 5% 2%;
+            border: 1px solid lightgray;
+            cursor: pointer;
+        }
+        .match.active {
+            background-color: #C84A49;
+            color: white;
+        }
+        .match.unread {
+            border-left: 6px solid lightgreen;
+        }
+        .profile-pic {
+            width: 50px;
+            border-radius: 50%;
+            margin-right: 5%;
+        }
+        #chat-history {
+            min-height: 400px;
+            padding: 3%;
+            border: 1px solid lightgray;
+        }
+        .message > * {
+            display: inline-block;
+        }
+        .message .sender { font-weight:bold; }
+        .message.other .sender { color: #c84A49 }
+        .message.me .sender { color: #0C88FE; }
+        #new-message {
+            height: 50px;
+            width: 80%;
+            border: 1px solid lightgray;
+        }
+        #send {
+            width: 19%;
+            vertical-align: top;
+            height: 50px;
+            margin: 0;
+        }
+    </style>
 </head>
 <body>
 
-<div id="incoming"></div>
-<input id="chat" />
-<button id="send">Send</button>
+<!--Page Header-->
+@header.content()
+<!-- Sidebar -->
+@sidebar.content()
+
+<div id="content">
+    <div class="row">
+        <div class="col-lg-2 col-sm-3 col-sm-offset-2 " id="match-container">
+            @for(matchi <- matches) {
+            <div class="match active" data-user="@matchi.getUserId()">
+                <!--<img class="profile-pic" src="//fbcdn-profile-a.akamaihd.net/hprofile-ak-prn2/t1.0-1/c0.0.160.160/p160x160/1798707_10203454757709153_1675162974_n.jpg" />-->
+                <span class="name">@matchi.getName()</span>
+            </div>
+            }
+        </div>
+        <div class="col-lg-5 col-md-6 col-sm-7" id="chat-container">
+            <div id="chat-history">
+                <div class="message me">
+                    <div class="sender">Varun:</div>
+                    <div class="text">Hi Kedar!</div>
+                </div>
+                <div class="message other">
+                    <div class="sender">Kedar:</div>
+                    <div class="text">Hi Varun!</div>
+                </div>
+            </div>
+            <div id="new-chat">
+                <textarea id="new-message" placeholder="Press ENTER to send"></textarea>
+                <button id="send" class="m-btn green">Send</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
     var socket = new WebSocket("ws://localhost:9000/chat/socket");
@@ -30,6 +117,20 @@
         console.log(chat);
         socket.send(JSON.stringify(chat));
     });
+
+    $(".match").click(function() {
+        $(".match").removeClass('active');
+        $(this).addClass("active");
+    });
+
+    $(".unread").click(function() {
+        $(this).removeClass("unread");
+    });
+
+    // change the user whose chats are shown
+    function displayChats (userId) {
+
+    }
 </script>
 
 </body>

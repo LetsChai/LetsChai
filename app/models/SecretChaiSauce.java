@@ -83,7 +83,7 @@ public class SecretChaiSauce {
                 bestMatch = partner;
             }
         }
-        return new Chai(user.getUserId(), bestMatch.getUserId(), bestScore);
+        return new Chai(bestMatch.getUserId(), bestScore);
     }
 
     public double chaiScore (User user, User partner) throws InvalidPincodeException {
@@ -173,11 +173,12 @@ public class SecretChaiSauce {
         return 0.95;
     }
 
+    // return 1 if the partner has been matched and accepted the chai, 0 otherwise
     public double matchScore (User user, User partner) {
-        Chai chai = user.getChaiWith(partner.getUserId());
+        Chai chai = partner.getChaiWith(user.getUserId());
         if (chai == null)
             return 0;
-        if (chai.getChoice(partner.getUserId()) == true)
+        if (chai.getDecision() == true)
             return 1;
         return 0;
     }

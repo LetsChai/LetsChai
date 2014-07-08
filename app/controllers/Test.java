@@ -12,21 +12,26 @@ import play.libs.F;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.WebSocket;
+import play.mvc.With;
 import uk.co.panaxiom.playjongo.PlayJongo;
 
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by kedar on 5/23/14.
  */
 public class Test extends Controller {
 
+    @With(Auth.class)
     public static Result test() {
         Friends friends = PlayJongo.getCollection("production_users").findOne("{'userId': '10152202364431336'}").as(User.class).getMutualFriends("10152133015017596");
         return ok(friends.toString());
     }
 
     public static Result test2 () {
+        Iterable<User> users = User.findMultiple(Arrays.asList(""));
 
         return ok();
     }

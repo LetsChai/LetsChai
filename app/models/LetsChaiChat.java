@@ -40,6 +40,7 @@ public class LetsChaiChat {
         try {
             smack.connect();
         } catch (XMPPException e) {
+            Logger.error("Error connecting to Openfire Server");
             e.printStackTrace();
         }
         this.userId = username;

@@ -6,13 +6,52 @@
     <!--Buttons-->
     <link href="/assets/modern-buttons/css/m-buttons.css" rel="stylesheet" />
 
+    <!-- Jcrop CSS -->
+    <link href="/assets/stylesheets/jquery.Jcrop.css" rel="stylesheet" />
+
+    <!-- Bootstrap CDN -->
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet" />
+
+    <!--jQuery CDN-->
+    <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+
     <style>
         @sitewide.style()
         @header.style()
         @sidebar.style()
+
+        .row {
+            margin-left:0;
+            margin-right:0;
+        }
+        #content {
+            display:inline-block;
+            width:100%;
+            padding-top: 3%;
+        }
+        .picture-upload {
+            margin: 2% 0;
+        }
+        .preview-window {
+            height: 200px;
+            width: 200px;
+            overflow: hidden;
+        }
+        .picture-preview {
+            width: 200px;
+        }
+        .picture-input {
+            margin-top: 2%;
+        }
     </style>
 </head>
 <body>
+
+<!-- Bootstrap JS -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+
+<!-- Jcrop JS-->
+<script src="/assets/javascripts/jquery.Jcrop.min.js"></script>
 
 <!--Page Header-->
 @header.content()
@@ -20,14 +59,119 @@
 <!-- Sidebar -->
 @sidebar.content()
 
-<div class="row"><div class="col-lg-offset-3 col-lg-9">
-    <input type="file"/>
-    <input type="file"/>
-    <input type="file"/>
-    <input type="file"/>
-    <button class="m-btn green">Upload</button>
-    <button class="m-btn">Cancel</button>
+<div class="row"><div class="col-sm-offset-3 col-lg-9">
+    <div class="row">
+        <div class="col-lg-5 picture-upload">
+            <div class="preview-window">
+                <img class="picture-preview" src="/assets/images/silhouette.png" />
+            </div>
+            <input type="file" class="picture-input" accept="image/*" />
+        </div>
+        <div class="col-lg-7 picture-upload">
+            <div class="preview-window">
+                <img class="picture-preview" src="/assets/images/silhouette.png" />
+            </div>
+            <input type="file" class="picture-input" accept="image/*" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-5 picture-upload">
+            <div class="preview-window">
+                <img class="picture-preview" src="/assets/images/silhouette.png" />
+            </div>
+            <input type="file" class="picture-input" accept="image/*" />
+        </div>
+        <div class="col-lg-7 picture-upload">
+            <div class="preview-window">
+                <img class="picture-preview" src="/assets/images/silhouette.png" />
+            </div>
+            <input type="file" class="picture-input" accept="image/*" />
+        </div>
+    </div>
+
+    <div class="row" id="button-row">
+        <button id="upload" class="m-btn green">Upload</button>
+        <button id="cancel" class="m-btn">Cancel</button>
+    </div>
 </div></div>
+
+<!-- Image crop modal -->
+<div class="modal fade" id="image-crop">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h4 class="modal-title" id="myModalLabel">Select an Area</h4>
+            </div>
+            <div class="modal-body">
+                <img />
+            </div>
+            <div class="modal-footer">
+                <button id="finish-crop" type="button" class="btn btn-default" data-dismiss="modal">Done</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<canvas id="test-canvas" width="400" height="400"></canvas>
+
+<script>
+    var canvas = document.getElementById('test-canvas');
+    var context = canvas.getContext('2d');
+
+    var jcrop_api;
+    var current_preview;
+
+    $(".picture-input").change(function() {
+        if (this.files && this.files[0]) {
+            var self = this;
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                current_preview = $(self).parent().find(".picture-preview");
+                current_preview.attr('src', e.target.result);
+                $("#image-crop img").attr('src', e.target.result);
+                $("#image-crop img").Jcrop({
+                    aspectRatio: 1,
+                    minSize: [300, 300],
+                    setSelect: [0, 0, 300, 300],
+                    boxWidth: 500,
+                    boxHeight: 500
+                }, function () {
+                    jcrop_api = this;
+                });
+                $("#image-crop").modal();
+            }
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+
+    $("#finish-crop").click(function() {
+        var previewSize = 200;
+
+        var picHeight = $("#image-crop img")[0].naturalHeight;
+        var picWidth = $("#image-crop img")[0].naturalWidth;
+
+        coords = jcrop_api.tellSelect();
+        var rx = previewSize / coords.w;
+        var ry = previewSize / coords.h;
+
+        current_preview.css({
+            width: Math.round(rx * picWidth) + 'px',
+            height: Math.round(ry * picHeight) + 'px',
+            marginLeft: '-' + Math.round(rx * coords.x) + 'px',
+            marginTop: '-' + Math.round(ry * coords.y) + 'px'
+        });
+        current_preview.data("coords", coords);
+        jcrop_api.destroy();
+        $("#image-crop img").attr('src', '');
+    });
+
+    $("#upload").click(function() {
+        var coords = $(".picture-preview").first().data("coords");
+        context.drawImage($(".picture-preview").first()[0], coords.x, coords.y, coords.w, coords.h, 0, 0, 400, 400);
+    });
+
+</script>
 
 </body>
 </html>

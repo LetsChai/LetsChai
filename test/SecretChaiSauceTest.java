@@ -1,5 +1,4 @@
 import exceptions.InvalidPincodeException;
-import models.Chai;
 import models.Pincode;
 import models.SecretChaiSauce;
 import models.User;
@@ -9,12 +8,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import play.test.FakeApplication;
 import play.test.Helpers;
-import uk.co.panaxiom.playjongo.PlayJongo;
 
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.*;

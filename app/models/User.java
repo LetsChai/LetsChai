@@ -5,12 +5,14 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.fluent.Request;
 import org.joda.time.DateTime;
 import org.joda.time.Years;
 import org.jongo.MongoCollection;
 import play.Logger;
+import play.libs.Json;
 import uk.co.panaxiom.playjongo.PlayJongo;
 
 import java.io.IOException;
@@ -46,6 +48,7 @@ public class User {
     private List<Chai> chais = new ArrayList<Chai>();
     private EnumSet<Flag> flags = EnumSet.noneOf(Flag.class);
     private EnumSet<Permission> permissions = EnumSet.noneOf(Permission.class);
+    private List<String> pictures = new ArrayList<>();
 
     // non-stored fields
     @JsonIgnore
@@ -79,6 +82,19 @@ public class User {
 
     public static User findOne (String userId) {
         return getCollection().findOne("{'userId': '#'}", userId).as(User.class);
+    }
+
+    public static Iterable<User> findMultiple (List<String> userIds) {
+        String query = "{'userId': {'$in': [";
+        if (userIds.size() > 0) {
+            for (String id: userIds) {
+                query += String.format("'%s',", id);
+            }
+            query = query.substring(0, query.length()-1);
+        }
+        query += "] }}";
+
+        return getCollection().find(query).as(User.class);
     }
 
     public static Iterable<User> findAll () {
@@ -234,6 +250,9 @@ public class User {
         this.occupation = occupation;
     }
 
+    public String getName () {
+        return firstName + " " + lastName;
+    }
     public ZodiacSign getZodiacSign () {
         return ZodiacSign.fromDate(birthday);
     }
@@ -303,7 +322,7 @@ public class User {
     // get the chai between this user and the specified userId, returns null if none exists
     public Chai getChaiWith (String userId) {
         for (Chai chai: chais) {
-            if (chai.contains(userId))
+            if (chai.getUserId() == userId)
                 return chai;
         }
         return null;
@@ -370,4 +389,31 @@ public class User {
         String query = String.format("{'userId': '%s'}", userId);
         getCollection().update(query).with(this);
     }
+
+    public List<Chai> getMatches () {
+        List<Chai> matches = new ArrayList<>();
+        for (Chai chai: chais) {
+            if (chai.isMatch())
+                matches.add(chai);
+        }
+        return matches;
+    }
+
+    public List<User> getMatchedUsers () {
+        List<Chai> matches = getMatches();
+
+        List<String> userIds = new ArrayList<>();
+        for (Chai chai: matches) {
+            userIds.add(chai.getUserId());
+        }
+
+        Iterable<User> userIterable = User.findMultiple(userIds);
+        List<User> result = new ArrayList<>();
+        for (User user: userIterable) {
+            result.add(user);
+        }
+
+        return result;
+    }
+
 }

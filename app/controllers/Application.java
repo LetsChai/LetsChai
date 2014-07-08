@@ -22,16 +22,19 @@ public class Application extends Controller {
         return ok(newusersurvey.render());
     }
 
+    @With(Auth.class)
     public static Result chai () {
         User user = User.findOne(session().get("user"));
         return ok(chai.render(user, false));
     }
 
+    @With(Auth.class)
     public static Result editprofile () {
         User user = User.findOne(session().get("user"));
         return ok(chai.render(user, true));
     }
 
+    @With(Auth.class)
     public static Result updateProfile () {
         Map<String, String[]> params = request().body().asFormUrlEncoded();
         UserProfile profile = UserProfile.findOne(session().get("user"));
@@ -59,10 +62,12 @@ public class Application extends Controller {
         return redirect(controllers.routes.Application.editprofile());
     }
 
+    @With(Auth.class)
     public static Result preferences () {
         return ok(preferences.render(UserPreference.findOne(session().get("user"))));
     }
 
+    @With(Auth.class)
     public static Result updatePreferences () {
         Map<String, String[]> params = request().body().asFormUrlEncoded();
         UserPreference pref = new UserPreference();
@@ -81,11 +86,13 @@ public class Application extends Controller {
         return redirect(controllers.routes.Application.preferences());
     }
 
+    @With(Auth.class)
     public static Result settings () {
         UserProfile profile = UserProfile.findOne(session().get("user"));
         return ok(settings.render(profile));
     }
 
+    @With(Auth.class)
     public static Result updateSettings () {
         UserProfile profile = UserProfile.findOne(session().get("user"));
         Map<String, String[]> params = request().body().asFormUrlEncoded();
@@ -97,6 +104,7 @@ public class Application extends Controller {
         return redirect(controllers.routes.Application.settings());
     }
 
+    @With(Auth.class)
     public static Result editPictures () {
         return ok(editpictures.render());
     }
