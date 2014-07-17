@@ -1,7 +1,8 @@
-@(editable: Boolean)
+@(editable: Boolean, me: Boolean)
 
 @if(!editable) {
     <div id="mutualfriends">
+    @if(!me) {
         <div class="row">
             <span class="text">3 Mutual Friends: </span>
             <span>
@@ -10,5 +11,8 @@
                 <a href="//facebook.com/kedar.iyer.1"><img src="//fbcdn-profile-a.akamaihd.net/hprofile-ak-prn2/t1.0-1/c0.0.160.160/p160x160/1798707_10203454757709153_1675162974_n.jpg" /></a>
             </span>
         </div>
+    } else {
+        <a href="editprofile"><button class="m-btn" id="edit-profile-btn">Edit Profile</button></a>
+    }
     </div>
 }

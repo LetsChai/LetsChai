@@ -74,4 +74,8 @@ public class Chai {
 
         return (ObjectNode) json;
     }
+
+    public double getChaiScore() {
+        return chaiScore;
+    }
 }

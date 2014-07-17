@@ -1,9 +1,11 @@
-@(editable: Boolean)
+@(editable: Boolean, me: Boolean)
 
-@if(editable) {
-} else {
+@if(!editable && !me) {
     <div id="pass-like">
         <button id="pass" class="m-btn">Pass</button>
         <button id="like" class="m-btn">Like</button>
     </div>
+}
+@if(editable) {
+    <button class="m-btn green" id="save-profile">Save Profile</button>
 }

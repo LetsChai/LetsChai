@@ -1,3 +1,5 @@
+@(user: User)
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -36,12 +38,20 @@
             height: 200px;
             width: 200px;
             overflow: hidden;
+            position: relative;
         }
         .picture-preview {
             width: 200px;
         }
         .picture-input {
             margin-top: 2%;
+        }
+        #upload {
+            padding-right: 3%;
+            padding-left: 3%;
+        }
+        canvas, #to-submit {
+            display: none;
         }
     </style>
 </head>
@@ -59,39 +69,26 @@
 <!-- Sidebar -->
 @sidebar.content()
 
-<div class="row"><div class="col-sm-offset-3 col-lg-9">
-    <div class="row">
-        <div class="col-lg-5 picture-upload">
+<div class="row"><div class="col-sm-offset-3 col-lg-7">
+    @for((pic,i) <- user.getPictures().zipWithIndex) {
+        @if(i%2 == 0) {
+            <div class="row">
+        }
+        <div class="col-lg-6 picture-upload">
             <div class="preview-window">
-                <img class="picture-preview" src="/assets/images/silhouette.png" />
+                <img class="picture-preview" src="@pic" />
             </div>
             <input type="file" class="picture-input" accept="image/*" />
+            <button class="delete-picture">Delete</button>
         </div>
-        <div class="col-lg-7 picture-upload">
-            <div class="preview-window">
-                <img class="picture-preview" src="/assets/images/silhouette.png" />
+        @if(i%2 == 1) {
             </div>
-            <input type="file" class="picture-input" accept="image/*" />
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-lg-5 picture-upload">
-            <div class="preview-window">
-                <img class="picture-preview" src="/assets/images/silhouette.png" />
-            </div>
-            <input type="file" class="picture-input" accept="image/*" />
-        </div>
-        <div class="col-lg-7 picture-upload">
-            <div class="preview-window">
-                <img class="picture-preview" src="/assets/images/silhouette.png" />
-            </div>
-            <input type="file" class="picture-input" accept="image/*" />
-        </div>
-    </div>
+        }
+    }
 
     <div class="row" id="button-row">
-        <button id="upload" class="m-btn green">Upload</button>
-        <button id="cancel" class="m-btn">Cancel</button>
+        <button id="upload" class="m-btn green">Save</button>
+        <a href="profile"><button id="cancel" class="m-btn">Cancel</button></a>
     </div>
 </div></div>
 
@@ -115,6 +112,13 @@
 
 <canvas id="test-canvas" width="400" height="400"></canvas>
 
+<form id="to-submit" method="post" action="uploadpictures">
+    <input type="hidden" id="image0" name="image0" />
+    <input type="hidden" id="image1" name="image1" />
+    <input type="hidden" id="image2" name="image2" />
+    <input type="hidden" id="image3" name="image3" />
+</form>
+
 <script>
     var canvas = document.getElementById('test-canvas');
     var context = canvas.getContext('2d');
@@ -132,8 +136,8 @@
                 $("#image-crop img").attr('src', e.target.result);
                 $("#image-crop img").Jcrop({
                     aspectRatio: 1,
-                    minSize: [300, 300],
-                    setSelect: [0, 0, 300, 300],
+                    minSize: [350, 350],
+                    setSelect: [0, 0, 350, 350],
                     boxWidth: 500,
                     boxHeight: 500
                 }, function () {
@@ -161,15 +165,46 @@
             marginLeft: '-' + Math.round(rx * coords.x) + 'px',
             marginTop: '-' + Math.round(ry * coords.y) + 'px'
         });
-        current_preview.data("coords", coords);
+        current_preview.parents(".picture-upload").find('.picture-input').data("coords", coords);
         jcrop_api.destroy();
         $("#image-crop img").attr('src', '');
     });
 
     $("#upload").click(function() {
-        var coords = $(".picture-preview").first().data("coords");
-        context.drawImage($(".picture-preview").first()[0], coords.x, coords.y, coords.w, coords.h, 0, 0, 400, 400);
+        uploadFiles();
     });
+
+    $(".delete-picture").click(function() {
+        var INPUT = $(this).parents(".picture-upload").find(".picture-input");
+        INPUT.wrap("<form>").parent("form").trigger("reset");
+        INPUT.unwrap();
+        INPUT.data("delete", true);
+        $(this).closest(".picture-upload").find(".picture-preview").attr("src", "/assets/images/silhouette.png");
+    });
+
+    function uploadFiles () {
+        var files = [];
+        var inputs = $('.picture-input');
+        inputs.each(function(i, input) {
+            if (input.files && input.files[0]) {
+                var base64image = cropResizeFile(input);
+                $("#image" + i).val(base64image.substring(23));
+            } else if ($(input).data("delete") == true) {
+                $("#image" + i).val("delete");
+            }
+        });
+        $("#to-submit").submit();
+    }
+
+    // requires input Element to have JCrop coordinates in data.coords
+    // returns base64 encoded JPEG of compressed and cropped image
+    function cropResizeFile (inputElement) {
+        var coords = $(inputElement).data("coords");
+        var imageElement = $(inputElement).parent().find(".picture-preview")[0];
+        // canvas.clearRect(0, 0, 400, 400);
+        context.drawImage(imageElement, coords.x, coords.y, coords.w, coords.h, 0, 0, 400, 400);
+        return canvas.toDataURL("image/jpeg");
+    }
 
 </script>
 

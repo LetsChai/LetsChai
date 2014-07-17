@@ -23,6 +23,9 @@ GET     /settings                   controllers.Application.settings()
 POST    /settings                   controllers.Application.updateSettings()
 GET     /logout                     controllers.Login.logout()
 GET     /editpictures               controllers.Application.editPictures()
+POST    /uploadpictures             controllers.Application.uploadPictures()
+GET     /profile                    controllers.Application.profile()
+
 
 # Chat
 GET     /chat                       controllers.Chat.chat()

@@ -1,12 +1,35 @@
-@(editable: Boolean)
+@(profile: User, editable: Boolean)
 
 <div id="profile-pictures">
-    <img src="/assets/images/Anushka-Sharma42.jpg" />
-    <!--<img src="/assets/images/ranbir-kapoor.jpg" />-->
-    <!--<img src="/assets/images/bangalore-guy.png" />-->
-    <!--<img src="/assets/images/bangalore-girl.jpeg" />-->
-    <!--<img src="/assets/images/bangalore-varun-girl.jpg" />-->
+    <div id="slides">
+        @for(pic <- profile.getPictures()) {
+            @if(pic != null) {
+                <img src="@pic" />
+            }
+        }
+    </div>
     @if(editable) {
         <a href="editpictures"><button class="lc-bg-red">Edit Pictures</button></a>
     }
 </div>
+
+<script>
+var dimensionString = $("#profile-pictures").css("width");
+var dimensionInt = parseInt(dimensionString.substring(0,dimensionString.indexOf("px")));
+$("#slides").slidesjs({
+    width: dimensionInt,
+    height: dimensionInt,
+    navigation: false
+});
+
+$(".slidesjs-pagination-item").click(function() {
+    $(".slidesjs-pagination-item").removeClass("active");
+    $(this).addClass("active");
+    $(this).find("a").trigger('click');
+});
+
+// make the first picture the active picture on page load
+$(document).ready(function() {
+    $(".slidesjs-pagination-item").first().addClass('active');
+});
+</script>

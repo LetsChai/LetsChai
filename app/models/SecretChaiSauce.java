@@ -1,11 +1,16 @@
 package models;
 
 import exceptions.InvalidPincodeException;
+import org.apache.commons.lang3.Validate;
+import play.Logger;
+import play.api.libs.concurrent.Promise;
+import play.libs.F;
 import uk.co.panaxiom.playjongo.PlayJongo;
 
 import java.lang.Iterable;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 /**
  * Created by kedar on 5/24/14.
@@ -13,132 +18,120 @@ import java.util.Map;
 
 public class SecretChaiSauce {
 
-    private Map<String, User> users;
-    private Map<Integer, Pincode> pincodes;
+    private List<User> users;
+    private Map<Integer, Pincode> pincodes = new HashMap<>();
 
-    public SecretChaiSauce () {}
+    private List<User> validUsers;
 
-    // user and pincode injection for testing purposes
-    public SecretChaiSauce (Map<String, User> users, Map<Integer, Pincode> pincodes) {
-        this();
+    public SecretChaiSauce (List<User> users, List<Pincode> pincodeList) {
+        Validate.notNull(users);
+        Validate.notNull(pincodeList);
+        Validate.isTrue(users.size() > 0);
+        Validate.isTrue(pincodeList.size() > 0);
+
         this.users = users;
-        this.pincodes = pincodes;
+        pincodeList.stream().forEach(pin -> pincodes.put(pin.getPincode(), pin));   // convert list to map
     }
 
-    public void run () {
-        loadPincodes();
-        loadUsers();
+    public F.Promise<Boolean> run () {
+        users.stream()
+                .filter(user -> !Pincode.inBangalore(user.getPincode()))
+                .forEach(user -> user.addFlag(Flag.NOT_IN_BANGALORE));
 
-        // algorithm
-        for (User user: users.values()) {
-            try {
-                user.addChai(getBestMatch(user));
-            }
-            catch (InvalidPincodeException pi) {
-                user.addFlag(Flag.INVALID_PINCODE);
-            }
-            PlayJongo.getCollection("algorithm_test_saves").save(user);
-        }
+        users.stream()
+                .filter(user -> !isValidPincode(user.getPincode()))
+                .forEach(user -> user.addFlag(Flag.INVALID_PINCODE));
+
+        users.stream()
+                .filter(user -> user.hasFlag(Flag.INVALID_PINCODE) && !user.hasFlag(Flag.NOT_IN_BANGALORE))
+                .forEach(user -> user.setAlternatePincode(560001));
+
+        validUsers = users.stream()
+                .filter(user -> !user.hasFlag(Flag.NOT_IN_BANGALORE))
+                .collect(Collectors.toList());
+
+       List<F.Promise<F.Tuple<User,Chai>>> chaiList = validUsers.stream()
+                .map(user -> F.Promise.promise(() -> user).zip(bestChai(user)))
+                .collect(Collectors.toList());
+
+       F.Promise<F.Tuple<User,Chai>>[] chais = new F.Promise[validUsers.size()];
+       for (int i=0; i<validUsers.size(); i++) {
+           chais[i] = chaiList.get(i);
+       }
+
+       return F.Promise.sequence(chais).map(tupleList -> {
+            tupleList.forEach(tuple -> {
+                tuple._1.addChai(tuple._2);
+            });
+            PlayJongo.getCollection("algorithm_test_saves").insert(users.toArray());
+           return true;
+       });
     }
 
-    public void runForUser (User user) {
-        loadPincodes();
-        loadUsers();
-        try {
-            user.addChai(getBestMatch(user));
-        } catch (InvalidPincodeException e) {
-            user.addFlag(Flag.INVALID_PINCODE);
-        }
-        PlayJongo.getCollection("algorithm_test_saves").save(user);
-    }
+    // all invalid pincodes MUST BE FILTERED OUT before invoking this function
+    public F.Promise<Chai> bestChai (User user) {
+        List<F.Promise<Chai>> possibleChais = new ArrayList<F.Promise<Chai>>();
+        double localMaxScore = 0;
 
-    public Chai getBestMatch (User user) throws InvalidPincodeException {
-        if (user == null)
-            throw new IllegalArgumentException("user cannot be null");
-
-        if (pincodes.get(user.getPincode()) == null) {
-            if (user.getPincode() > 560000 && user.getPincode() < 560999) {
-                user.addFlag(Flag.INVALID_PINCODE);
-                user.setPincode(560001);
-            }
-            else
-                throw new InvalidPincodeException(user.getPincode(), user.getUserId());
-        }
-
-        double bestScore = 0;
-        User bestMatch = null;
-        for (User partner: users.values()) {
-            if (user.getChaiWith(partner.getUserId()) != null)  // if a chai exists, continue
+        for (User partner: validUsers) {
+            if (partner.getUserId() == user.getUserId())
+                continue;
+            if (user.hasChai(partner.getUserId()))
+                continue;
+            if (!passesMutualLocalBooleans(user, partner))
+                continue;
+            final double localScore = localChaiScore(user, partner);
+            if (localScore + 0.35 < localMaxScore)
                 continue;
 
-            double chaiScore = 0;
-            try {
-                chaiScore = chaiScore(user,partner);
-            }
-            catch (InvalidPincodeException e) { // partner has an invalid pincode
-                chaiScore = 0;
-            }
-            if (chaiScore > bestScore) {
-                bestScore = chaiScore;
-                bestMatch = partner;
-            }
+            F.Promise<F.Tuple<Double, Boolean>> score = mutualFriendScore(user, partner).zip(passesMutualExternalBooleans(user, partner));
+            F.Promise<Chai> possibleChai = score.map(s -> new Chai(partner.getUserId(), (s._1*.35 + localScore) * (s._2 ? 1: 0)));
+            possibleChais.add(possibleChai);
         }
-        return new Chai(bestMatch.getUserId(), bestScore);
+
+        if (possibleChais.size() == 0) {
+            Logger.info(user.getUserId().toString() + " has no possible matches");
+            user.addFlag(Flag.NO_MATCHES);
+            return F.Promise.promise( () -> null);
+        } else {
+            Logger.info(user.getUserId().toString() + " found atleast one match");
+        }
+
+        // because of a bug in Play, it must be converted to array
+        F.Promise<Chai> [] promiseArray = new F.Promise[possibleChais.size()];
+        for (int i=0; i < possibleChais.size(); i++) {
+            promiseArray[i] = possibleChais.get(i);
+        }
+
+        F.Promise<List<Chai>> listPromise = F.Promise.sequence(promiseArray);
+
+        return listPromise.map(chaiList -> Collections.max(chaiList, (chai1, chai2) ->
+                        Double.compare(chai1.getChaiScore(), chai2.getChaiScore())));
     }
 
-    public double chaiScore (User user, User partner) throws InvalidPincodeException {
-        return booleanChecks(user, partner) *
-                (0.14 * distanceScore(user.getPincode(), partner.getPincode()) + 0.35 * mutualFriendScore(user, partner)) +
-        0.51 * matchScore(user,partner);
+    public double localChaiScore (User user, User partner)  {
+        return 0.51 * matchScore(user, partner) + 0.14 * distanceScore(user.getValidPincode(), partner.getValidPincode());
     }
 
-    // returns the integer value of the boolean check (true: 1, false: 0)
-    public int booleanChecks (User current, User candidate) throws InvalidPincodeException {
-        if (current == null || candidate == null)
-            throw new IllegalArgumentException("User arguments cannot be null");
-
+    // all boolean checks that can be carried out with external API calls
+    public boolean passesMutualLocalBooleans (User current, User candidate) {
         UserPreference currentPref = current.getPreferences();
         UserPreference candidatePref = candidate.getPreferences();
+        Pincode userPincode = pincodes.get(current.getValidPincode());
+        Pincode candidatePincode = pincodes.get(candidate.getValidPincode());
 
-        Pincode userPincode = pincodes.get(current.getPincode());
-        Pincode candidatePincode = pincodes.get(candidate.getPincode());
-
-        // handle invalid pincodes
-        if (userPincode == null) {
-            throw new InvalidPincodeException(current.getPincode());
-        }
-        if (candidatePincode == null) {
-            throw new InvalidPincodeException(candidate.getPincode());
-        }
-
-        boolean check =
-            // age
-            currentPref.getAge().contains(candidate.getAge()) &&
-            candidatePref.getAge().contains(current.getAge()) &&
-            // gender
-            currentPref.getGender().equals(candidate.getGenderGiven()) &&
-            candidatePref.getGender().equals(current.getGenderGiven()) &&
-            // religion
-            Religion.contains(currentPref.getReligion(), candidate.getReligion()) &&
-            Religion.contains(candidatePref.getReligion(), current.getReligion()) &&
-            // distance < 50
-            userPincode.distanceFrom(candidatePincode) < 50 &&
-            // rejection
-
-            // facebook friends
-            !current.isFriendsWith(candidate.getUserId());
-
-        return check ? 1:0;
+        return currentPref.getAge().contains(candidate.getAge()) && candidatePref.getAge().contains(current.getAge())   // age
+                && currentPref.getGender().equals(candidate.getGenderGiven()) && candidatePref.getGender().equals(current.getGenderGiven()) // gender
+                && Religion.contains(currentPref.getReligion(), candidate.getReligion()) && Religion.contains(candidatePref.getReligion(), current.getReligion())   // religion
+                && userPincode.distanceFrom(candidatePincode) < 50; // distance
     }
 
-    public double distanceScore (int userPincode, int candidatePincode) throws InvalidPincodeException {
-        if (pincodes.get(userPincode) == null) {
-            throw new InvalidPincodeException(userPincode);
-        }
-        if (pincodes.get(candidatePincode) == null) {
-            throw new InvalidPincodeException(candidatePincode);
-        }
+    public F.Promise<Boolean> passesMutualExternalBooleans (User current, User candidate) {
+        return current.isFriendsWith(candidate.getUserId())
+                .map(bool -> !bool);     // return the opposite of the function call
+    }
 
+    public double distanceScore (int userPincode, int candidatePincode) {
         double distance = pincodes.get(userPincode).distanceFrom(pincodes.get(candidatePincode));
         int score = 0; // out of 6 for now
         if (distance < 2.5) {
@@ -154,56 +147,30 @@ public class SecretChaiSauce {
         } else if (distance < 25) {
             score = 1;
         }
-        return (double)score / 6;
+        return (double) score / 6;
     }
 
-    public double mutualFriendScore (User current, User other) {
-        Friends mutualFriends = current.getMutualFriends(other.getUserId());
-        if (mutualFriends.getFriends().size() > 0)
-            return 1;
-        int count = mutualFriends.getCount();
-        if (count <= 0)
-            return 0;
-        else if (count == 1)
-            return 0.5;
-        else if (count == 2)
-            return 0.65;
-        else if (count == 3)
-            return 0.8;
-        return 0.95;
+    public F.Promise<Double> mutualFriendScore (User current, User other) {
+        return current.getMutualFriends(other.getUserId())
+                .map( mutualFriends -> {
+                    int count = mutualFriends.getCount();
+                    return mutualFriends.getFriends().size() > 0 ? 1.0 :
+                        count <= 0 ? 0.0 :
+                        count == 1 ? 0.5 :
+                        count == 2 ? 0.65 :
+                        count == 3 ? 0.8 :
+                        0.95;
+                });
     }
 
     // return 1 if the partner has been matched and accepted the chai, 0 otherwise
     public double matchScore (User user, User partner) {
         Chai chai = partner.getChaiWith(user.getUserId());
-        if (chai == null)
-            return 0;
-        if (chai.getDecision() == true)
-            return 1;
-        return 0;
+        return chai == null ? 0 :
+                chai.getDecision() ? 1 : 0;
     }
 
-    public void loadPincodes () {
-        if (pincodes != null)
-            return;
-
-        pincodes = new HashMap<>();
-        Iterable<Pincode> pincodeIterable = PlayJongo.getCollection("pincodes_gmaps").find("{'city':'Bangalore'}").as(Pincode.class);
-        for (Pincode p: pincodeIterable) {
-            pincodes.put(p.getPincode(), p);
-        }
+    public boolean isValidPincode (int pincode) {
+        return pincodes.get(pincode) != null;
     }
-
-    // create giant table of all the users
-    public void loadUsers () {
-        if (users != null)
-            return;
-
-        users = new HashMap<>();
-        Iterable<User> userIterable = PlayJongo.getCollection("production_users").find().as(User.class);
-        for (User u: userIterable) {
-            users.put(u.getUserId(), u);
-        }
-    }
-
 }

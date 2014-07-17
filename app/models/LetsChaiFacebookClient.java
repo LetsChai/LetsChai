@@ -1,12 +1,19 @@
 package models;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.restfb.*;
 import com.restfb.types.TestUser;
 import org.jongo.MongoCollection;
+import play.Logger;
 import play.Play;
 
 import com.restfb.util.StringUtils;
+import play.libs.F;
+import play.libs.WS;
 import uk.co.panaxiom.playjongo.PlayJongo;
+
+import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  * Created by kedar on 3/27/14.
@@ -20,15 +27,10 @@ public class LetsChaiFacebookClient extends DefaultFacebookClient {
     protected final String redirectUri = "login/code/";
     protected final String graphBaseUrl = "http://";
 
-    // constructor
-    public LetsChaiFacebookClient() {
+    public LetsChaiFacebookClient (String accessToken) {
         super(Play.application().configuration().getString("facebook.app_access_token"), Play.application().configuration().getString("facebook.app_secret"));
         appId = Play.application().configuration().getString("facebook.app_id");
         appSecret = Play.application().configuration().getString("facebook.app_secret");
-    }
-
-    public LetsChaiFacebookClient (String accessToken) {
-        this();
         this.setAccessToken(accessToken);
     }
 
@@ -117,4 +119,33 @@ public class LetsChaiFacebookClient extends DefaultFacebookClient {
 //            jsonMapper.toJavaObject(response.getBody(), objectType)
 //        );
 //    }
+
+    public F.Promise<Boolean> areFriends (String userId1, String userId2) {
+        WS.WSRequestHolder request = WS.url(String.format("https://graph.facebook.com/v2.0/%s/friends/%s", userId1, userId2))
+                .setQueryParameter("access_token", accessToken);
+
+        F.Promise<JsonNode> jsonResponse = request.get().map(response -> response.asJson());
+
+        return jsonResponse.map(json -> {
+            if (json.path("data").has(0))
+                return true;
+            return false;
+        });
+    }
+
+    public F.Promise<Friends> getMutualFriends (String friendId) {
+       WS.WSRequestHolder request = WS.url("https://graph.facebook.com/v2.0/" + friendId)
+            .setQueryParameter("fields", "context.fields(mutual_friends)")
+            .setQueryParameter("access_token", accessToken);
+
+        F.Promise<JsonNode> jsonResponse = request.get().map(response -> response.asJson());
+        return jsonResponse.map(json -> {
+            Friends friends = new Friends();
+            for(JsonNode j: json.path("context").path("mutual_friends").path("data")) {
+                friends.addFriend(j);
+            }
+            friends.setCount(json.path("context").path("mutual_friends").path("summary").path("total_count").asInt());
+            return friends;
+        });
+    }
 }

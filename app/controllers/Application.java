@@ -1,7 +1,11 @@
 package controllers;
 
+import actions.Auth;
+import actions.AuthAction;
+import actions.SessionUserAction;
 import models.*;
 import org.joda.time.DateTime;
+import play.Logger;
 import play.mvc.*;
 
 import views.html.*;
@@ -22,52 +26,57 @@ public class Application extends Controller {
         return ok(newusersurvey.render());
     }
 
-    @With(Auth.class)
+    @Auth.WithUser
     public static Result chai () {
-        User user = User.findOne(session().get("user"));
-        return ok(chai.render(user, false));
+        User user = (User) ctx().args.get("user");
+        return ok(chai.render(user, false, false));
     }
 
-    @With(Auth.class)
+    @Auth.WithUser
+    public static Result profile () {
+        User user = (User) ctx().args.get("user");
+        return ok(chai.render(user, false, true));
+    }
+
+    @Auth.WithUser
     public static Result editprofile () {
-        User user = User.findOne(session().get("user"));
-        return ok(chai.render(user, true));
+        User user = (User) ctx().args.get("user");
+        return ok(chai.render(user, true, true));
     }
 
-    @With(Auth.class)
+    @Auth.UpdateUser
     public static Result updateProfile () {
+        User user = (User) ctx().args.get("user");
         Map<String, String[]> params = request().body().asFormUrlEncoded();
-        UserProfile profile = UserProfile.findOne(session().get("user"));
 
-        profile.setHeight(Integer.parseInt(params.get("height")[0]));
-        profile.setCity(params.get("city")[0]);
-        profile.setOccupation(params.get("occupation")[0]);
-        profile.setAnswers(params.get("answer"));
+        user.setHeight(Integer.parseInt(params.get("height")[0]));
+        user.setCity(params.get("city")[0]);
+        user.setOccupation(params.get("occupation")[0]);
+        user.setAnswers(params.get("answer"));
 
         Date birthday = new DateTime(
                 Integer.parseInt(params.get("year")[0]),
                 Integer.parseInt(params.get("month")[0]),
                 Integer.parseInt(params.get("day")[0]), 0, 0
         ).toDate();
-        profile.setBirthday(birthday);
+        user.setBirthday(birthday);
 
         List<Education> education = new ArrayList<Education>();
         String [] eduParams = params.get("education");
         education.add(new Education(eduParams[0], Education.EducationType.valueOf(eduParams[1])));
         education.add(new Education(eduParams[2], Education.EducationType.valueOf(eduParams[3])));
-        profile.setEducation(education);
-
-        UserProfile.getCollection().update("{'id': '#'}", profile.getId()).with(profile);
+        user.setEducation(education);
 
         return redirect(controllers.routes.Application.editprofile());
     }
 
-    @With(Auth.class)
+    @Auth.WithUser
     public static Result preferences () {
-        return ok(preferences.render(UserPreference.findOne(session().get("user"))));
+        User user = (User) ctx().args.get("user");
+        return ok(preferences.render(user.getPreferences()));
     }
 
-    @With(Auth.class)
+    @With(AuthAction.class)
     public static Result updatePreferences () {
         Map<String, String[]> params = request().body().asFormUrlEncoded();
         UserPreference pref = new UserPreference();
@@ -86,26 +95,49 @@ public class Application extends Controller {
         return redirect(controllers.routes.Application.preferences());
     }
 
-    @With(Auth.class)
+    @Auth.WithUser
     public static Result settings () {
-        UserProfile profile = UserProfile.findOne(session().get("user"));
-        return ok(settings.render(profile));
+        User user = (User) ctx().args.get("user");
+        return ok(settings.render(user));
     }
 
-    @With(Auth.class)
+    @Auth.UpdateUser
     public static Result updateSettings () {
-        UserProfile profile = UserProfile.findOne(session().get("user"));
+        User user = (User) ctx().args.get("user");
         Map<String, String[]> params = request().body().asFormUrlEncoded();
-
-        profile.setEmail(params.get("email")[0]);
-
-        UserProfile.getCollection().update("{'id': '#'}", profile.getId()).with(profile);
-
+        user.setEmail(params.get("email")[0]);
         return redirect(controllers.routes.Application.settings());
     }
 
-    @With(Auth.class)
+    @Auth.WithUser
     public static Result editPictures () {
-        return ok(editpictures.render());
+        User user = (User) ctx().args.get("user");
+        user.setDefaultPicture("/assets/images/silhouette.png");
+        user.forceNoCachePictures();
+        return ok(editpictures.render(user));
+    }
+
+    @Auth.UpdateUser
+    @BodyParser.Of(value = BodyParser.FormUrlEncoded.class, maxLength = 500 * 1024)
+    public static Result uploadPictures () {
+        User user = (User) ctx().args.get("user");
+        Map<String, String[]> formData = request().body().asFormUrlEncoded();
+        List<String> pictures = new ArrayList<String>();
+
+        List<String> keys = Arrays.asList("image0", "image1", "image2", "image3");
+        int i = 0;
+        for (String key: keys) {
+            String base64Image = formData.get(key)[0];
+            if (base64Image == "" || base64Image == null); // do nothing
+            else if (base64Image.equals("delete")) {
+                user.removePicture(i);
+            }
+            else {
+                user.uploadBase64Image(base64Image, "image/jpeg", i);
+            }
+            i++;
+        }
+
+        return redirect(controllers.routes.Application.editPictures());
     }
 }

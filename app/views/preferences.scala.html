@@ -68,10 +68,10 @@
                     <div id="private">private*</div>
                     <div class="row entry">
                         <div class="col-md-3 col-md-offset-1">
-                            <label for="ageMin">Age</label>
+                            <label for="age_min">Age</label>
                         </div>
                         <div class="col-md-8">
-                            <select name="age_min">
+                            <select name="age_min" id="age_min">
                                 @for(age <- 18 to 35) {
                                 <option value="@age"
                                     @if(pref.getAge().getMinimum() == age) {

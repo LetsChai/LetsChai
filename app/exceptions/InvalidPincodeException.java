@@ -1,5 +1,7 @@
 package exceptions;
 
+import models.Flag;
+
 /**
  * Created by kedar on 6/7/14.
  */
@@ -7,6 +9,12 @@ public class InvalidPincodeException extends Exception {
 
     private int pincode;
     private String userId;
+    public Flag flag;
+
+    public InvalidPincodeException (int pincode, String userId, Flag flag) {
+        this(pincode, userId);
+        this.flag = flag;
+    }
 
     public InvalidPincodeException (int pincode, String userId) {
         super(String.format("Invalid pincode %d for user %s", pincode, userId));
@@ -33,5 +41,9 @@ public class InvalidPincodeException extends Exception {
 
     public String getUserId() {
         return userId;
+    }
+
+    public Flag getFlag() {
+        return flag;
     }
 }

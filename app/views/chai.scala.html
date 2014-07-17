@@ -1,4 +1,4 @@
-@(profile: User, editable: Boolean)
+@(profile: User, editable: Boolean, me: Boolean)
 
 <!DOCTYPE html>
 <html>
@@ -41,6 +41,9 @@
 <!--jQuery CDN-->
 <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
 
+<!-- jQuery slider -->
+<script src="/assets/javascripts/jquery.slides.min.js"></script>
+
 <!--Page Header-->
 @header.content()
 
@@ -55,22 +58,19 @@
     <div class="row">
         <div class="col-md-4 col-sm-offset-2">
             <div class="row">
-                @profilePieces.pictures.content(editable)
+                @profilePieces.pictures.content(profile, editable)
             </div>
 
             <div class="row">
-                @profilePieces.mutualfriends.content(editable)
+                @profilePieces.mutualfriends.content(editable, me)
             </div>
             <div class="row">
-                @profilePieces.passlike.content(editable)
+                @profilePieces.passlike.content(editable, me)
             </div>
         </div>
 
         <div class="col-md-4">
             <div class="row">
-                @if(editable) {
-                    <button id="save-profile">Save Profile</button>
-                }
                 @profilePieces.aboutme.content(profile, editable)
             </div>
 

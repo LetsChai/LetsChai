@@ -24,6 +24,12 @@ public class Pincode {
         return getCollection().find().as(Pincode.class);
     }
 
+    public static boolean inBangalore (int pincode) {
+        if (pincode > 560000 && pincode < 561000)
+            return true;
+        return false;
+    }
+
     public String getCountry() {
         return country;
     }

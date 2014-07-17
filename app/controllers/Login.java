@@ -5,6 +5,7 @@ import models.*;
 import models.User;
 import models.AgeRange;
 import models.Gender;
+import play.Play;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.mvc.Controller;
@@ -20,7 +21,7 @@ import views.html.unverified;
 public class Login extends Controller {
 
     public static Result createTestUser() {
-        LetsChaiFacebookClient fb = new LetsChaiFacebookClient();
+        LetsChaiFacebookClient fb = new LetsChaiFacebookClient(Play.application().configuration().getString("facebook.app_access_token"));
         TestUser user = fb.createTestUser();
         return redirect(user.getLoginUrl());
     }
@@ -41,8 +42,7 @@ public class Login extends Controller {
         String gender = post.get("gender");
 
         // setup client with access token
-        LetsChaiFacebookClient fb = new LetsChaiFacebookClient();
-        fb.setAccessToken(accessToken);
+        LetsChaiFacebookClient fb = new LetsChaiFacebookClient(accessToken);
 
         // get and set user profile
         User user = new User(fb.fetchObject("me", com.restfb.types.User.class));

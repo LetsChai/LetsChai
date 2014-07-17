@@ -4,10 +4,31 @@
 }
 #profile-pictures button {
     width: 100%;
-    margin: 3% 0 5%;
+    margin: 3% 0 0;
     border: none;
-    border-radius: 5px;
     color: white;
     font-size: 1.4em;
     height: 60px;
+}
+#slides {
+    display: none;
+}
+.slidesjs-pagination {
+    text-align: center;
+}
+.slidesjs-pagination-item {
+    display: inline-block;
+    margin-right: 5%;
+    width: 20%;
+    background: lightgray;
+    height: 5px;
+    border-radius: 18%;
+    overflow: hidden;
+    cursor: pointer;
+}
+.slidesjs-pagination-item.active {
+    background: darkgray;
+}
+.slidesjs-pagination-item a {
+    color: lightgray;
 }

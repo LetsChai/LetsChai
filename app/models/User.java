@@ -1,22 +1,35 @@
 package models;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.PutObjectResult;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.apache.commons.codec.binary.*;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.fluent.Request;
 import org.joda.time.DateTime;
 import org.joda.time.Years;
 import org.jongo.MongoCollection;
 import play.Logger;
-import play.libs.Json;
+import play.Play;
+import play.libs.F;
+import play.libs.WS;
 import uk.co.panaxiom.playjongo.PlayJongo;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
+import java.util.Base64;
 
 /**
  * Created by kedar on 5/22/14.
@@ -53,6 +66,8 @@ public class User {
     // non-stored fields
     @JsonIgnore
     private Friends friends;
+    @JsonIgnore
+    private Integer alternatePincode;
 
     // for Jackson
     private User () {}
@@ -257,66 +272,23 @@ public class User {
         return ZodiacSign.fromDate(birthday);
     }
 
-    public Friends getFriends () {
+    public F.Promise<Friends> getFriends () {
         if (friends != null)
-            return friends;
-        friends = getMutualFriends(userId);
-        return friends;
+            return F.Promise.promise(() -> friends);
+        return getMutualFriends(userId).map(myFriends -> {
+            this.friends = myFriends;
+            return myFriends;
+        });
     }
 
-    public Friends getMutualFriends (String userId) {
-        String url = String.format("https://graph.facebook.com/v2.0/%s?fields=context&access_token=%s", userId, accessToken.getAccessToken());
-        String jsonString;
-        Friends friends = new Friends();
-
-        try {
-            jsonString = Request.Get(url).execute().returnContent().asString();
-        } catch (IOException e) {
-            Logger.error("IOException in " + url, e);
-            friends.setCount(0);
-            return friends;
-        }
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode response = null;
-        try {
-            response = mapper.readTree(jsonString);
-        } catch (IOException e) {
-            friends.setCount(0);
-            return friends;
-        } catch (NullPointerException e) {
-            throw new RuntimeException("No JSON was returned by " + url, e);
-        }
-
-        for(JsonNode j: response.path("context").path("mutual_friends").path("data")) {
-            friends.addFriend(j);
-        }
-        friends.setCount(response.path("context").path("mutual_friends").path("summary").path("total_count").asInt());
-        return friends;
+    public F.Promise<Friends> getMutualFriends (String friendId) {
+        LetsChaiFacebookClient fb = new LetsChaiFacebookClient(accessToken.getAccessToken());
+        return fb.getMutualFriends(friendId);
     }
 
-    public Boolean isFriendsWith(String userId) {
-        String url = String.format("https://graph.facebook.com/v2.0/%s/friends/%s?access_token=%s", this.userId, userId, accessToken.getAccessToken());
-        String jsonString = null;
-        try {
-            jsonString = Request.Get(url).execute().returnContent().asString();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode response = null;
-        try {
-            response = mapper.readTree(jsonString);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (NullPointerException e) {
-            Logger.error("no JSON returned by: " + url);
-            return false;
-        }
-
-        if (response.path("data").has(0))
-            return true;
-
-        return false;
+    public F.Promise<Boolean> isFriendsWith(String friendId) {
+        LetsChaiFacebookClient fb = new LetsChaiFacebookClient(accessToken.getAccessToken());
+        return fb.areFriends(userId, friendId);
     }
 
     // get the chai between this user and the specified userId, returns null if none exists
@@ -326,6 +298,18 @@ public class User {
                 return chai;
         }
         return null;
+    }
+
+    public Chai getChai (String userId) {
+        return getChaiWith(userId);
+    }
+
+    public boolean hasChai (String userId) {
+        for (Chai chai: chais) {
+            if (chai.getUserId() == userId)
+                return true;
+        }
+        return false;
     }
 
     public void addChai (Chai chai) {
@@ -415,5 +399,79 @@ public class User {
 
         return result;
     }
+
+    public void uploadBase64Image (String base64Image, String contentType, Integer slot) {
+        AmazonS3 s3 = new AmazonS3Client(LetsChaiAWS.getCredentials());
+        byte[] byteArray = Base64.getDecoder().decode(base64Image);
+        InputStream inputStream = new ByteArrayInputStream(byteArray);
+
+        String key = String.format("user_pictures/%s_%d", getUserId(), slot);
+        ObjectMetadata meta = new ObjectMetadata();
+        meta.setContentLength(byteArray.length);
+        meta.setContentType(contentType);
+
+        s3.putObject("letschai", key, inputStream, meta);
+
+        initializePictures();
+        String url = Play.application().configuration().getString("aws.s3url") + key;
+        pictures.set(slot, url);
+    }
+
+    private void initializePictures () {
+        while (pictures.size() < 4) {
+            pictures.add(null);
+        }
+    }
+
+    public List<String> getPictures() {
+        return pictures;
+    }
+
+
+    public void setDefaultPicture (String url) {
+        initializePictures();
+        int i=0;
+        for (String picture: pictures) {
+            if (picture == null)
+                pictures.set(i, url);
+            i++;
+        }
+    }
+
+    public void removePicture (int slot) {
+        pictures.set(slot, null);
+    }
+
+    // force the browser to grab fresh load of pictures
+    public void forceNoCachePictures () {
+        for (int i=0; i < pictures.size(); i++) {
+            String timestamp = String.valueOf(new Date().getTime());
+            pictures.set(i, pictures.get(i).concat("?" + timestamp));
+        }
+    }
+
+    public Integer getAlternatePincode() {
+        return alternatePincode;
+    }
+
+    public void setAlternatePincode(Integer alternatePincode) {
+        this.alternatePincode = alternatePincode;
+    }
+
+    // checks if there's an alternate pincode (which means the real pincode) is invalid, and gives it if it exists, else gives the real pincode
+    public int getValidPincode () {
+        if (alternatePincode == null)
+            return pincode;
+        return alternatePincode;
+    }
+
+    public boolean hasAlternatePincode () {
+        return alternatePincode != null;
+    }
+
+    public boolean hasFlag(Flag flag) {
+        return flags.contains(flag);
+    }
+
 
 }

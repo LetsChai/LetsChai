@@ -19,7 +19,8 @@ libraryDependencies ++= Seq(
   "joda-time" % "joda-time" % "2.3",
   "com.google.code.geocoder-java" % "geocoder-java" % "0.16",
   "org.apache.httpcomponents" % "fluent-hc" % "4.3.3",
-  "com.carrotsearch" % "junit-benchmarks" % "0.7.2"
+  "com.carrotsearch" % "junit-benchmarks" % "0.7.2",
+  "se.jbee" % "silk-di" % "0.6"
 )
 
 // resolver for play2-morphia plugin
