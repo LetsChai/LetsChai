@@ -34,14 +34,13 @@ GET     /chat                       controllers.Chat.chat()
 GET     /chat/socket                controllers.Chat.socket()
 
 # Testing Routes
-GET     /testuser/create            controllers.Login.createTestUser()
-GET     /testuser/login             controllers.Login.loginTestUser()
 GET     /session/populate           controllers.Session.populate(id: String ?= "arpita")
 GET     /session/dump               controllers.Session.dump()
 GET     /session/clear              controllers.Session.clear()
 GET     /test/test                  controllers.Test.test()
 GET     /test/algorithm             controllers.Test.algorithm()
 GET     /test/test2                 controllers.Test.test2()
+GET     /test/latency               controllers.Test.latency()
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

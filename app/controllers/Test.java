@@ -1,16 +1,20 @@
 package controllers;
 
 import classes.SecretChaiSauce;
+import clients.LetsChaiFacebookClient;
 import models.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
+import play.Play;
 import play.libs.F;
 import play.mvc.Controller;
 import play.mvc.Result;
+import types.Friends;
 import types.Pincode;
 import uk.co.panaxiom.playjongo.PlayJongo;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -41,4 +45,20 @@ public class Test extends Controller {
         SecretChaiSauce sauce = new SecretChaiSauce(users, pincodes);
         return sauce.run().map(bool -> ok());
     }
+
+    public static F.Promise<Result> latency () {
+        Date start = new Date();
+        String userId = session().get("user");
+        User user = User.findOne(userId);
+        LetsChaiFacebookClient fb = new LetsChaiFacebookClient(user.getAccessToken().getAccessToken());
+        String arpita = Play.application().configuration().getString("fb.arpita");
+        F.Promise<Friends> friends = user.getMutualFriends(arpita);
+        Date afterPromise = new Date();
+        return friends.map(freeds -> {
+            Date end = new Date();
+            return ok(String.format("%d %d", end.getTime() - start.getTime(), afterPromise.getTime() - start.getTime()));
+        });
+
+    }
+
 }
