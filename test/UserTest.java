@@ -1,16 +1,12 @@
-import models.Friends;
-import models.Permission;
+import types.Friends;
 import models.User;
-import org.joda.time.DateTime;
 import org.jongo.Jongo;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import play.test.FakeApplication;
 import play.test.Helpers;
-import uk.co.panaxiom.playjongo.PlayJongo;
 
 import java.net.UnknownHostException;
 import java.util.*;

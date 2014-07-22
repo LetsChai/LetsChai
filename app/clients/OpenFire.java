@@ -1,4 +1,4 @@
-package models;
+package clients;
 
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;

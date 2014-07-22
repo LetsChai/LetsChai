@@ -9,7 +9,7 @@
         }
     </div>
     @if(editable) {
-        <a href="editpictures"><button class="lc-bg-red">Edit Pictures</button></a>
+        <a href="editpictures"><button id="edit-pictures" class="lc-bg-red">Edit Pictures</button></a>
     }
 </div>
 
@@ -32,4 +32,6 @@ $(".slidesjs-pagination-item").click(function() {
 $(document).ready(function() {
     $(".slidesjs-pagination-item").first().addClass('active');
 });
+
+
 </script>

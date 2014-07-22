@@ -1,4 +1,4 @@
-@(profile: User, editable: Boolean, me: Boolean)
+@(profile: User, editable: Boolean, me: Boolean, chai: Chai)
 
 <!DOCTYPE html>
 <html>
@@ -51,9 +51,6 @@
 @sidebar.content()
 
 <!-- Main -->
-@if(editable) {
-    <form id="profile-form" method="post" action="editprofile">
-}
 <div id="content">
     <div class="row">
         <div class="col-md-4 col-sm-offset-2">
@@ -62,8 +59,11 @@
             </div>
 
             <div class="row">
-                @profilePieces.mutualfriends.content(editable, me)
+                @profilePieces.mutualfriends.content(editable, me, chai)
             </div>
+            @if(editable) {
+                <form id="profile-form" method="post" action="editprofile">
+                }
             <div class="row">
                 @profilePieces.passlike.content(editable, me)
             </div>

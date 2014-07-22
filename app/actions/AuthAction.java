@@ -13,7 +13,6 @@ public class AuthAction extends Action.Simple {
     @Override
     public F.Promise<SimpleResult> call (Http.Context ctx) throws Throwable {
         F.Promise<SimpleResult> ret = null;
-        ctx.args.put("auth", true);
 
         // redirect to login if not logged in
         if (!ctx.session().containsKey("user"))

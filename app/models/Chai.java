@@ -1,81 +1,76 @@
 package models;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.gson.Gson;
-import play.Logger;
-import play.api.libs.json.JsPath;
-import play.libs.Json;
+import types.Decision;
+import types.Friends;
 
-import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.Date;
 
 /**
  * Created by kedar on 6/12/14.
  */
 public class Chai {
-    private String userId;
-    private Date date;
-    private boolean decision = false;    // like, pass -> true, false
-    private Date decisionTimestamp;
-    private RejectReason reason = null;  // if rejected, the reason
-    private double chaiScore;
-    private boolean match = false;
 
-    public Chai(String userId, double chaiScore) {
-        this.userId = userId;
-        this.chaiScore = chaiScore;
+    private Date date;
+    private Decision myDecision;
+    private Decision otherDecision;
+    private double score;
+    private Friends mutualFriends;
+
+    private Chai () {} // for Jackson
+
+    public Chai(String myId, String otherId, double score, Friends mutualFriends) {
+        this.myDecision = new Decision(myId, false);
+        this.otherDecision = new Decision(otherId, false);
+        this.score = score;
+        this.mutualFriends = mutualFriends;
         date = new Date();
     }
 
-    public void setDecision (boolean choice) {
-        this.decision = choice;
-        decisionTimestamp = new Date();
+    public String getMyUserId () {
+        return myDecision.getUserId();
     }
 
-    public void setDecisionWithReason (boolean choice, RejectReason reason) {
-        setDecision(choice);
-        this.reason = reason;
+    public String getOtherUserId () {
+        return otherDecision.getUserId();
     }
 
-    public boolean getDecision() {
-        return decision;
+    public Date getDate() {
+        return date;
     }
 
-    public String getUserId() {
-        return userId;
+    public Decision getMyDecision() {
+        return myDecision;
     }
 
-    public void setMatch (boolean isMatch) {
-        this.match = isMatch;
+    public Decision getOtherDecision() {
+        return otherDecision;
     }
 
-    public boolean isMatch() {
-        return match;
+    public double getScore() {
+        return score;
     }
 
-    public ObjectNode toJson () {
-        Gson gson = new Gson();
-        String jsonString = gson.toJson(this);
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode json = null;
-        try {
-            json = mapper.readTree(jsonString);
-        } catch (IOException e) {
-            Logger.error("Error parsing JSON in Chai.toJson()");
-            e.printStackTrace();
-        }
-
-        if (!json.isObject()) {
-            throw new ClassCastException("chai.toJSON(): JsonNode cannot be cast to ObjectNode, the node contains a value instead of an object");
-        }
-
-        return (ObjectNode) json;
+    public Friends getMutualFriends() {
+        return mutualFriends;
     }
 
-    public double getChaiScore() {
-        return chaiScore;
+    public void setMyDecision (Decision decision) {
+        myDecision = decision;
+    }
+
+    public void setMyDecision (boolean likes) {
+        myDecision = new Decision(getMyUserId(), likes);
+    }
+
+    public void setOtherDecision (Decision decision) {
+        otherDecision = decision;
+    }
+
+    public void setOtherDecision (boolean likes) {
+        otherDecision = new Decision(getOtherUserId(), likes);
+    }
+
+    public boolean isMatch () {
+        return myDecision.isYes() && otherDecision.isYes();
     }
 }

@@ -1,4 +1,4 @@
-package models;
+package types;
 
 import org.apache.commons.lang3.text.WordUtils;
 

@@ -1,4 +1,4 @@
-package models;
+package types;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.restfb.json.JsonException;

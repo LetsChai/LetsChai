@@ -1,19 +1,17 @@
-package models;
+package clients;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.restfb.*;
 import com.restfb.types.TestUser;
+import models.User;
 import org.jongo.MongoCollection;
-import play.Logger;
 import play.Play;
 
 import com.restfb.util.StringUtils;
 import play.libs.F;
 import play.libs.WS;
+import types.Friends;
 import uk.co.panaxiom.playjongo.PlayJongo;
-
-import java.net.URI;
-import java.net.URISyntaxException;
 
 /**
  * Created by kedar on 3/27/14.
@@ -80,8 +78,8 @@ public class LetsChaiFacebookClient extends DefaultFacebookClient {
 //        return tokenPromise;
 //    }
 
-    public UserAccessToken obtainExtendedAccessToken (String accessToken) {
-        return new UserAccessToken(obtainExtendedAccessToken(getAppId(), appSecret, accessToken));
+    public User.AccessToken obtainExtendedAccessToken (String accessToken) {
+        return new User.AccessToken(obtainExtendedAccessToken(getAppId(), appSecret, accessToken));
     }
 
 //    public Promise<FacebookAccessToken> obtainExtendedAccessTokenAsync (String accessToken) {
@@ -147,5 +145,9 @@ public class LetsChaiFacebookClient extends DefaultFacebookClient {
             friends.setCount(json.path("context").path("mutual_friends").path("summary").path("total_count").asInt());
             return friends;
         });
+    }
+
+    public static String profilePictureURL (String userId) {
+        return String.format("http://graph.facebook.com/%s/picture?type=square", userId);
     }
 }

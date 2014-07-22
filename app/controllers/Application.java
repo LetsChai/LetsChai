@@ -1,13 +1,16 @@
 package controllers;
 
 import actions.Auth;
-import actions.AuthAction;
-import actions.SessionUserAction;
-import models.*;
+import models.Chai;
+import models.User;
 import org.joda.time.DateTime;
-import play.Logger;
-import play.mvc.*;
-
+import play.mvc.BodyParser;
+import play.mvc.Controller;
+import play.mvc.Result;
+import types.AgeRange;
+import types.Education;
+import types.Gender;
+import types.Religion;
 import views.html.*;
 
 import java.util.*;
@@ -29,19 +32,26 @@ public class Application extends Controller {
     @Auth.WithUser
     public static Result chai () {
         User user = (User) ctx().args.get("user");
-        return ok(chai.render(user, false, false));
+        Chai todaysChai = user.getTodaysChai();
+
+        if (todaysChai == null)   // no chai today!
+            return redirect(controllers.routes.Application.profile());
+
+        User myMatch = User.findOne(todaysChai.getOtherUserId());
+
+        return ok(chai.render(myMatch, false, false, todaysChai));
     }
 
     @Auth.WithUser
     public static Result profile () {
         User user = (User) ctx().args.get("user");
-        return ok(chai.render(user, false, true));
+        return ok(chai.render(user, false, true, null));
     }
 
     @Auth.WithUser
-    public static Result editprofile () {
+    public static Result editProfile () {
         User user = (User) ctx().args.get("user");
-        return ok(chai.render(user, true, true));
+        return ok(chai.render(user, true, true, null));
     }
 
     @Auth.UpdateUser
@@ -49,7 +59,11 @@ public class Application extends Controller {
         User user = (User) ctx().args.get("user");
         Map<String, String[]> params = request().body().asFormUrlEncoded();
 
-        user.setHeight(Integer.parseInt(params.get("height")[0]));
+        try {
+            user.setHeight(Integer.parseInt(params.get("height")[0]));
+        } catch (NumberFormatException e) {
+            // continue without setting the user's height
+        }
         user.setCity(params.get("city")[0]);
         user.setOccupation(params.get("occupation")[0]);
         user.setAnswers(params.get("answer"));
@@ -61,13 +75,15 @@ public class Application extends Controller {
         ).toDate();
         user.setBirthday(birthday);
 
-        List<Education> education = new ArrayList<Education>();
+        List<Education> education = new ArrayList<>();
         String [] eduParams = params.get("education");
-        education.add(new Education(eduParams[0], Education.EducationType.valueOf(eduParams[1])));
-        education.add(new Education(eduParams[2], Education.EducationType.valueOf(eduParams[3])));
+        if (!eduParams[0].trim().equals(""))  // blank schools count as no entry
+            education.add(new Education(eduParams[0].trim(), Education.EducationType.valueOf(eduParams[1])));
+        if (!eduParams[2].trim().equals(""))
+            education.add(new Education(eduParams[2].trim(), Education.EducationType.valueOf(eduParams[3])));
         user.setEducation(education);
 
-        return redirect(controllers.routes.Application.editprofile());
+        return redirect(controllers.routes.Application.editProfile());
     }
 
     @Auth.WithUser
@@ -76,10 +92,11 @@ public class Application extends Controller {
         return ok(preferences.render(user.getPreferences()));
     }
 
-    @With(AuthAction.class)
+    @Auth.UpdateUser
     public static Result updatePreferences () {
         Map<String, String[]> params = request().body().asFormUrlEncoded();
-        UserPreference pref = new UserPreference();
+        User user = (User) ctx().args.get("user");
+        User.Preferences pref = user.getPreferences();
 
         pref.setGender(Gender.valueOf(params.get("gender")[0]));
         pref.setAge(new AgeRange(Integer.parseInt(params.get("age_min")[0]), Integer.parseInt(params.get("age_max")[0])));
@@ -89,8 +106,6 @@ public class Application extends Controller {
             religions.add(Religion.valueOf(r));
         }
         pref.setReligion(religions);
-
-        UserPreference.getCollection().update("{'userId': '#'}", session().get("user")).with(pref);
 
         return redirect(controllers.routes.Application.preferences());
     }
@@ -139,5 +154,19 @@ public class Application extends Controller {
         }
 
         return redirect(controllers.routes.Application.editPictures());
+    }
+
+    // This is an AJAX-only route
+    @Auth.UpdateUser
+    public static Result chaiDecision (Boolean decision) {
+        User user = (User) ctx().args.get("user");
+        Map<String, String[]> form = request().body().asFormUrlEncoded();
+        User other = User.findOne(user.getTodaysChai().getOtherUserId());
+
+        user.getTodaysChai().setMyDecision(decision);
+        other.getTodaysChai().setOtherDecision(decision);
+
+        User.getCollection().update("{'userId':'#'}", other.getUserId()).with(other);
+        return ok();
     }
 }

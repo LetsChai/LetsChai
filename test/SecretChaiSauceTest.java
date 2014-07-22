@@ -1,6 +1,6 @@
 import exceptions.InvalidPincodeException;
-import models.Pincode;
-import models.SecretChaiSauce;
+import types.Pincode;
+import classes.SecretChaiSauce;
 import models.User;
 import org.jongo.Jongo;
 import org.junit.Before;

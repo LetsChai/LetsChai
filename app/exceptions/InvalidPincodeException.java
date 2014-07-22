@@ -1,6 +1,6 @@
 package exceptions;
 
-import models.Flag;
+import types.Flag;
 
 /**
  * Created by kedar on 6/7/14.

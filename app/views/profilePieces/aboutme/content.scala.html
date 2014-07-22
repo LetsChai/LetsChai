@@ -51,7 +51,7 @@
             <div class="col-md-4 field">Religion</div>
             <div class="col-md-8 content">
                 <select name="religion" />
-                    @for(religion <- Religion.values()) {
+                    @for(religion <- types.Religion.values()) {
                         <option value="@religion.toString"
                         @if(religion.toString == profile.getReligion().toString()) {
                             selected="selected"
@@ -65,10 +65,14 @@
             <div class="col-md-4 field">Education</div>
             <div class="col-md-8 content">
                 @for(e <- profile.getEducationForView()) {
-                    <input name="education"/>
-                    <select name="education">
-                        @for(t <- Education.EducationType.values()) {
-                            <option value="@t.toString()">@t.capitalized()</option>
+                    <input name="education" class="education-input" value="@e.getSchool()"/>
+                    <select name="education" class="education-select">
+                        @for(t <- types.Education.EducationType.values()) {
+                            <option value="@t.toString()"
+                                @if(e.getType() == t) {
+                                    selected
+                                }
+                            >@t.capitalized()</option>
                         }
                     </select>
                 }
@@ -105,11 +109,15 @@
         </div>
         <div class="row entry">
             <div class="col-md-4 field">Education</div>
-            <div class="col-md-8 content">Mount Carmel College, Bachelors</div>
+            <div class="col-md-8 content">
+                @for(edu <- profile.getEducation()) {
+                    <div class="row">@edu.getSchool(), @edu.getType().capitalized()</div>
+                }
+            </div>
         </div>
         <div class="row entry">
             <div class="col-md-4 field">Occupation</div>
-            <div class="col-md-8 content">Actress</div>
+            <div class="col-md-8 content">@profile.getOccupation()</div>
         </div>
     </div>
 }

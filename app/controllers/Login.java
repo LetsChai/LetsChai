@@ -1,10 +1,10 @@
 package controllers;
 
+import clients.LetsChaiFacebookClient;
 import com.restfb.types.TestUser;
-import models.*;
 import models.User;
-import models.AgeRange;
-import models.Gender;
+import types.AgeRange;
+import types.Gender;
 import play.Play;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -58,7 +58,7 @@ public class Login extends Controller {
 
         // create user preferences object
         user.setPreferences(
-                new UserPreference(
+                new User.Preferences(
                         Gender.valueOf(genderPref), new AgeRange(ageMin, ageMax)));
 
         // check to make sure user hasn't registered before

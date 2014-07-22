@@ -1,14 +1,10 @@
-import com.mongodb.MongoClient;
-import models.Pincode;
-import models.SecretChaiSauce;
-import models.User;
+import types.Pincode;
 import org.jongo.Jongo;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import play.test.FakeApplication;
 import play.test.Helpers;
-import uk.co.panaxiom.playjongo.PlayJongo;
 
 import java.net.UnknownHostException;
 import java.util.*;

@@ -1,4 +1,4 @@
-package models;
+package clients;
 
 import com.amazonaws.auth.BasicAWSCredentials;
 import play.Play;

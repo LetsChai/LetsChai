@@ -1,8 +1,8 @@
 package controllers;
 
-import models.ProfileQuestion;
-import models.QuestionGenerator;
-import models.UserProfile;
+import play.Play;
+import types.ProfileQuestion;
+import classes.QuestionGenerator;
 import play.mvc.Controller;
 import play.mvc.Result;
 
@@ -13,21 +13,14 @@ import java.util.List;
  */
 public class Session extends Controller {
 
-    public static Result populate (String id) {
+    public static Result populate (String name) {
+        String id = Play.application().configuration().getString("fb." + name);
         session("user", id);
         return ok("populated user id: " + id);
     }
 
     public static Result dump () {
         return ok(session().toString());
-    }
-
-    public static Result profile () {
-        String user = session("user");
-        UserProfile usere = UserProfile.findOne(user);
-        if (usere == null)
-            return ok("empty");
-        return ok(usere.toString());
     }
 
     public static Result questions () {

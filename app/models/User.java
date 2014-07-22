@@ -1,17 +1,18 @@
 package models;
 
+import classes.QuestionGenerator;
+import clients.LetsChaiAWS;
+import clients.LetsChaiFacebookClient;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.PutObjectResult;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.apache.commons.codec.binary.*;
+import com.restfb.FacebookClient;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.fluent.Request;
 import org.joda.time.DateTime;
@@ -20,11 +21,9 @@ import org.jongo.MongoCollection;
 import play.Logger;
 import play.Play;
 import play.libs.F;
-import play.libs.WS;
+import types.*;
 import uk.co.panaxiom.playjongo.PlayJongo;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,14 +47,14 @@ public class User {
     private String city; // from User.location.name
 
     // other fields
-    private UserAccessToken accessToken;
-    private UserPreference preferences = new UserPreference();
+    private AccessToken accessToken;
+    private Preferences preferences = new Preferences();
 
     private int pincode;
     private Gender genderGiven;     // to compare the gender they give us vs from facebook
     private int height; // in centimeters
     private Religion religion = Religion.valueOf("NO_PREFERENCE");
-    private List<models.Education> education = new ArrayList<Education>(); // currently set to size of 2
+    private List<Education> education = new ArrayList<Education>(); // currently set to size of 2
     private List<ProfileQuestion> questions;
     private String occupation;
     private List<Chai> chais = new ArrayList<Chai>();
@@ -116,13 +115,13 @@ public class User {
         return getCollection().find().as(User.class);
     }
 
-    public List<models.Education> getEducationForView () {
-        List<models.Education> result = new ArrayList<models.Education>();
-        for (models.Education e: education) {
+    public List<Education> getEducationForView () {
+        List<Education> result = new ArrayList<Education>();
+        for (Education e: education) {
             result.add(e);
         }
         while (result.size() < 2) {
-            result.add(new models.Education());
+            result.add(new Education());
         }
         return result;
     }
@@ -181,11 +180,11 @@ public class User {
         return city;
     }
 
-    public UserAccessToken getAccessToken() {
+    public AccessToken getAccessToken() {
         return accessToken;
     }
 
-    public UserPreference getPreferences() {
+    public Preferences getPreferences() {
         return preferences;
     }
 
@@ -233,11 +232,11 @@ public class User {
         this.city = city;
     }
 
-    public void setAccessToken(UserAccessToken accessToken) {
+    public void setAccessToken(AccessToken accessToken) {
         this.accessToken = accessToken;
     }
 
-    public void setPreferences(UserPreference preferences) {
+    public void setPreferences(Preferences preferences) {
         this.preferences = preferences;
     }
 
@@ -292,22 +291,25 @@ public class User {
     }
 
     // get the chai between this user and the specified userId, returns null if none exists
-    public Chai getChaiWith (String userId) {
+    public Chai getChai (String userId) {
         for (Chai chai: chais) {
-            if (chai.getUserId() == userId)
+            if (chai.getOtherUserId().equals(userId))
                 return chai;
         }
         return null;
     }
 
-    public Chai getChai (String userId) {
-        return getChaiWith(userId);
+    public Chai getTodaysChai () {
+        if (chais.size() == 0)
+            return null;
+        return chais.get(chais.size() - 1);
     }
 
-    public boolean hasChai (String userId) {
+    public Boolean hasChai (String userId) {
         for (Chai chai: chais) {
-            if (chai.getUserId() == userId)
+            if (chai.getOtherUserId().equals(userId))
                 return true;
+            Logger.info(chai.getOtherUserId() + " " + userId);
         }
         return false;
     }
@@ -369,11 +371,6 @@ public class User {
         }
     }
 
-    public void updateMongo () {
-        String query = String.format("{'userId': '%s'}", userId);
-        getCollection().update(query).with(this);
-    }
-
     public List<Chai> getMatches () {
         List<Chai> matches = new ArrayList<>();
         for (Chai chai: chais) {
@@ -388,7 +385,7 @@ public class User {
 
         List<String> userIds = new ArrayList<>();
         for (Chai chai: matches) {
-            userIds.add(chai.getUserId());
+            userIds.add(chai.getOtherUserId());
         }
 
         Iterable<User> userIterable = User.findMultiple(userIds);
@@ -473,5 +470,103 @@ public class User {
         return flags.contains(flag);
     }
 
+    public void removeFlag (Flag flag) {
+        flags.remove(flag);
+    }
 
+
+    /**
+     * Created by kedar on 5/14/14.
+     */
+    public static class AccessToken {
+
+        protected String accessToken;
+        protected Date expires;
+
+        public static MongoCollection getCollection () {
+            return PlayJongo.getCollection("user_access_tokens");
+        }
+
+        public static AccessToken findOne (String userId) {
+            return getCollection().findOne("{'userId': '#'}", userId).as(AccessToken.class);
+        }
+
+        public AccessToken() {}
+
+        public AccessToken(FacebookClient.AccessToken token) {
+            this.accessToken = token.getAccessToken();
+            this.expires = token.getExpires();
+        }
+
+        public static AccessToken fromQueryString (String query) {
+            return new AccessToken(FacebookClient.AccessToken.fromQueryString(query));
+        }
+
+        public String getAccessToken () {
+            return accessToken;
+        }
+
+        public Date getExpires () {
+            return expires;
+        }
+    }
+
+    /**
+     * Created by kedar on 5/14/14.
+     */
+    public static class Preferences {
+
+        private Gender gender;
+        private AgeRange age = new AgeRange();
+        private List<Religion> religion = Arrays.asList(Religion.NO_PREFERENCE);
+
+        public Preferences() {}
+
+        public static MongoCollection getCollection () {
+            return PlayJongo.getCollection("user_preferences");
+        }
+
+        public static Preferences findOne (String userId) {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+            return getCollection().findOne("{'userId': '#'}", userId).as(Preferences.class);
+        }
+
+        public Preferences(Gender gender, AgeRange age) {
+            this.gender = gender;
+            this.age = age;
+        }
+
+        public Gender getGender() {
+            return gender;
+        }
+
+        public AgeRange getAge() {
+            return age;
+        }
+
+        public List<Religion> getReligion() {
+            return religion;
+        }
+
+        public void setGender(Gender gender) {
+            this.gender = gender;
+        }
+
+        public void setAge(AgeRange age) {
+            this.age = age;
+        }
+
+        public void setReligion(List<Religion> religion) {
+            this.religion = religion;
+        }
+
+        public boolean matchesReligion(Religion test) {
+            for (Religion check: this.religion) {
+                if (test.equals(check))
+                    return true;
+            }
+            return false;
+        }
+    }
 }

@@ -15,7 +15,7 @@ GET     /nobirthday                 controllers.Login.noBirthday()
 
 # Full Launch
 GET     /chai                       controllers.Application.chai()
-GET     /editprofile                controllers.Application.editprofile()
+GET     /editprofile                controllers.Application.editProfile()
 POST    /editprofile                controllers.Application.updateProfile()
 GET     /preferences                controllers.Application.preferences()
 POST    /preferences                controllers.Application.updatePreferences()
@@ -23,9 +23,11 @@ GET     /settings                   controllers.Application.settings()
 POST    /settings                   controllers.Application.updateSettings()
 GET     /logout                     controllers.Login.logout()
 GET     /editpictures               controllers.Application.editPictures()
-POST    /uploadpictures             controllers.Application.uploadPictures()
+POST    /editpictures               controllers.Application.uploadPictures()
 GET     /profile                    controllers.Application.profile()
 
+# AJAX-only
+GET    /chai/decision/:choice       controllers.Application.chaiDecision(choice: Boolean)
 
 # Chat
 GET     /chat                       controllers.Chat.chat()
@@ -34,19 +36,12 @@ GET     /chat/socket                controllers.Chat.socket()
 # Testing Routes
 GET     /testuser/create            controllers.Login.createTestUser()
 GET     /testuser/login             controllers.Login.loginTestUser()
-GET     /session/populate           controllers.Session.populate(id: String ?= "1219293476")
+GET     /session/populate           controllers.Session.populate(id: String ?= "arpita")
 GET     /session/dump               controllers.Session.dump()
-GET     /session/profile            controllers.Session.profile()
-GET     /session/questions          controllers.Session.questions()
 GET     /session/clear              controllers.Session.clear()
 GET     /test/test                  controllers.Test.test()
 GET     /test/algorithm             controllers.Test.algorithm()
 GET     /test/test2                 controllers.Test.test2()
-GET     /test/websocket             controllers.Test.webSocket()
-
-# DB Seeds
-GET     /seed/users/:seedSize       controllers.Seed.users(seedSize: Int)
-GET     /seed/preferences/:seedSize controllers.Seed.preferences(seedSize: Int)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
