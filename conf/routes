@@ -6,7 +6,6 @@
 GET     /                           controllers.Application.landing()
 GET     /da39a3ee5e6b4b0d3255bfef95601890afd80709                   controllers.Application.thankyou()
 GET     /newusersurvey              controllers.Application.newusersurvey()
-POST    /register                   controllers.Login.register()
 GET     /unverified                 controllers.Login.unverified()
 GET     /tooyoung                   controllers.Login.tooYoung()
 GET     /tooold                     controllers.Login.tooOld()
@@ -25,6 +24,11 @@ GET     /logout                     controllers.Login.logout()
 GET     /editpictures               controllers.Application.editPictures()
 POST    /editpictures               controllers.Application.uploadPictures()
 GET     /profile                    controllers.Application.profile()
+POST    /login                      controllers.Login.login()
+POST    /deactivate                 controllers.Application.deactivate()
+POST    /activate                   controllers.Application.activate()
+GET     /nochai                     controllers.Application.nochai()
+GET     /deactivated                controllers.Application.deactivatedUser()
 
 # AJAX-only
 GET    /chai/decision/:choice       controllers.Application.chaiDecision(choice: Boolean)
@@ -32,6 +36,10 @@ GET    /chai/decision/:choice       controllers.Application.chaiDecision(choice:
 # Chat
 GET     /chat                       controllers.Chat.chat()
 GET     /chat/socket                controllers.Chat.socket()
+
+# Admin
+GET     /admin/permissions          controllers.Admin.updateAllPermissions()
+GET     /admin/friends              controllers.Admin.cacheFBData()
 
 # Testing Routes
 GET     /session/populate           controllers.Session.populate(id: String ?= "arpita")

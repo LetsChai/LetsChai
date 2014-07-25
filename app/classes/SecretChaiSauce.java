@@ -1,9 +1,10 @@
 package classes;
 
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 import models.Chai;
 import models.User;
 import org.apache.commons.lang3.Validate;
-import play.Logger;
 import play.libs.F;
 import types.Flag;
 import types.Friends;
@@ -22,16 +23,20 @@ public class SecretChaiSauce {
 
     private List<User> users;
     private Map<Integer, Pincode> pincodes = new HashMap<>();
+    private List<Friends> friendCache;
+    private List<Chai> pastChais;
 
     private List<User> validUsers;
 
-    public SecretChaiSauce (List<User> users, List<Pincode> pincodeList) {
+    public SecretChaiSauce (List<User> users, List<Pincode> pincodeList, List<Friends> friendCacheList, List<Chai> pastChais) {
         Validate.notNull(users);
         Validate.notNull(pincodeList);
         Validate.isTrue(users.size() > 0);
         Validate.isTrue(pincodeList.size() > 0);
 
         this.users = users;
+        this.friendCache = friendCacheList;
+        this.pastChais = pastChais;
         pincodeList.stream().forEach(pin -> pincodes.put(pin.getPincode(), pin));   // convert list to map
     }
 
@@ -47,19 +52,22 @@ public class SecretChaiSauce {
                 .filter(user -> !isValidPincode(user.getPincode()))
                 .forEach(user -> user.addFlag(Flag.INVALID_PINCODE));
 
+        // set alternate pincode for bangalore users without a valid pincode
         users.stream()
                 .filter(user -> user.hasFlag(Flag.INVALID_PINCODE) && !user.hasFlag(Flag.NOT_IN_BANGALORE))
                 .forEach(user -> user.setAlternatePincode(560001)); // need to discount for this later
 
+        // remove deactivated and outside bangalore users
         validUsers = users.stream()
-                .filter(user -> !user.hasFlag(Flag.NOT_IN_BANGALORE))
+                .filter(user -> !passesUserBooleans(user))
                 .collect(Collectors.toList());
 
        List<F.Promise<F.Tuple<User, Chai>>> chaiList = validUsers.stream()
                 .map(user -> F.Promise.promise(() -> user).zip(bestChai(user)))
                 .collect(Collectors.toList());
 
-       F.Promise<F.Tuple<User,Chai>>[] chais = new F.Promise[validUsers.size()];
+       @SuppressWarnings("unchecked")
+       F.Promise<F.Tuple<User, Chai>>[] chais = new F.Promise[validUsers.size()];
        for (int i=0; i<validUsers.size(); i++) {
            chais[i] = chaiList.get(i);
        }
@@ -89,35 +97,39 @@ public class SecretChaiSauce {
             if (localScore + 0.35 < localMaxScore)
                 continue;
             F.Promise<Friends> mutualFriends = user.getMutualFriends(partner.getUserId());
-            F.Promise<Double> mutualFriendScore = mutualFriends.map(friends -> mutualFriendScore(friends));
+            F.Promise<Double> mutualFriendScore = mutualFriends.map(this::mutualFriendScore);
             F.Promise<Boolean> externalBools = passesMutualExternalBooleans(user, partner);
 
             F.Promise<Double> chaiScore = mutualFriendScore.zip(externalBools)
                     .map(t -> (t._1 * .35 + localScore) * (t._2 ? 1 : 0));
             F.Promise<Chai> possibleChai = chaiScore.zip(mutualFriends)
-                    .map(t -> new Chai(user.getUserId(), partner.getUserId(), t._1, t._2));
+                    .map(t -> new Chai(user, partner, t._1, t._2));
 
             possibleChais.add(possibleChai);
         }
 
         if (possibleChais.size() == 0) {
-            Logger.info(user.getUserId().toString() + " has no possible matches");
             user.addFlag(Flag.NO_MATCHES);
             return F.Promise.promise( () -> null);
-        } else {
-            Logger.info(user.getUserId().toString() + " found atleast one match");
         }
 
         // because of a bug in Play, it must be converted to array
+        @SuppressWarnings("unchecked")
         F.Promise<Chai> [] promiseArray = new F.Promise[possibleChais.size()];
         for (int i=0; i < possibleChais.size(); i++) {
             promiseArray[i] = possibleChais.get(i);
         }
 
+        @SuppressWarnings("unchecked")
         F.Promise<List<Chai>> listPromise = F.Promise.sequence(promiseArray);
 
         return listPromise.map(chaiList -> Collections.max(chaiList, (chai1, chai2) ->
                         Double.compare(chai1.getScore(), chai2.getScore())));
+    }
+
+    public boolean passesUserBooleans (User user) {
+        // checks for deactivated and outside bangalore
+        return !user.hasFlag(Flag.DEACTIVATED) && !user.hasFlag(Flag.NOT_IN_BANGALORE);
     }
 
     public double localChaiScore (User user, User partner)  {
@@ -131,57 +143,16 @@ public class SecretChaiSauce {
         Pincode userPincode = pincodes.get(current.getValidPincode());
         Pincode candidatePincode = pincodes.get(candidate.getValidPincode());
 
-        return  current.getUserId() != candidate.getUserId()
+        return  !current.getUserId().equals(candidate.getUserId())
                 && currentPref.getAge().contains(candidate.getAge()) && candidatePref.getAge().contains(current.getAge())   // age
                 && currentPref.getGender().equals(candidate.getGenderGiven()) && candidatePref.getGender().equals(current.getGenderGiven()) // gender
                 && Religion.contains(currentPref.getReligion(), candidate.getReligion()) && Religion.contains(candidatePref.getReligion(), current.getReligion())   // religion
                 && userPincode.distanceFrom(candidatePincode) < 50; // distance
     }
 
-    public F.Promise<Boolean> passesMutualExternalBooleans (User current, User candidate) {
-        return current.isFriendsWith(candidate.getUserId())
-                .map(bool -> !bool);     // return the opposite of the function call
-    }
-
-    public double distanceScore (int userPincode, int candidatePincode) {
-        double distance = pincodes.get(userPincode).distanceFrom(pincodes.get(candidatePincode));
-        int score = 0; // out of 6 for now
-        if (distance < 2.5) {
-            score = 6;
-        } else if (distance < 5) {
-            score = 5;
-        } else if (distance < 7.5) {
-            score = 4;
-        } else if (distance < 10) {
-            score = 3;
-        } else if (distance < 15) {
-            score = 2;
-        } else if (distance < 25) {
-            score = 1;
-        }
-        return (double) score / 6;
-    }
-
-    public double mutualFriendScore(Friends mutualFriends) {
-        int count = mutualFriends.getCount();
-        return mutualFriends.getFriends().size() > 0 ? 1.0 :
-            count <= 0 ? 0.0 :
-            count == 1 ? 0.5 :
-            count == 2 ? 0.65 :
-            count == 3 ? 0.8 :
-            0.95;
-    }
-
-    public F.Promise<Double> mutualFriendScore (User current, User other) {
-        return current.getMutualFriends(other.getUserId())
-                .map( mutualFriends -> mutualFriendScore(mutualFriends));
-    }
-
     // return 1 if the partner has been matched and accepted the chai, 0 otherwise
     public double matchScore (User user, User partner) {
-        Chai chai = partner.getChai(user.getUserId());
-        return chai == null ? 0 :
-                chai.getMyDecision().isYes() ? 1 : 0;
+
     }
 
     public boolean isValidPincode (int pincode) {

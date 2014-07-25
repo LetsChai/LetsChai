@@ -115,30 +115,31 @@
 
                 </form>
 
-                <div id="deactivate" class="col-md-6 col-md-offset-3">
-                    <h4>Deactivate</h4>
-                    <div class="row entry">
-                        <input type="checkbox" />
-                        <label>I found my match on Let's Chai</label>
+                <form id="deactivate-form" method="post" action="deactivate">
+                    <div id="deactivate" class="col-md-6 col-md-offset-3">
+                        <h4>Deactivate</h4>
+                        <div class="row entry">
+                            <input type="radio" name="reason"/>
+                            <label>I found my match on Let's Chai</label>
+                        </div>
+                        <div class="row entry">
+                            <input type="radio" name="reason"/>
+                            <label>I am not satisfied with the service</label>
+                        </div>
+                        <div class="row entry">
+                            <input type="radio" name="reason"/>
+                            <label>Temporary, I will be back soon</label>
+                        </div>
+                        <div class="row entry">
+                            <input type="radio" id="other" name="reason"/>
+                            <label for="other">Other</label>
+                            <input type="text"/>
+                        </div>
+                        <div class="row entry">
+                            <button type="submit">Deactivate</button>
+                        </div>
                     </div>
-                    <div class="row entry">
-                        <input type="checkbox" />
-                        <label>I am not satisfied with the service</label>
-                    </div>
-                    <div class="row entry">
-                        <input type="checkbox" />
-                        <label>Temporary, I will be back soon</label>
-                    </div>
-                    <div class="row entry">
-                        <input type="checkbox" id="other" />
-                        <label for="other">Other</label>
-                        <input type="text"/>
-                    </div>
-                    <div class="row entry">
-                        <button>Deactivate</button>
-                    </div>
-                </div>
-
+                </form>
             </div>
         </div>
     </div>

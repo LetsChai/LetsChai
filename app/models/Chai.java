@@ -4,73 +4,63 @@ import types.Decision;
 import types.Friends;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Created by kedar on 6/12/14.
+ * Created by kedar on 7/25/14.
  */
 public class Chai {
-
+    // id, name
+    private Map<String, String> users = new HashMap<>();
+    private Map<String, Decision> decisions = new HashMap<>();
     private Date date;
-    private Decision myDecision;
-    private Decision otherDecision;
-    private double score;
+    private Double score;
     private Friends mutualFriends;
 
-    private Chai () {} // for Jackson
-
-    public Chai(String myId, String otherId, double score, Friends mutualFriends) {
-        this.myDecision = new Decision(myId, false);
-        this.otherDecision = new Decision(otherId, false);
+    public Chai(User user1, User user2, Double score, Friends mutualFriends) {
+        users.put(user1.getUserId(), user1.getName());
+        users.put(user2.getUserId(), user2.getName());
+        decisions.put(user1.getUserId(), new Decision(user1.getUserId(), false));
+        decisions.put(user2.getUserId(), new Decision(user2.getUserId(), false));
         this.score = score;
         this.mutualFriends = mutualFriends;
         date = new Date();
     }
 
-    public String getMyUserId () {
-        return myDecision.getUserId();
+    public Map<String, String> getUsers() {
+        return users;
     }
 
-    public String getOtherUserId () {
-        return otherDecision.getUserId();
+    public Map<String, Decision> getDecisions() {
+        return decisions;
+    }
+
+    public Decision getDecision(String userId) {
+        return decisions.get(userId);
+    }
+
+    public void setDecision(Decision decision) {
+        decisions.put(decision.getUserId(), decision);
+    }
+
+    public boolean hasUser (String userId) {
+        return users.containsKey(userId);
+    }
+
+    public boolean hasUsers (String userId1, String userId2) {
+        return users.containsKey(userId1) && users.containsKey(userId2);
     }
 
     public Date getDate() {
         return date;
     }
 
-    public Decision getMyDecision() {
-        return myDecision;
-    }
-
-    public Decision getOtherDecision() {
-        return otherDecision;
-    }
-
-    public double getScore() {
+    public Double getScore() {
         return score;
     }
 
     public Friends getMutualFriends() {
         return mutualFriends;
-    }
-
-    public void setMyDecision (Decision decision) {
-        myDecision = decision;
-    }
-
-    public void setMyDecision (boolean likes) {
-        myDecision = new Decision(getMyUserId(), likes);
-    }
-
-    public void setOtherDecision (Decision decision) {
-        otherDecision = decision;
-    }
-
-    public void setOtherDecision (boolean likes) {
-        otherDecision = new Decision(getOtherUserId(), likes);
-    }
-
-    public boolean isMatch () {
-        return myDecision.isYes() && otherDecision.isYes();
     }
 }

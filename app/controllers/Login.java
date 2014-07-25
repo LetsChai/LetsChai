@@ -1,8 +1,12 @@
 package controllers;
 
 import clients.LetsChaiFacebookClient;
+import com.restfb.FacebookClient;
 import com.restfb.types.TestUser;
 import models.User;
+import org.apache.commons.lang3.Validate;
+import play.Logger;
+import play.libs.F;
 import types.AgeRange;
 import types.Gender;
 import play.Play;
@@ -10,10 +14,15 @@ import play.data.DynamicForm;
 import play.data.Form;
 import play.mvc.Controller;
 import play.mvc.Result;
+import types.Permission;
 import uk.co.panaxiom.playjongo.PlayJongo;
 import views.html.nobirthday;
 import views.html.thankyou;
 import views.html.unverified;
+
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Created by kedar on 3/27/14.
@@ -31,9 +40,40 @@ public class Login extends Controller {
         return redirect(user.getLoginUrl());
     }
 
-    public static Result register() {
-        // get POST data
+    public static F.Promise<Result> login () {
         DynamicForm post = Form.form().bindFromRequest();
+        String accessToken = post.get("access_token");
+        Logger.info(accessToken);
+        LetsChaiFacebookClient fb = new LetsChaiFacebookClient(accessToken);
+        F.Promise<User> userPromise = fb.fetchObjectAsync("me", com.restfb.types.User.class).map(User::new);
+        return userPromise.flatMap(fbUser -> {
+            User user = User.findOne(fbUser.getUserId());
+            if (user != null) { // if the user exists
+                User.update(user.getUserId(), "{$set: {'lastLogin': #} }", new Date());
+                Long oneMonthAgo = (long) 86400 * (long) 30 * (long) 1000;
+
+                // check for expired access token
+                if (new Date().getTime() - oneMonthAgo > user.getAccessToken().getExpires().getTime()) {
+                    return fb.obtainExtendedAccessTokenAsync().map(extendedToken -> {
+                        user.setAccessToken(extendedToken);
+                        user.update();
+                        session().put("user", user.getUserId());
+                        return redirect(controllers.routes.Application.chai());
+                    });
+                }
+                return F.Promise.promise(() -> redirect(controllers.routes.Application.chai()));
+            }
+
+            return register(post, fbUser);
+        });
+    }
+
+    public static F.Promise<Result> register(DynamicForm post, User user) {
+        // if user accidentally ended up here, redirect them to the register page
+        if (post.get("age_min").length() == 0)
+            return F.Promise.promise(() -> redirect(controllers.routes.Application.newusersurvey()));
+
+        // parse POST
         String accessToken = post.get("access_token");
         int ageMin = Integer.parseInt(post.get("age_min"));
         int ageMax = Integer.parseInt(post.get("age_max"));
@@ -44,50 +84,46 @@ public class Login extends Controller {
         // setup client with access token
         LetsChaiFacebookClient fb = new LetsChaiFacebookClient(accessToken);
 
-        // get and set user profile
-        User user = new User(fb.fetchObject("me", com.restfb.types.User.class));
+        // make Facebook API calls
+        F.Promise<User.AccessToken> extendedTokenPromise = fb.obtainExtendedAccessTokenAsync();
+        F.Promise<List<Permission>> permissionsPromise = fb.getPermissions(user.getUserId());
+
+        // set POST properties while we wait
         user.setPincode(pincode);
         user.setGenderGiven(Gender.valueOf(gender));
         user.generateQuestions();
+        user.setPreferences(new User.Preferences(Gender.valueOf(genderPref), new AgeRange(ageMin, ageMax)));
+        user.updateLastLogin();
 
-        // swap for extended access token
-        user.setAccessToken(fb.obtainExtendedAccessToken(accessToken));
+        // set extended token and permissions
+        extendedTokenPromise.onRedeem(user::setAccessToken);
+        permissionsPromise.onRedeem(user::setPermissions);
 
-        // check and set which permissions got authorized
-        user.updatePermissions();
+        // when it's all done
+        return permissionsPromise.zip(extendedTokenPromise).map(p -> {
+            // verifications and checks
+            if (!user.isVerified()) {
+                PlayJongo.getCollection("unverified_users").save(user);
+                return redirect(controllers.routes.Login.unverified());
+            }
+            if (user.getBirthday() == null) {
+                PlayJongo.getCollection("nobirthday_users").save(user);
+                return redirect(controllers.routes.Login.noBirthday());
+            }
+            if (user.getAge() < 18) {
+                PlayJongo.getCollection("too_young_users").save(user);
+                return redirect(controllers.routes.Login.tooYoung());
+            }
+            if (user.getAge() > 30) {
+                PlayJongo.getCollection("too_old_users").save(user);
+                return redirect(controllers.routes.Login.tooOld());
+            }
 
-        // create user preferences object
-        user.setPreferences(
-                new User.Preferences(
-                        Gender.valueOf(genderPref), new AgeRange(ageMin, ageMax)));
-
-        // check to make sure user hasn't registered before
-        if (User.findOne(user.getUserId()) != null) {
-            return redirect(controllers.routes.Application.thankyou());
-        }
-
-        // check for verified profile and age
-        if (!user.isVerified()) {
-            PlayJongo.getCollection("unverified_users").save(user);
-            return redirect(controllers.routes.Login.unverified());
-        }
-        if (user.getBirthday() == null)  {
-            PlayJongo.getCollection("nobirthday_users").save(user);
-            return redirect(controllers.routes.Login.noBirthday());
-        }
-        if (user.getAge() < 18) {
-            PlayJongo.getCollection("too_young_users").save(user);
-            return redirect(controllers.routes.Login.tooYoung());
-        }
-        if (user.getAge() > 30) {
-            PlayJongo.getCollection("too_old_users").save(user);
-            return redirect(controllers.routes.Login.tooOld());
-        }
-
-        // if it passes all checks
-        User.getCollection().save(user);
-
-        return redirect(controllers.routes.Application.thankyou());
+            // if it passes all checks
+            session().put("user", user.getUserId());
+            User.getCollection().save(user);
+            return redirect(controllers.routes.Application.editProfile());
+        });
     }
 
     public static Result noBirthdayToVerified () {

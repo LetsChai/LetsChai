@@ -1,0 +1,280 @@
+@(profile: User)
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LetsChai - Edit Profile</title>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/assets/images/favicon.png" />
+
+    <!-- Bootstrap CDN -->
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet" />
+
+    <!--Buttons-->
+    <link href="/assets/modern-buttons/css/m-buttons.css" rel="stylesheet" />
+
+    <style>
+        @sitewide.style()
+        @header.style()
+        @sidebar.style()
+
+        .row {
+            margin-left:0;
+            margin-right:0;
+        }
+
+        #content {
+            display:inline-block;
+            width:100%;
+            padding-top: 3%;
+        }
+
+        @profilePieces.pictures.style()
+        @profilePieces.aboutme.style()
+        @profilePieces.passlike.style()
+
+        #first-timers {
+            background: pink;
+            border-radius: 10px;
+            margin-bottom: 2%;
+            text-align:center;
+            padding: 1% 2%;
+        }
+        #mutualfriends {
+            margin-top: 3%;
+        }
+        #mutualfriends img {
+            border-radius: 50%;
+            width: 50px;
+            border: 1px solid white;
+            cursor: pointer;
+        }
+        #mutualfriends img:hover {
+            border:1px solid #0C88FE;
+        }
+        #mutualfriends .text {
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-right: 2%;
+        }
+        button#edit-pictures {
+            font-size: 1.5em;
+            width: 100%;
+            height: 2.5em;
+        }
+        #question-answer {
+            padding-left: 2%;
+        }
+        #question-answer .entry {
+            margin-top: 8%;
+        }
+        #question-answer .question {
+            color: #C84A49;
+            font-size: 1.2em;
+            font-weight:bold;
+        }
+        #question-answer .answer textarea {
+            width:100%;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<!--jQuery CDN-->
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+
+<!-- jQuery slider -->
+<script src="/assets/javascripts/jquery.slides.min.js"></script>
+
+<!--Page Header-->
+@header.content()
+
+<!-- Sidebar -->
+@sidebar.content()
+
+<!-- Main -->
+
+<div id="content">
+
+    <!--First time users-->
+    <div class="row">
+        <div class="col-md-8 col-sm-offset-2" id="first-timers">
+            Tell your matches a little bit about yourself. Honest profiles get more matches so be open. <br/>
+            That's right, go ahead and show off a little!
+        </div>
+    </div>
+
+    <div class="row">
+
+        <!--Profile Pictures-->
+        <div class="col-md-4 col-sm-offset-2">
+            <div class="row">
+                <div id="profile-pictures">
+                    @if(profile.getPictures().size() == 0) {
+                        <img src="/assets/images/silhouette.png" />
+                    }
+                    <div id="slides">
+                        @for(pic <- profile.getPictures()) {
+                            @if(pic != null) {
+                                <img src="@pic" />
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <a href="editpictures"><button id="edit-pictures" class="m-btn blue">Edit Pictures</button></a>
+            </div>
+            <form id="profile-form" method="post" action="editprofile">
+            <div class="row">
+                <button type="submit" class="m-btn green" id="save-profile">Save Profile</button>
+            </div>
+        </div>
+
+
+        <div class="col-md-4">
+
+            <!--About Me-->
+            <div id="about-me">
+
+                <div class="row">
+                    <h3 class="col-md-12 small-caps lc-red">About Me</h3>
+                </div>
+
+                <div class="information">
+                    <div class="row entry">
+                        <div class="col-md-4 field">Birthday</div>
+                        <div class="col-md-8 content">
+                            <select name="month">
+                                @for(month <- java.time.Month.values()) {
+                                    <option value="@month.getValue()">@month.getDisplayName(java.time.format.TextStyle.FULL, new java.util.Locale("en"))</option>
+                                }
+                            </select>
+                            <select name="day">
+                                @for(day <- 1 to 31) {
+                                    <option value="@day">@day</option>
+                                }
+                            </select>
+                            <select name="year">
+                                @for(year <- 1978 to 1996) {<option value="@year">@year</option>}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row entry">
+                        <div class="col-md-4 field">Height</div>
+                        <div class="col-md-8 content">
+                            <input name="height" value="@if(profile.getHeight>0){@profile.getHeight}" pattern="^\d{3}$" required
+                                    oninvalid="setCustomValidity('Must be a 3-digit number')"
+                                    oninput="setCustomValidity('')" maxlength="3" /> cm</div>
+                    </div>
+                    <div class="row entry">
+                        <div class="col-md-4 field">Current City</div>
+                        <div class="col-md-8 content"><input name="city" value="@profile.getCity" required/></div>
+                    </div>
+                    <div class="row entry">
+                        <div class="col-md-4 field">Pincode</div>
+                        <div class="col-md-8 content">
+                            <input name="pincode" value="@profile.getPincode" pattern="^\d{6}$" required
+                                    oninvalid="setCustomValidity('Must be 6 digits')"
+                                    oninput="setCustomValidity('')" maxlength="6" />
+                        </div>
+                    </div>
+                    <div class="row entry">
+                        <div class="col-md-4 field">Religion</div>
+                        <div class="col-md-8 content">
+                            <select name="religion" />
+                                @for(religion <- types.Religion.values()) {
+                                    <option value="@religion.toString">@religion.capitalize()</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row entry">
+                        <div class="col-md-4 field">Education</div>
+                        <div class="col-md-8 content">
+                            @for(e <- profile.getEducationForView()) {
+                                <input name="education" class="education-input" value="@e.getSchool()"/>
+                                    <select name="education" class="education-select">
+                                        @for(t <- types.Education.EducationType.values()) {
+                                            <option value="@t.toString()"
+                                                @if(e.getType() == t) {
+                                                    selected
+                                                }
+                                            >@t.capitalized()</option>
+                                        }
+                                    </select>
+                            }
+                        </div>
+                    </div>
+                    <div class="row entry">
+                        <div class="col-md-4 field">Occupation</div>
+                        <div class="col-md-8 content">
+                            <input name="occupation" value="@profile.getOccupation()" placeholder="Student, Marketing, Engineer" required/>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        <!--Questions-->
+        <div class="row" id="question-answer">
+            @for(q <- profile.getQuestions()) {
+                <div class="entry">
+                    <div class="row question">@q.getQuestion()</div>
+                    <div class="row answer">
+                        <textarea name="answer" maxlength="140" placeholder="140 character limit" required>@q.getAnswer()</textarea>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!--Mobile Save Button-->
+        <div class="row hidden-lg hidden-md">
+            <button type="submit" class="m-btn green" id="save-profile">Save Profile</button>
+        </div>
+
+    </div>
+</div>
+
+</body>
+
+<script>
+//////////////////////
+// Picture Slider
+
+var dimensionString = $("#profile-pictures").css("width");
+var dimensionInt = parseInt(dimensionString.substring(0,dimensionString.indexOf("px")));
+$("#slides").slidesjs({
+    width: dimensionInt,
+    height: dimensionInt,
+    navigation: false
+});
+
+// to make the gray bars on the bottom of the picture slider act smoothly
+$(".slidesjs-pagination-item").click(function() {
+    $(".slidesjs-pagination-item").removeClass("active");
+    $(this).addClass("active");
+    $(this).find("a").trigger('click');
+});
+
+// make the first picture the active picture on page load
+$(document).ready(function() {
+    $(".slidesjs-pagination-item").first().addClass('active');
+});
+
+
+//////////////////////////////////
+// Select Current Values in form
+
+$("[name=month]").val(@profile.getBirthday().getMonth() + 1);
+$("[name=day]").val(@profile.getBirthday().getDate());
+$("[name=year]").val(@profile.getBirthday().getYear() + 1900);
+$("[name=religion]").val(@profile.getReligion.toString());
+
+</script>
+
+</html>

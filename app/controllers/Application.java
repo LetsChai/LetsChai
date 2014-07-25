@@ -7,10 +7,7 @@ import org.joda.time.DateTime;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
-import types.AgeRange;
-import types.Education;
-import types.Gender;
-import types.Religion;
+import types.*;
 import views.html.*;
 
 import java.util.*;
@@ -35,23 +32,23 @@ public class Application extends Controller {
         Chai todaysChai = user.getTodaysChai();
 
         if (todaysChai == null)   // no chai today!
-            return redirect(controllers.routes.Application.profile());
+            return redirect(controllers.routes.Application.nochai());
 
         User myMatch = User.findOne(todaysChai.getOtherUserId());
 
-        return ok(chai.render(myMatch, false, false, todaysChai));
+        return ok(chai.render(myMatch, todaysChai));
     }
 
     @Auth.WithUser
     public static Result profile () {
         User user = (User) ctx().args.get("user");
-        return ok(chai.render(user, false, true, null));
+        return ok(profile.render(user));
     }
 
     @Auth.WithUser
     public static Result editProfile () {
         User user = (User) ctx().args.get("user");
-        return ok(chai.render(user, true, true, null));
+        return ok(editprofile.render(user));
     }
 
     @Auth.UpdateUser
@@ -65,6 +62,7 @@ public class Application extends Controller {
             // continue without setting the user's height
         }
         user.setCity(params.get("city")[0]);
+        user.setPincode(Integer.parseInt(params.get("pincode")[0]));
         user.setOccupation(params.get("occupation")[0]);
         user.setAnswers(params.get("answer"));
 
@@ -83,7 +81,7 @@ public class Application extends Controller {
             education.add(new Education(eduParams[2].trim(), Education.EducationType.valueOf(eduParams[3])));
         user.setEducation(education);
 
-        return redirect(controllers.routes.Application.editProfile());
+        return redirect(controllers.routes.Application.profile());
     }
 
     @Auth.WithUser
@@ -153,7 +151,7 @@ public class Application extends Controller {
             i++;
         }
 
-        return redirect(controllers.routes.Application.editPictures());
+        return redirect(controllers.routes.Application.profile());
     }
 
     // This is an AJAX-only route
@@ -168,5 +166,30 @@ public class Application extends Controller {
 
         User.getCollection().update("{'userId':'#'}", other.getUserId()).with(other);
         return ok();
+    }
+
+    @Auth.UpdateUser
+    public static Result deactivate () {
+        User user = (User) ctx().args.get("user");
+        user.addFlag(Flag.DEACTIVATED);
+        return redirect(controllers.routes.Application.deactivatedUser());
+    }
+
+    @Auth.UpdateUser
+    public static Result activate () {
+        User user = (User) ctx().args.get("user");
+        user.removeFlag(Flag.DEACTIVATED);
+        return redirect(controllers.routes.Application.profile());
+    }
+
+    @Auth.Basic
+    public static Result nochai () {
+        return ok(nochai.render());
+    }
+
+    // limit to deactivated users only
+    @Auth.Basic
+    public static Result deactivatedUser () {
+        return ok(deactivated.render());
     }
 }

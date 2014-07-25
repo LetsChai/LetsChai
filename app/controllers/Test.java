@@ -2,6 +2,7 @@ package controllers;
 
 import classes.SecretChaiSauce;
 import clients.LetsChaiFacebookClient;
+import com.google.common.collect.Lists;
 import models.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
@@ -24,39 +25,39 @@ import java.util.stream.StreamSupport;
  */
 public class Test extends Controller {
 
-    public static F.Promise<Result> test() {
-        return F.Promise.promise(() -> ok());
+    public static Result test() {
+        List<User> users = Lists.newArrayList(User.findAll());
+        return ok(users.get(30).getUserId());
     }
 
-    public static Result test2 () throws IOException, SmackException, XMPPException {
-        ConnectionConfiguration config = new ConnectionConfiguration("localhost", 5222);
-        config.setSecurityMode(ConnectionConfiguration.SecurityMode.disabled);
-        XMPPConnection smack = new XMPPTCPConnection(config);
-        smack.connect();
-        smack.login("admin", "1n1H23m");
-        AccountManager manager = AccountManager.getInstance(smack);
-        manager.createAccount("tester", "tester");
+    public static Result test2 () {
+        String arpita = Play.application().configuration().getString("fb.arpita");
         return ok();
     }
 
     public static F.Promise<Result> algorithm () {
-        List<User> users = StreamSupport.stream(PlayJongo.getCollection("users").find().as(User.class).spliterator(), false).collect(Collectors.toList());
+        List<User> users = StreamSupport.stream(User.findAll().spliterator(), false).collect(Collectors.toList());
         List<Pincode> pincodes = StreamSupport.stream(Pincode.findAll().spliterator(), false).collect(Collectors.toList());
-        SecretChaiSauce sauce = new SecretChaiSauce(users, pincodes);
+        List<Friends> friends = StreamSupport.stream(Friends.getFullCache().spliterator(), false).collect(Collectors.toList());
+
+        SecretChaiSauce sauce = new SecretChaiSauce(users, pincodes, friends);
+
         return sauce.run().map(bool -> ok());
     }
 
     public static F.Promise<Result> latency () {
-        Date start = new Date();
         String userId = session().get("user");
+        Date start = new Date();
         User user = User.findOne(userId);
+        user.update();
+        Date database = new Date();
         LetsChaiFacebookClient fb = new LetsChaiFacebookClient(user.getAccessToken().getAccessToken());
         String arpita = Play.application().configuration().getString("fb.arpita");
+        Date startPromise = new Date();
         F.Promise<Friends> friends = user.getMutualFriends(arpita);
-        Date afterPromise = new Date();
         return friends.map(freeds -> {
             Date end = new Date();
-            return ok(String.format("%d %d", end.getTime() - start.getTime(), afterPromise.getTime() - start.getTime()));
+            return ok(String.format("facebook: %d, database (read+update): %d", end.getTime() - startPromise.getTime(), database.getTime() - start.getTime()));
         });
 
     }

@@ -75,6 +75,15 @@
             font-weight: bold;
             box-shadow: -1px 5px 5px gray;
         }
+        #login {
+            font-size: 20px;
+        }
+        #login a {
+            color: #C84A49;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
         h1 {
             color: #c84A49;
             text-align: center;
@@ -121,10 +130,13 @@
 </head>
 <body>
 
+<!--jQuery CDN-->
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+
 @prelaunchheader.content()
 
 <section id="main">
-    <img id="letschai-logo" src="/assets/images/letschai_logo.png"></img>
+    <img id="letschai-logo" src="/assets/images/letschai_logo.png" />
 
     <div id="welcome-text">
         <p>Connect to your peers. Get a new match every day.</p>
@@ -133,7 +145,12 @@
 
     <div class="sign-up-wrapper">
         <a href="newusersurvey"><button id="get-started-btn">Request Exclusive Access</button></a>
+        <div id="login">Existing user? <a>Login Here</a></div>
     </div>
+
+    <form id="login-form" method="post" action="login">
+        <input type="hidden" name="access_token" id="access_token" />
+    </form>
 </section>
 
 <hr />
@@ -170,4 +187,20 @@
 </section>
 
 </body>
+
+<script>
+@facebook.sdk()
+
+// FB login
+$('#login').click(function() {
+    FB.login(function(response) {
+        if (response.authResponse) {
+            var access_token =   FB.getAuthResponse().accessToken;
+            $("#access_token").val(access_token);
+            $('#login-form').submit();
+        }
+    }, {scope: "public_profile,user_friends,email,user_location,user_birthday,user_photos"});
+});
+</script>
+
 </html>

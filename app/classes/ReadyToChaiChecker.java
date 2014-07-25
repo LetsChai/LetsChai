@@ -17,7 +17,8 @@ public class ReadyToChaiChecker {
             Validate.isTrue(user.getHeight() > 0);
             Validate.notNull(user.getCity());
             Validate.isTrue(user.getCity().trim() != "");
-            Validate.isTrue(user.getEducation().size() > 0 || user.getOccupation() != null);
+            Validate.notNull(user.getOccupation());
+            Validate.isTrue(user.getOccupation().trim() != "");
             for (ProfileQuestion q: user.getQuestions()) {
                 Validate.isTrue(q.getAnswer().trim() != "");
             }

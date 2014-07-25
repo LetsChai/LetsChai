@@ -1,4 +1,5 @@
-@(pref: UserPreference)
+@(pref: User.Preferences)
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -52,6 +53,10 @@
     </style>
 </head>
 <body>
+
+
+<!--jQuery CDN-->
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
 
 @header.content()
 @sidebar.content()
@@ -121,7 +126,7 @@
                                     <div class="row">
                                 }
                                 <div class="col-xs-6 religion-option">
-                                    <input id="@r.lowerCase()" name="religion" class="religion" type="checkbox" value="@r.toString()"
+                                    <input id="@r.toString" name="religion" class="religion" type="checkbox" value="@r.toString()"
                                         @if(pref.matchesReligion(r)) {
                                             checked="checked"
                                         }
@@ -156,4 +161,15 @@
 </form>
 
 </body>
+
+<script>
+// uncheck other religion boxes when No Preference is checked
+$("[value=NO_PREFERENCE]").click(function() {
+    $(".religion:not(#NO_PREFERENCE").prop("checked", false);
+});
+// uncheck No Preference when other boxes are checked
+$(".religion:not(#NO_PREFERENCE").click(function() {
+    $("#NO_PREFERENCE").prop("checked", false);
+});
+</script>
 </html>

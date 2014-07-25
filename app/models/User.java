@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.restfb.FacebookClient;
+import org.apache.commons.lang3.Validate;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.fluent.Request;
 import org.joda.time.DateTime;
@@ -61,6 +62,7 @@ public class User {
     private EnumSet<Flag> flags = EnumSet.noneOf(Flag.class);
     private EnumSet<Permission> permissions = EnumSet.noneOf(Permission.class);
     private List<String> pictures = new ArrayList<>();
+    private Date lastLogin;
 
     // non-stored fields
     @JsonIgnore
@@ -113,6 +115,14 @@ public class User {
 
     public static Iterable<User> findAll () {
         return getCollection().find().as(User.class);
+    }
+
+    public static Boolean exists (String userId) {
+        return getCollection().find("{'userId': '#'}", userId).limit(1).as(User.class).iterator().hasNext();
+    }
+
+    public static void update (String userId, String query, Object... parameters) {
+        getCollection().update("{'userId': '#'}", userId).with(query, parameters);
     }
 
     public List<Education> getEducationForView () {
@@ -264,6 +274,14 @@ public class User {
         this.occupation = occupation;
     }
 
+    public Date getLastLogin() {
+        return lastLogin;
+    }
+
+    public void updateLastLogin() {
+        this.lastLogin = new Date();
+    }
+
     public String getName () {
         return firstName + " " + lastName;
     }
@@ -271,51 +289,21 @@ public class User {
         return ZodiacSign.fromDate(birthday);
     }
 
-    public F.Promise<Friends> getFriends () {
-        if (friends != null)
-            return F.Promise.promise(() -> friends);
-        return getMutualFriends(userId).map(myFriends -> {
-            this.friends = myFriends;
-            return myFriends;
-        });
-    }
-
-    public F.Promise<Friends> getMutualFriends (String friendId) {
-        LetsChaiFacebookClient fb = new LetsChaiFacebookClient(accessToken.getAccessToken());
-        return fb.getMutualFriends(friendId);
-    }
-
-    public F.Promise<Boolean> isFriendsWith(String friendId) {
-        LetsChaiFacebookClient fb = new LetsChaiFacebookClient(accessToken.getAccessToken());
-        return fb.areFriends(userId, friendId);
-    }
-
     // get the chai between this user and the specified userId, returns null if none exists
     public Chai getChai (String userId) {
-        for (Chai chai: chais) {
-            if (chai.getOtherUserId().equals(userId))
-                return chai;
-        }
-        return null;
+
     }
 
     public Chai getTodaysChai () {
-        if (chais.size() == 0)
-            return null;
-        return chais.get(chais.size() - 1);
+
     }
 
     public Boolean hasChai (String userId) {
-        for (Chai chai: chais) {
-            if (chai.getOtherUserId().equals(userId))
-                return true;
-            Logger.info(chai.getOtherUserId() + " " + userId);
-        }
-        return false;
+
     }
 
     public void addChai (Chai chai) {
-        chais.add(chai);
+
     }
 
     public EnumSet<Flag> getFlags () {
@@ -330,44 +318,9 @@ public class User {
         return permissions;
     }
 
-    public void updatePermissions () {
-        String url = String.format("https://graph.facebook.com/v2.0/%s/permissions?access_token=%s", userId, accessToken.getAccessToken());
-        String jsonString = null;
-        try {
-            jsonString = Request.Get(url).execute().returnContent().asString();
-        } catch (ClientProtocolException e) {
-            Logger.error("ClientProtocolException during request: " + url);
-            return;
-        } catch (IOException e) {
-            Logger.error("IOException during request: " + url);
-            return;
-        }
-
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode response = null;
-        try {
-            response = mapper.readTree(jsonString);
-        } catch (JsonProcessingException e) {
-            Logger.error("JsonProcessingException in JSON: " + jsonString);
-            e.printStackTrace();
-            return;
-        } catch (IOException e) {
-            Logger.error("IOException while parsing JSON: " + jsonString);
-            e.printStackTrace();
-            return;
-        } catch (NullPointerException e) {
-            Logger.error(url + " returned an empty response");
-            return;
-        }
-        if (!response.has("data")) {
-            Logger.error(" node 'data' could not be found in JSON response");
-            return;
-        }
-
-        permissions.clear();
-        for (JsonNode j: response.path("data")) {
-            if (j.path("status").asText().equals("granted"))
-                permissions.add(Permission.valueOf(j.path("permission").asText().toUpperCase()));
+    public void setPermissions (List<Permission> perms) {
+        for (Permission p: perms) {
+            this.permissions.add(p);
         }
     }
 
@@ -474,6 +427,19 @@ public class User {
         flags.remove(flag);
     }
 
+    // updates document in MongoDB
+    public void update () {
+        getCollection().update("{'userId': '#'}", getUserId()).with(this);
+    }
+
+    public F.Promise<Boolean> updatePermissions () {
+        LetsChaiFacebookClient fb = new LetsChaiFacebookClient(accessToken.getAccessToken());
+        return fb.getPermissions(userId).map(perms -> {
+            Logger.info(perms.toString());
+            setPermissions(perms);
+            return true;
+        });
+    }
 
     /**
      * Created by kedar on 5/14/14.

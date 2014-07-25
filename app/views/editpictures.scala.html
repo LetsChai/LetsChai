@@ -31,6 +31,14 @@
             width:100%;
             padding-top: 3%;
         }
+        #first-timers {
+            background: pink;
+            border-radius: 10px;
+            margin-bottom: 2%;
+            margin-top: 2%;
+            text-align:center;
+            padding: 1% 2%;
+        }
         .picture-upload {
             margin: 2% 0;
         }
@@ -68,6 +76,14 @@
 
 <!-- Sidebar -->
 @sidebar.content()
+
+<!--First time users-->
+<div class="row">
+    <div class="col-md-8 col-sm-offset-2" id="first-timers">
+        Upload atleast <strong class="lc-red">2 good pictures</strong> of yourself. Profiles with fake pictures don't get matches.
+        So snap off a selfie and let's chai!
+    </div>
+</div>
 
 <div class="row"><div class="col-sm-offset-3 col-lg-7">
     @for((pic,i) <- user.getPictures().zipWithIndex) {

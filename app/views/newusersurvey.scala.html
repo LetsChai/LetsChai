@@ -118,6 +118,14 @@
         #facebook-justify ul {
             margin-bottom: 25px;
         }
+        #disclaimer {
+            font-size: 0.9em;
+            text-align: center;
+            margin-bottom: 4%;
+        }
+        #disclaimer a {
+            cursor: pointer;
+        }
     </style>
 
     <!--Google Analytics-->
@@ -145,7 +153,7 @@
 @header.content()
 
 <!--Survey-->
-<form id="survey" method="post" action="register" class="col-md-5 col-md-offset-3 col-sm-8 col-sm-offset-2">
+<form id="survey" method="post" action="login" class="col-md-5 col-md-offset-3 col-sm-8 col-sm-offset-2">
 
     <!--Age, Gender, Orientation-->
     <div class="survey-question" id="ageGender" data-slide="0">
@@ -224,6 +232,9 @@
             We <span class="lc-red">DO NOT</span> post to your Facebook. This is an anonymous service and we respect your privacy.
         </div>
         <div class="answers">
+            <div id="disclaimer">By logging in through facebook you agree to our
+                <a target="_blank" class="lc-red" href="http://letschai.s3.amazonaws.com/terms_and_conditions.txt">Privacy Policy</a>
+                and <a target="_blank" class="lc-red" href="http://letschai.s3.amazonaws.com/terms_and_conditions.txt">Terms & Conditions</a></div>
             <img id="login-with-facebook" src="/assets/images/login-with-facebook.png" alt="Login with Facebook"/>
             <input type="hidden" name="access_token" id="access_token" />
         </div>
