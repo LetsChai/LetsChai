@@ -17,6 +17,7 @@ import play.libs.Json;
 import play.mvc.WebSocket;
 import exceptions.ChatException;
 import uk.co.panaxiom.playjongo.PlayJongo;
+import views.html.chat;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -30,7 +31,7 @@ public class LetsChaiChat {
 
     private final String ADMIN_USERNAME = "admin";
     private final String ADMIN_PASSWORD = "1n1H23m";
-    private final String DOMAIN = "kedar-dell-system-inspiron-n4110";
+    private final String DOMAIN = "letschai-localhost/Smack";
     private final String SERVER_ADDRESS = "localhost";
     private final Integer SERVER_PORT = 5222;
 
@@ -47,7 +48,7 @@ public class LetsChaiChat {
         return PlayJongo.getCollection("chats");
     }
 
-    public LetsChaiChat(String userId) throws ChatException {
+    public LetsChaiChat(String userId, List<Chai.HalfChai> matches) throws ChatException {
         connect();
         try { loginUser(userId); }
         catch (ChatException e) { // if the login fails, the user probably doesn't exist, try creating it
@@ -58,6 +59,25 @@ public class LetsChaiChat {
             disconnect();
             connect();
             loginUser(userId);
+        }
+
+        // chat listener with message listener attached
+        chatManager = ChatManager.getInstanceFor(smack);
+        chatManager.addChatListener((chat, createdLocally) -> {
+            if (!createdLocally) {
+                chat.addMessageListener(messageListener());
+                Logger.info("Chat started by " + chat.getParticipant());
+                chats.put(stripDomain(chat.getParticipant()), chat);
+            }
+        });
+
+        // create chats with all matches, incoming chats will overwrite these if need be
+        for (Chai.HalfChai match: matches) {
+            try {
+                chats.put(match.getUserId(), chatManager.createChat(userWithDomain(match.getUserId()), messageListener()));
+            } catch (Exception e) {
+                Logger.error("Could not create chat with " + match.getUserId());
+            }
         }
     }
 
@@ -97,8 +117,6 @@ public class LetsChaiChat {
     }
 
     public WebSocket<JsonNode> execute () {
-        // create the websocket for the chat
-
         socket = new WebSocket<JsonNode>() {
             @Override
             public void onReady(In<JsonNode> jsonIn, Out<JsonNode> jsonOut) {
@@ -107,7 +125,6 @@ public class LetsChaiChat {
                 jsonIn.onMessage(onMessageCallback());
             }
         };
-
         return socket;
     }
 
@@ -126,10 +143,9 @@ public class LetsChaiChat {
 
     private void sendChat (String from, String to, String message) throws ChatException {
         try {
-            if (!chats.containsKey(to))
-                chats.put(to, chatManager.createChat(userWithDomain(userId), messageListener()));
             chats.get(to).sendMessage(message);
             new models.Message(from, to, message).save();
+            Logger.info("Message sent");
         } catch (Exception e) {
             throw new ChatException("Error sending chat", e);
         }
@@ -140,16 +156,17 @@ public class LetsChaiChat {
             @Override
             public void processMessage(Chat chat, Message message) {
                 ObjectNode json = Json.newObject();
-                String from = message.getFrom();
-                json.put("from", from.split("@")[0]);
+                json.put("from", stripDomain(message.getFrom()));
                 json.put("message", message.getBody());
                 json.put("to", message.getTo());
+                Logger.info("message received from " + message.getFrom());
                 Logger.info(json.toString());
                 socketOut.write(json);
             }
         };
     }
 
+    // websocket callback for incoming JSON
     private F.Callback<JsonNode> onMessageCallback () {
         return new F.Callback<JsonNode>() {
             @Override
@@ -157,8 +174,14 @@ public class LetsChaiChat {
                 String to = json.get("to").asText();
                 String from = json.get("from").asText();
                 String message = json.get("message").asText();
+                Logger.info("sending message...");
                 Logger.info(json.toString());
-                sendChat(from, to, message);
+                try {
+                    sendChat(from, to, message);
+                } catch (Exception e) {
+                    // inform sender of error here
+                    e.printStackTrace();
+                }
             }
         };
     }
@@ -167,6 +190,10 @@ public class LetsChaiChat {
         return userId.indexOf("@") > 0 ?
                 userId :
                 userId + "@" + DOMAIN;
+    }
+
+    private String stripDomain (String participant) {
+        return participant.split("@")[0];
     }
 
 }

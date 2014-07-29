@@ -1,5 +1,5 @@
 import exceptions.InvalidPincodeException;
-import types.Pincode;
+import models.Pincode;
 import classes.SecretChaiSauce;
 import models.User;
 import org.jongo.Jongo;

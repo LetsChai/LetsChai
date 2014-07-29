@@ -1,8 +1,4 @@
-package types;
-
-import classes.Location;
-import org.jongo.MongoCollection;
-import uk.co.panaxiom.playjongo.PlayJongo;
+package models;
 
 /**
  * Created by kedar on 5/26/14.

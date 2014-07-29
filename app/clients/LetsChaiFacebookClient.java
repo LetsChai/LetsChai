@@ -2,7 +2,6 @@ package clients;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.restfb.*;
 import com.restfb.types.TestUser;
 import models.User;
@@ -10,11 +9,9 @@ import org.jongo.MongoCollection;
 import play.Logger;
 import play.Play;
 
-import com.restfb.util.StringUtils;
 import play.libs.F;
-import play.libs.Json;
 import play.libs.WS;
-import types.Friends;
+import models.Friends;
 import types.Permission;
 import uk.co.panaxiom.playjongo.PlayJongo;
 
@@ -99,27 +96,12 @@ public class LetsChaiFacebookClient extends DefaultFacebookClient {
         });
     }
 
-    public F.Promise<Friends> getMutualFriends (String friendId) {
-       WS.WSRequestHolder request = WS.url("https://graph.facebook.com/v2.0/" + friendId)
-            .setQueryParameter("fields", "context.fields(mutual_friends)")
-            .setQueryParameter("access_token", accessToken);
-
-        F.Promise<JsonNode> jsonResponse = request.get().map(response -> response.asJson());
-        return jsonResponse.map(json -> {
-            Friends friends = new Friends();
-            for(JsonNode j: json.path("context").path("mutual_friends").path("data")) {
-                friends.addFriend(j);
-            }
-            friends.setCount(json.path("context").path("mutual_friends").path("summary").path("total_count").asInt());
-            return friends;
-        });
-    }
-
-    public F.Promise<Friends> getMutualFriendsWithUsers (String userId, String friendId) {
-        return getMutualFriends(friendId).map(friends -> {
-            friends.setUsers(Arrays.asList(userId, friendId));
-            return friends;
-        });
+    public F.Promise<Friends> getMutualFriends (String userId, String friendId) {
+        return WS.url("https://graph.facebook.com/v2.0/" + friendId)
+                .setQueryParameter("fields", "context.fields(mutual_friends)")
+                .setQueryParameter("access_token", accessToken)
+                .get()
+                .map(response -> new Friends(response.asJson(), Arrays.asList(userId, friendId)));
     }
 
     public static String profilePictureURL (String userId) {

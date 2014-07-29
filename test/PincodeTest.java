@@ -1,4 +1,4 @@
-import types.Pincode;
+import models.Pincode;
 import org.jongo.Jongo;
 import org.junit.Before;
 import org.junit.BeforeClass;

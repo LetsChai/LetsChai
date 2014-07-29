@@ -39,7 +39,7 @@ GET     /chat/socket                controllers.Chat.socket()
 
 # Admin
 GET     /admin/permissions          controllers.Admin.updateAllPermissions()
-GET     /admin/friends              controllers.Admin.cacheFBData()
+GET     /admin/friends/:number      controllers.Admin.cacheFBData(number: Integer)
 
 # Testing Routes
 GET     /session/populate           controllers.Session.populate(id: String ?= "arpita")

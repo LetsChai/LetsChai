@@ -70,7 +70,7 @@ public class Login extends Controller {
 
     public static F.Promise<Result> register(DynamicForm post, User user) {
         // if user accidentally ended up here, redirect them to the register page
-        if (post.get("age_min").length() == 0)
+        if (!post.data().containsKey("age_min"))
             return F.Promise.promise(() -> redirect(controllers.routes.Application.newusersurvey()));
 
         // parse POST

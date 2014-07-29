@@ -1,6 +1,7 @@
 package models;
 
 import com.google.common.collect.Lists;
+import org.apache.commons.lang3.Validate;
 import org.jongo.MongoCollection;
 import uk.co.panaxiom.playjongo.PlayJongo;
 
@@ -47,12 +48,23 @@ public class Message {
     }
 
     public static List<models.Message> find (String userId) {
-        return Lists.newArrayList(getCollection().find(String.format("{$or:{'from':'%s', 'to': '%s'} }", userId, userId))
+        return Lists.newArrayList(getCollection().find(String.format("{$or:[{'from':'%s'}, {'to': '%s'}] }", userId, userId))
                 .as(models.Message.class));
     }
 
     public void save () {
         getCollection().save(this);
+    }
+
+    public Boolean hasUser (String userId) {
+        return from.equals(userId) || to.equals(userId);
+    }
+
+    public String getOtherUser (String userId) {
+        Validate.isTrue(hasUser(userId));
+        if (from.equals(userId))
+            return to;
+        return from;
     }
 
 }

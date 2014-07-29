@@ -1,12 +1,14 @@
 package controllers;
 
+import classes.FriendCacher;
+import classes.UserHandler;
 import clients.LetsChaiFacebookClient;
 import com.google.common.collect.Lists;
 import models.User;
 import play.libs.F;
 import play.mvc.Controller;
 import play.mvc.Result;
-import types.Friends;
+import models.Friends;
 import uk.co.panaxiom.playjongo.PlayJongo;
 
 import java.util.ArrayList;
@@ -34,51 +36,10 @@ public class Admin extends Controller {
     }
 
     // cache friends and mutualfriends
-    public static F.Promise<Result> cacheFBData () {
-        List <User> users = Lists.newArrayList(User.findAll());
-        List<F.Promise<Friends>> promiseList = new ArrayList<>();
-
-        // filter users
-        Integer lowerLimit = 130;
-        Integer upperLimit = 150;
-        List<User> first10Users = new ArrayList<>();
-        for (int i=0; i<users.size(); i++) {
-            if (i%20 == 10)
-                first10Users.add(users.get(i));
-        }
-
-        // previously queried list
-        Map<String, List<String>> queried = new HashMap<>();
-        for (User user: users) {
-            queried.put(user.getUserId(), new ArrayList<String>());
-        }
-
-        for (User user: first10Users) {
-            LetsChaiFacebookClient fb = new LetsChaiFacebookClient(user.getAccessToken().getAccessToken());
-            String userId = user.getUserId();
-            for (User partner: users) {
-                String partnerId = partner.getUserId();
-
-                if (queried.get(userId).contains(partnerId) || queried.get(partnerId).contains(userId))
-                    continue;
-
-                F.Promise<Friends> friend = fb.getMutualFriendsWithUsers(userId, partnerId);
-                promiseList.add(friend);
-                queried.get(userId).add(partnerId);
-            }
-        }
-
-        // convert promiseList to single promise
-        F.Promise<Friends>[] promiseArray = new F.Promise[promiseList.size()];
-        for (int i=0; i < promiseList.size(); i++) {
-            promiseArray[i] = promiseList.get(i);
-        }
-        F.Promise<List<Friends>> combinedPromise = F.Promise.sequence(promiseArray);
-
-        return combinedPromise.map(list -> {
-            PlayJongo.getCollection("friends_cache").insert(list.toArray());
-            return ok(String.valueOf(promiseList.size()));
-        });
+    public static F.Promise<Result> cacheFBData (int number) {
+        List<User> all = UserHandler.getInstance().all();
+        FriendCacher cacher = FriendCacher.forUser(all.get(number));
+        return cacher.update(all).map(bool -> ok());
     }
 
 }

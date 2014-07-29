@@ -1,17 +1,25 @@
 package classes;
 
-import types.Friends;
+import models.Friends;
 
 /**
  * Created by kedar on 7/25/14.
  */
-public class LetsChaiScorer {
+public final class LetsChaiScorer {
 
     public final Double MUTUAL_FRIEND_WEIGHT = 0.35;
     public final Double DISTANCE_WEIGHT = 0.14;
     public final Double LIKED_MATCH_WEIGHT = 0.51;
 
     public LetsChaiScorer () {}
+
+    public Double score (Friends friends, Double distance, Boolean hasMatch) {
+        return mutualFriendScore(friends) + distanceScore(distance) + matchScore(hasMatch);
+    }
+
+    public Double partialScore (Double distance, Boolean hasMatch) {
+        return distanceScore(distance) + matchScore(hasMatch);
+    }
 
     public Double mutualFriendScore (Friends friends) {
         int count = friends.getCount();

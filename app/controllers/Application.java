@@ -1,6 +1,7 @@
 package controllers;
 
 import actions.Auth;
+import classes.ChaiHandler;
 import models.Chai;
 import models.User;
 import org.joda.time.DateTime;
@@ -26,15 +27,15 @@ public class Application extends Controller {
         return ok(newusersurvey.render());
     }
 
-    @Auth.WithUser
+    @Auth.Basic
     public static Result chai () {
-        User user = (User) ctx().args.get("user");
-        Chai todaysChai = user.getTodaysChai();
+        String userId = session().get("user");
+        Chai todaysChai = ChaiHandler.todaysChai(userId);
 
         if (todaysChai == null)   // no chai today!
             return redirect(controllers.routes.Application.nochai());
 
-        User myMatch = User.findOne(todaysChai.getOtherUserId());
+        User myMatch = User.findOne(todaysChai.getOtherHalf(userId).getUserId());
 
         return ok(chai.render(myMatch, todaysChai));
     }
@@ -155,16 +156,10 @@ public class Application extends Controller {
     }
 
     // This is an AJAX-only route
-    @Auth.UpdateUser
+    @Auth.Basic
     public static Result chaiDecision (Boolean decision) {
-        User user = (User) ctx().args.get("user");
-        Map<String, String[]> form = request().body().asFormUrlEncoded();
-        User other = User.findOne(user.getTodaysChai().getOtherUserId());
-
-        user.getTodaysChai().setMyDecision(decision);
-        other.getTodaysChai().setOtherDecision(decision);
-
-        User.getCollection().update("{'userId':'#'}", other.getUserId()).with(other);
+        String userId = session().get("user");
+        ChaiHandler.setTodaysDecision(userId, decision);
         return ok();
     }
 

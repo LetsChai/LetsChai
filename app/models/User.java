@@ -9,13 +9,8 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.restfb.FacebookClient;
-import org.apache.commons.lang3.Validate;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.fluent.Request;
 import org.joda.time.DateTime;
 import org.joda.time.Years;
 import org.jongo.MongoCollection;
@@ -26,7 +21,6 @@ import types.*;
 import uk.co.panaxiom.playjongo.PlayJongo;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.Base64;
@@ -58,7 +52,6 @@ public class User {
     private List<Education> education = new ArrayList<Education>(); // currently set to size of 2
     private List<ProfileQuestion> questions;
     private String occupation;
-    private List<Chai> chais = new ArrayList<Chai>();
     private EnumSet<Flag> flags = EnumSet.noneOf(Flag.class);
     private EnumSet<Permission> permissions = EnumSet.noneOf(Permission.class);
     private List<String> pictures = new ArrayList<>();
@@ -289,23 +282,6 @@ public class User {
         return ZodiacSign.fromDate(birthday);
     }
 
-    // get the chai between this user and the specified userId, returns null if none exists
-    public Chai getChai (String userId) {
-
-    }
-
-    public Chai getTodaysChai () {
-
-    }
-
-    public Boolean hasChai (String userId) {
-
-    }
-
-    public void addChai (Chai chai) {
-
-    }
-
     public EnumSet<Flag> getFlags () {
         return flags;
     }
@@ -322,32 +298,6 @@ public class User {
         for (Permission p: perms) {
             this.permissions.add(p);
         }
-    }
-
-    public List<Chai> getMatches () {
-        List<Chai> matches = new ArrayList<>();
-        for (Chai chai: chais) {
-            if (chai.isMatch())
-                matches.add(chai);
-        }
-        return matches;
-    }
-
-    public List<User> getMatchedUsers () {
-        List<Chai> matches = getMatches();
-
-        List<String> userIds = new ArrayList<>();
-        for (Chai chai: matches) {
-            userIds.add(chai.getOtherUserId());
-        }
-
-        Iterable<User> userIterable = User.findMultiple(userIds);
-        List<User> result = new ArrayList<>();
-        for (User user: userIterable) {
-            result.add(user);
-        }
-
-        return result;
     }
 
     public void uploadBase64Image (String base64Image, String contentType, Integer slot) {
@@ -425,6 +375,12 @@ public class User {
 
     public void removeFlag (Flag flag) {
         flags.remove(flag);
+    }
+
+    public void addFlags (List<Flag> flagList) {
+        for (Flag f: flagList) {
+            addFlag(f);
+        }
     }
 
     // updates document in MongoDB

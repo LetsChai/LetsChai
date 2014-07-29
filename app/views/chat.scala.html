@@ -1,4 +1,4 @@
-@(matches: List[User])
+@(matches: List[Chai.HalfChai], messages: List[Message], userId: String)
 
 <!DOCTYPE html>
 <html>
@@ -47,8 +47,8 @@
             display: inline-block;
         }
         .message .sender { font-weight:bold; }
-        .message.other .sender { color: #c84A49 }
-        .message.me .sender { color: #0C88FE; }
+        .message .sender { color: #c84A49 }
+        .message.user-@userId .sender { color: #0C88FE; }
         #new-message {
             height: 50px;
             width: 80%;
@@ -72,23 +72,21 @@
 <div id="content">
     <div class="row">
         <div class="col-lg-2 col-sm-3 col-sm-offset-2 " id="match-container">
-            @for(matchi <- matches) {
-            <div class="match active" data-user="@matchi.getUserId()">
-                <!--<img class="profile-pic" src="//fbcdn-profile-a.akamaihd.net/hprofile-ak-prn2/t1.0-1/c0.0.160.160/p160x160/1798707_10203454757709153_1675162974_n.jpg" />-->
-                <span class="name">@matchi.getName()</span>
-            </div>
+            @for(mate <- matches) {
+                <div class="match" data-user="@mate.getUserId()">
+                    <img class="profile-pic" src="@mate.profilePicURL" />
+                    <span class="name">@mate.getName()</span>
+                </div>
             }
         </div>
         <div class="col-lg-5 col-md-6 col-sm-7" id="chat-container">
             <div id="chat-history">
-                <div class="message me">
-                    <div class="sender">Varun:</div>
-                    <div class="text">Hi Kedar!</div>
-                </div>
-                <div class="message other">
-                    <div class="sender">Kedar:</div>
-                    <div class="text">Hi Varun!</div>
-                </div>
+                @for(message <- messages) {
+                    <div class="message user-@message.getFrom()" data-from="@message.getFrom" data-with="@message.getOtherUser(userId)">
+                        <div class="sender"></div>
+                        <div class="text">@message.getMessage()</div>
+                    </div>
+                }
             </div>
             <div id="new-chat">
                 <textarea id="new-message" placeholder="Press ENTER to send"></textarea>
@@ -99,37 +97,85 @@
 </div>
 
 <script>
+    var names = {
+        "@userId" : "Me",
+        @for(mate <- matches) {
+            "@mate.getUserId()" : "@mate.getName" ,
+        }
+    }
+    var userId = @userId;
+
+    // set names
+    $(".message").each(function(i, el) {
+        setName(el);
+    });
+
+    // get the socket rolling
     var socket = new WebSocket("ws://localhost:9000/chat/socket");
     socket.onopen = function (event) {
         socket.onmessage = function (event) {
             console.log(event);
             var json = JSON.parse(event.data);
-            $("#incoming").append( $("<div>").text(json.from + ":" + json.message) );
+            drawChat(json);
         }
     }
 
-    $("#send").click(function() {
-        var chat = {
-            to: "varun",
-            message: $("#chat").val()
-        };
-        $("#chat").val('');
-        console.log(chat);
-        socket.send(JSON.stringify(chat));
-    });
 
+    // set up the click action to change chat windows
     $(".match").click(function() {
+        // CSS changes
         $(".match").removeClass('active');
         $(this).addClass("active");
+
+        // display messages
+        var user = $(this).data("user");
+        $(".message").hide();
+        $(".message[data-with=" + user + "]").show();
     });
 
+    // set the first chat person to active
+    $(".match").first().trigger("click");
+
+    $("#send").click(function() {
+        var from = "@userId";
+        var to = $(".match.active").data("user");
+        var message = $("#new-message").val();
+        sendMessage(from, to, message);
+        $("#new-message").val('');
+    });
     $(".unread").click(function() {
         $(this).removeClass("unread");
     });
 
-    // change the user whose chats are shown
-    function displayChats (userId) {
+    // sets the name from the data-from attribute
+    function setName (messageElement) {
+        $(messageElement).find(".sender").text(names[$(messageElement).data('from')] + ":");
+    }
 
+    function sendMessage (from, to, message) {
+        var chat = {
+            to: to,
+            from: from,
+            message: message
+        }
+        socket.send(JSON.stringify(chat));
+        drawChat(chat);
+    }
+
+    function drawChat (chat) {
+        var withId;
+        if (chat.to == userId)
+            withId = chat.from;
+        else
+            withId = chat.to;
+
+        var el = $("<div class='message'></div>").addClass("user-" + chat.from)
+            .attr('data-from', chat.from)
+            .attr('data-with', withId)
+            .append( $("<div class='sender'>") )
+            .append( $("<div class='text'>").text(chat.message) )
+        setName(el);
+        el.appendTo("#chat-history");
     }
 </script>
 

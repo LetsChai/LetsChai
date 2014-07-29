@@ -1,4 +1,4 @@
-import types.Friends;
+import models.Friends;
 import models.User;
 import org.jongo.Jongo;
 import org.junit.After;

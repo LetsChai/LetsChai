@@ -1,14 +1,10 @@
 package classes;
 
-import com.google.code.geocoder.Geocoder;
-import com.google.code.geocoder.GeocoderRequestBuilder;
-import com.google.code.geocoder.model.GeocodeResponse;
-import com.google.code.geocoder.model.GeocoderRequest;
-import com.google.code.geocoder.model.GeocoderResult;
-import types.Pincode;
+import org.apache.commons.lang3.Validate;
+import types.Flag;
+import models.Pincode;
 import uk.co.panaxiom.playjongo.PlayJongo;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +19,7 @@ public class PincodeHandler {
 
     private Map<Integer, Pincode> pincodes;
     private static final String COLLECTION = "pincodes_gmaps";
+    private final Integer ALTERNATE_PINCODE = 560001;
 
     // Singleton
     public static PincodeHandler getInstance () {
@@ -50,13 +47,26 @@ public class PincodeHandler {
     }
 
     public Double distance (Integer pin1, Integer pin2) {
+        return distance(pin1, pin2, ALTERNATE_PINCODE);
+    }
+
+    // distance between two pincodes
+    // uses alternate pin for any invalid pins
+    public Double distance (Integer pin1, Integer pin2, Integer alternatePin) {
+        Validate.isTrue(valid(alternatePin));
+        if (!valid(pin1))
+            pin1 = alternatePin;
+        if (!valid(pin2))
+            pin2 = alternatePin;
+
         return latLongDistanceKm(
-            pincodes.get(pin1).getLatitude(),
-            pincodes.get(pin1).getLongitude(),
-            pincodes.get(pin2).getLatitude(),
-            pincodes.get(pin2).getLongitude()
+                pincodes.get(pin1).getLatitude(),
+                pincodes.get(pin1).getLongitude(),
+                pincodes.get(pin2).getLatitude(),
+                pincodes.get(pin2).getLongitude()
         );
     }
+
 
     private double latLongDistanceKm (double lat1, double lng1, double lat2, double lng2) {
         double earthRadius = 6378.1;
@@ -69,6 +79,19 @@ public class PincodeHandler {
         double dist = earthRadius * c;
 
         return dist;
+    }
+
+    public Boolean valid (Integer pin) {
+        return pincodes.get(pin) != null;
+    }
+
+    public List<Flag> flags (Integer pin) {
+        List<Flag> flags = new ArrayList<>();
+        if (!inBangalore(pin))
+            flags.add(Flag.NOT_IN_BANGALORE);
+        if (!valid(pin))
+            flags.add(Flag.INVALID_PINCODE);
+        return flags;
     }
 
 //    private void geocode (Integer pin) throws IOException {
