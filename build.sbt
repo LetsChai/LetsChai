@@ -3,8 +3,8 @@ name := "LetsChai"
 version := "1.0-SNAPSHOT"
 
 libraryDependencies ++= Seq(
-//  javaJdbc,
-//  javaEbean,
+  javaJdbc,
+  javaEbean,
   cache,
   "com.restfb" % "restfb" % "1.6.14",
   "de.undercouch" % "bson4jackson" % "2.1.0" force(),
@@ -22,7 +22,8 @@ libraryDependencies ++= Seq(
   "com.carrotsearch" % "junit-benchmarks" % "0.7.2",
   "se.jbee" % "silk-di" % "0.6",
   "org.igniterealtime.smack" % "smack-core" % "4.0.1",
-  "org.igniterealtime.smack" % "smack-tcp" % "4.0.1"
+  "org.igniterealtime.smack" % "smack-tcp" % "4.0.1",
+  "com.amazonaws" % "aws-java-sdk" % "1.8.3"
 )
 
 // resolver for play2-morphia plugin
