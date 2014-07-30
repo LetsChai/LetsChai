@@ -136,7 +136,7 @@
 @prelaunchheader.content()
 
 <section id="main">
-    <img id="letschai-logo" src="/assets/images/letschai_logo.png" />
+    <img id="letschai-logo" src='@clients.LetsChaiAWS.s3Link("images/letschai_logo.png")' />
 
     <div id="welcome-text">
         <p>Connect to your peers. Get a new match every day.</p>
@@ -157,7 +157,7 @@
 
 <section id="howitworks">
     <h1>How It Works</h1>
-    <img src="/assets/images/howitworks.jpg" />
+    <img src='@clients.LetsChaiAWS.s3Link("images/howitworks.jpg")' />
     <div id="howitworks-text">
         <div class="image-text">
             Login with Facebook to verify your identity.

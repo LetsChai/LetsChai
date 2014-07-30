@@ -6,7 +6,7 @@
     <title>LetsChai - Edit Profile</title>
 
     <!-- Favicon -->
-    <link rel="shortcut icon" href="/assets/images/favicon.png" />
+    <link rel="shortcut icon" href='@clients.LetsChaiAWS.s3Link("images/favicon.png")' />
 
     <!-- Bootstrap CDN -->
     <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet" />
@@ -116,7 +116,7 @@
             <div class="row">
                 <div id="profile-pictures">
                     @if(profile.getPictures().size() == 0) {
-                        <img src="/assets/images/silhouette.png" />
+                        <img src='@clients.LetsChaiAWS.s3Link("images/silhouette.png")' />
                     }
                     <div id="slides">
                         @for(pic <- profile.getPictures()) {

@@ -197,7 +197,8 @@
         INPUT.wrap("<form>").parent("form").trigger("reset");
         INPUT.unwrap();
         INPUT.data("delete", true);
-        $(this).closest(".picture-upload").find(".picture-preview").attr("src", "/assets/images/silhouette.png");
+        var url = "http://letschai.s3.amazonaws.com/images/lonelychai.jpg";
+        $(this).closest(".picture-upload").find(".picture-preview").attr("src", url);
     });
 
     function uploadFiles () {

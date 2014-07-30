@@ -313,8 +313,7 @@ public class User {
         s3.putObject("letschai", key, inputStream, meta);
 
         initializePictures();
-        String url = Play.application().configuration().getString("aws.s3url") + key;
-        pictures.set(slot, url);
+        pictures.set(slot, LetsChaiAWS.s3Link(key));
     }
 
     private void initializePictures () {
