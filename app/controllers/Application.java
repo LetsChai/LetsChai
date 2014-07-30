@@ -2,6 +2,7 @@ package controllers;
 
 import actions.Auth;
 import classes.ChaiHandler;
+import clients.LetsChaiAWS;
 import models.Chai;
 import models.User;
 import org.joda.time.DateTime;
@@ -126,7 +127,7 @@ public class Application extends Controller {
     @Auth.WithUser
     public static Result editPictures () {
         User user = (User) ctx().args.get("user");
-        user.setDefaultPicture("/assets/images/silhouette.png");
+        user.setDefaultPicture(LetsChaiAWS.s3Link("images/silhouette.png"));
         user.forceNoCachePictures();
         return ok(editpictures.render(user));
     }
@@ -150,6 +151,11 @@ public class Application extends Controller {
                 user.uploadBase64Image(base64Image, "image/jpeg", i);
             }
             i++;
+        }
+
+        // check for 2 picture minimum
+        if (user.getPictureCount() < 2) {
+            user.removeFlag(Flag.READY_TO_CHAI);
         }
 
         return redirect(controllers.routes.Application.profile());

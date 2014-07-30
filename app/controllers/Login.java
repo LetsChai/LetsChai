@@ -43,7 +43,6 @@ public class Login extends Controller {
     public static F.Promise<Result> login () {
         DynamicForm post = Form.form().bindFromRequest();
         String accessToken = post.get("access_token");
-        Logger.info(accessToken);
         LetsChaiFacebookClient fb = new LetsChaiFacebookClient(accessToken);
         F.Promise<User> userPromise = fb.fetchObjectAsync("me", com.restfb.types.User.class).map(User::new);
         return userPromise.flatMap(fbUser -> {

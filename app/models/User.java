@@ -301,19 +301,12 @@ public class User {
     }
 
     public void uploadBase64Image (String base64Image, String contentType, Integer slot) {
-        AmazonS3 s3 = new AmazonS3Client(LetsChaiAWS.getCredentials());
-        byte[] byteArray = Base64.getDecoder().decode(base64Image);
-        InputStream inputStream = new ByteArrayInputStream(byteArray);
-
-        String key = String.format("user_pictures/%s_%d", getUserId(), slot);
-        ObjectMetadata meta = new ObjectMetadata();
-        meta.setContentLength(byteArray.length);
-        meta.setContentType(contentType);
-
-        s3.putObject("letschai", key, inputStream, meta);
+        LetsChaiAWS aws = new LetsChaiAWS();
+        String key = String.format("user_pictures/%s_%d", userId, slot);
+        String url = aws.uploadBase64Image(base64Image, contentType, key);
 
         initializePictures();
-        pictures.set(slot, LetsChaiAWS.s3Link(key));
+        pictures.set(slot, url);
     }
 
     private void initializePictures () {
@@ -347,6 +340,15 @@ public class User {
             String timestamp = String.valueOf(new Date().getTime());
             pictures.set(i, pictures.get(i).concat("?" + timestamp));
         }
+    }
+
+    public Integer getPictureCount () {
+        int i=0;
+        for (String pic: pictures) {
+            if (pic != null)
+                i++;
+        }
+        return i;
     }
 
     public Integer getAlternatePincode() {

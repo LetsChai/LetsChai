@@ -118,7 +118,6 @@ public class LetsChaiFacebookClient extends DefaultFacebookClient {
                 .setQueryParameter("access_token", accessToken)
                 .get()
                 .map(response -> {
-                    Logger.info(response.getBody());
                     for (JsonNode j : mapper.readTree(response.getBody()).path("data")) {
                         permissions.add(Permission.valueOf(j.path("permission").asText().toUpperCase()));
                     }

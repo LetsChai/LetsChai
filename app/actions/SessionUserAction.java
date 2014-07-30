@@ -2,6 +2,7 @@ package actions;
 
 import classes.ReadyToChaiChecker;
 import models.User;
+import play.Logger;
 import play.libs.F;
 import play.mvc.Action;
 import play.mvc.Http;
@@ -22,15 +23,17 @@ public class SessionUserAction extends Action.Simple {
         if (user.hasFlag(Flag.DEACTIVATED) && !path.contains("activate") && !ctx.request().method().equals("post"))
             return F.Promise.promise(() -> redirect(controllers.routes.Application.deactivatedUser()));
 
-        // make sure user profile is ready to go, but automatically allow access to editpictures and editprofile
+        // make sure user profile is ready to go
         if (!user.hasFlag(Flag.READY_TO_CHAI) && !path.contains("editprofile") && !path.contains("editpictures")) {
             ReadyToChaiChecker checker = new ReadyToChaiChecker();
             checker.check(user);    // this will set/remove flags as well
+            user.update();  // save flags to Mongo
 
+            // redirect if not ready to chai
             if (user.hasFlag(Flag.INCOMPLETE_PROFILE))
                 return F.Promise.promise(() -> redirect(controllers.routes.Application.editProfile()));
             if (user.hasFlag(Flag.NO_PICTURES))
-                return F.Promise.promise(() -> redirect(controllers.routes.Application.uploadPictures()));
+                return F.Promise.promise(() -> redirect(controllers.routes.Application.editPictures()));
         }
 
         ctx.args.put("user", user);

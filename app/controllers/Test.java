@@ -1,5 +1,6 @@
 package controllers;
 
+import actions.Auth;
 import classes.ChaiHandler;
 import classes.SecretChaiSauce;
 import clients.LetsChaiFacebookClient;
@@ -22,10 +23,10 @@ import java.util.stream.StreamSupport;
  */
 public class Test extends Controller {
 
+    @Auth.WithUser
     public static Result test() {
-        String sidhuId = Play.application().configuration().getString("fb.sidhu");
-        List<Chai> matches = ChaiHandler.getMatches(sidhuId);
-        return ok(String.valueOf(matches.size()));
+        User user = (User) ctx().args.get("user");
+        return ok(user.getPictureCount().toString());
     }
 
     public static Result test2 () {
