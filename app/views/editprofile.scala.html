@@ -101,13 +101,14 @@
 <div id="content">
 
     <!--First time users-->
-    <div class="row">
-        <div class="col-md-8 col-sm-offset-2" id="first-timers">
-            Tell your matches a little bit about yourself. Honest profiles get more matches so be open. <br/>
-            That's right, go ahead and show off a little!
+    @if(profile.hasFlag(types.Flag.INCOMPLETE_PROFILE)) {
+        <div class="row">
+            <div class="col-md-8 col-sm-offset-2" id="first-timers">
+                Tell your matches a little bit about yourself. Honest profiles get more matches so be open. <br/>
+                That's right, go ahead and show off a little!
+            </div>
         </div>
-    </div>
-
+    }
     <div class="row">
 
         <!--Profile Pictures-->

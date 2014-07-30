@@ -16,12 +16,17 @@ public class SessionUserAction extends Action.Simple {
 
     public F.Promise<SimpleResult> call (Http.Context ctx) throws Throwable {
         User user = User.findOne(ctx.session().get("user"));
+        String path = ctx.request().path();
+
+        // No deactivated users allowed
+        if (user.hasFlag(Flag.DEACTIVATED) && !path.contains("activate") && !ctx.request().method().equals("post"))
+            return F.Promise.promise(() -> redirect(controllers.routes.Application.deactivatedUser()));
 
         // make sure user profile is ready to go, but automatically allow access to editpictures and editprofile
-        String path = ctx.request().path();
         if (!user.hasFlag(Flag.READY_TO_CHAI) && !path.contains("editprofile") && !path.contains("editpictures")) {
             ReadyToChaiChecker checker = new ReadyToChaiChecker();
-            checker.check(user);
+            checker.check(user);    // this will set/remove flags as well
+
             if (user.hasFlag(Flag.INCOMPLETE_PROFILE))
                 return F.Promise.promise(() -> redirect(controllers.routes.Application.editProfile()));
             if (user.hasFlag(Flag.NO_PICTURES))

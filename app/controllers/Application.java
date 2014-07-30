@@ -27,7 +27,7 @@ public class Application extends Controller {
         return ok(newusersurvey.render());
     }
 
-    @Auth.Basic
+    @Auth.WithUser
     public static Result chai () {
         String userId = session().get("user");
         Chai todaysChai = ChaiHandler.todaysChai(userId);

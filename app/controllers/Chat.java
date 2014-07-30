@@ -22,10 +22,15 @@ import java.util.stream.Collectors;
  */
 public class Chat extends Controller {
 
-    @Auth.Basic
+    @Auth.WithUser
     public static Result chat () {
         String userId = session().get("user");
         List<Chai> matches = ChaiHandler.getMatches(userId);
+
+        // no matches? redirect
+        if (matches.size() == 0)
+            return redirect(controllers.routes.Chat.noMatches());
+
         List<Chai.HalfChai> halfChais = matches.stream().map(chai -> chai.getOtherHalf(userId)).collect(Collectors.toList());
         List<Message> messages = Message.find(userId);
         return ok(chat.render(halfChais, messages, userId));
@@ -37,5 +42,10 @@ public class Chat extends Controller {
         List<Chai.HalfChai> halfChais = matches.stream().map(chai -> chai.getOtherHalf(userId)).collect(Collectors.toList());
         LetsChaiChat chat = new LetsChaiChat(session().get("user"), halfChais);
         return chat.execute();
+    }
+
+    @Auth.Basic
+    public static Result noMatches () {
+        return ok(views.html.nomatches.render());
     }
 }

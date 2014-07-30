@@ -29,6 +29,7 @@ POST    /deactivate                 controllers.Application.deactivate()
 POST    /activate                   controllers.Application.activate()
 GET     /nochai                     controllers.Application.nochai()
 GET     /deactivated                controllers.Application.deactivatedUser()
+GET     /nomatches                  controllers.Chat.noMatches()
 
 # AJAX-only
 GET    /chai/decision/:choice       controllers.Application.chaiDecision(choice: Boolean)

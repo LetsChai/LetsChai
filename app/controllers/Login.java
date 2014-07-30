@@ -61,15 +61,18 @@ public class Login extends Controller {
                         return redirect(controllers.routes.Application.chai());
                     });
                 }
+
+                // no pre-processing required, straight redirect
+                session().put("user", user.getUserId());
                 return F.Promise.promise(() -> redirect(controllers.routes.Application.chai()));
             }
-
+            // user doesn't exist
             return register(post, fbUser);
         });
     }
 
     public static F.Promise<Result> register(DynamicForm post, User user) {
-        // if user accidentally ended up here, redirect them to the register page
+        // if necessary POST data isn't present, redirect to newusersurvey
         if (!post.data().containsKey("age_min"))
             return F.Promise.promise(() -> redirect(controllers.routes.Application.newusersurvey()));
 
