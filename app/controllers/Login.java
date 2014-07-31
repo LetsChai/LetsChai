@@ -45,14 +45,16 @@ public class Login extends Controller {
         String accessToken = post.get("access_token");
         LetsChaiFacebookClient fb = new LetsChaiFacebookClient(accessToken);
         F.Promise<User> userPromise = fb.fetchObjectAsync("me", com.restfb.types.User.class).map(User::new);
+
         return userPromise.flatMap(fbUser -> {
             User user = User.findOne(fbUser.getUserId());
             if (user != null) { // if the user exists
                 User.update(user.getUserId(), "{$set: {'lastLogin': #} }", new Date());
-                Long oneMonthAgo = (long) 86400 * (long) 30 * (long) 1000;
 
-                // check for expired access token
-                if (new Date().getTime() - oneMonthAgo > user.getAccessToken().getExpires().getTime()) {
+                // check for expiring access token
+                Long oneMonth = (long) 86400 * (long) 30 * (long) 1000;
+                if (new Date().getTime() + oneMonth > user.getAccessToken().getExpires().getTime()) {
+                    Logger.info("updating access token");
                     return fb.obtainExtendedAccessTokenAsync().map(extendedToken -> {
                         user.setAccessToken(extendedToken);
                         user.update();

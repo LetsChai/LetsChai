@@ -16,14 +16,17 @@ import java.util.*;
 
 public class Application extends Controller {
 
+    @Auth.None
     public static Result landing () {
         return ok(landing.render());
     }
 
+    @Auth.None
     public static Result thankyou () {
         return ok(thankyou.render());
     }
 
+    @Auth.None
     public static Result newusersurvey () {
         return ok(newusersurvey.render());
     }
@@ -44,6 +47,7 @@ public class Application extends Controller {
     @Auth.WithUser
     public static Result profile () {
         User user = (User) ctx().args.get("user");
+        user.forceNoCachePictures();
         return ok(profile.render(user));
     }
 

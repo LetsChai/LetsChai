@@ -338,7 +338,8 @@ public class User {
     public void forceNoCachePictures () {
         for (int i=0; i < pictures.size(); i++) {
             String timestamp = String.valueOf(new Date().getTime());
-            pictures.set(i, pictures.get(i).concat("?" + timestamp));
+            if (pictures.get(i) != null)
+                pictures.set(i, pictures.get(i).concat("?" + timestamp));
         }
     }
 

@@ -58,8 +58,14 @@
             padding-right: 3%;
             padding-left: 3%;
         }
-        canvas, #to-submit {
+        canvas {
             display: none;
+        }
+        .lb-save {
+            height: 3em;
+            width: 100%;
+            margin-top: 3%;
+            border-radius: 5px;
         }
     </style>
 </head>
@@ -68,8 +74,15 @@
 <!-- Bootstrap JS -->
 <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 
-<!-- Jcrop JS-->
+
+<!--JCrop-->
 <script src="/assets/javascripts/jquery.Jcrop.min.js"></script>
+<link href="/assets/stylesheets/jquery.Jcrop.css" rel="stylesheet" />
+
+<!--Lightbox-->
+<script src="/assets/javascripts/lightbox.edited.js"></script>
+<link href="/assets/stylesheets/lightbox.css" rel="stylesheet" />
+
 
 <!--Page Header-->
 @header.content()
@@ -82,7 +95,7 @@
     <div class="row">
         <div class="col-md-8 col-sm-offset-2" id="first-timers">
             Upload atleast <strong class="lc-red">2 good pictures</strong> of yourself. Profiles with fake pictures don't get matches.
-            So snap off a selfie and let's chai!
+            So snap a selfie and let's chai!
         </div>
     </div>
 }
@@ -94,10 +107,10 @@
         }
         <div class="col-lg-6 picture-upload">
             <div class="preview-window">
-                <img class="picture-preview" src="@pic" />
+                <img data-lightbox="good-lookin" class="picture-preview" src="@pic" data-ref="@i"/>
             </div>
             <input type="file" class="picture-input" accept="image/*" />
-            <button class="delete-picture">Delete</button>
+            <button class="delete-picture m-btn red" data-ref="@i">Delete</button>
         </div>
         @if(i%2 == 1) {
             </div>
@@ -105,37 +118,25 @@
     }
 
     <div class="row" id="button-row">
-        <button id="upload" class="m-btn green">Save</button>
-        <a href="profile"><button id="cancel" class="m-btn">Cancel</button></a>
+        <form id="to-submit" method="post" action="editpictures">
+            <input type="hidden" id="image0" name="image0" />
+            <input type="hidden" id="image1" name="image1" />
+            <input type="hidden" id="image2" name="image2" />
+            <input type="hidden" id="image3" name="image3" />
+            <button type="submit" id="upload" class="m-btn green">Save</button>
+            <a href="profile"><button id="cancel" class="m-btn">Cancel</button></a>
+        </form>
     </div>
 </div></div>
 
 <!-- Image crop modal -->
-<div class="modal fade" id="image-crop">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                <h4 class="modal-title" id="myModalLabel">Select an Area</h4>
-            </div>
-            <div class="modal-body">
-                <img />
-            </div>
-            <div class="modal-footer">
-                <button id="finish-crop" type="button" class="btn btn-default" data-dismiss="modal">Done</button>
-            </div>
-        </div>
-    </div>
+
+<div class="col-lg-5-offset crop-container">
+    <a data-lightbox="image-1" data-title="Drag handles to resize, drag window to move selection, click away to cancel">Image 1</a>
+    <img id="cropper-image" />
 </div>
 
 <canvas id="test-canvas" width="400" height="400"></canvas>
-
-<form id="to-submit" method="post" action="editpictures">
-    <input type="hidden" id="image0" name="image0" />
-    <input type="hidden" id="image1" name="image1" />
-    <input type="hidden" id="image2" name="image2" />
-    <input type="hidden" id="image3" name="image3" />
-</form>
 
 <script>
     var canvas = document.getElementById('test-canvas');
@@ -143,87 +144,98 @@
 
     var jcrop_api;
     var current_preview;
+    var coords = {};
 
-    $(".picture-input").change(function() {
+   $(".picture-input").change(function() {
         if (this.files && this.files[0]) {
-            var self = this;
+            current_preview = $(this).parent().find(".picture-preview");
             var reader = new FileReader();
             reader.onload = function (e) {
-                current_preview = $(self).parent().find(".picture-preview");
-                current_preview.attr('src', e.target.result);
-                $("#image-crop img").attr('src', e.target.result);
-                $("#image-crop img").Jcrop({
-                    aspectRatio: 1,
-                    minSize: [350, 350],
-                    setSelect: [0, 0, 350, 350],
-                    boxWidth: 500,
-                    boxHeight: 500
-                }, function () {
-                    jcrop_api = this;
-                });
-                $("#image-crop").modal();
+                $("a[data-lightbox]").attr('href', e.target.result);
+                $("a[data-lightbox]").trigger('click');
             }
             reader.readAsDataURL(this.files[0]);
         }
     });
 
-    $("#finish-crop").click(function() {
-        var previewSize = 200;
+    // called in lightbox.edited.js
+    function makeImageCroppable () {
+        // Make the displayed image croppable using JCrop
+        var IMAGE = $('.lb-image')[0];
+        var height = IMAGE.naturalHeight;
+        var width = IMAGE.naturalWidth;
+        var start = {};
+        start.height = start.width = Math.min(height, width);
+        if (height > width) {
+            start.x = 0;
+            start.y = (height-width)/2;
+        } else {
+            start.x = (width-height)/2;
+            start.y = 0;
+        }
 
-        var picHeight = $("#image-crop img")[0].naturalHeight;
-        var picWidth = $("#image-crop img")[0].naturalWidth;
-
-        coords = jcrop_api.tellSelect();
-        var rx = previewSize / coords.w;
-        var ry = previewSize / coords.h;
-
-        current_preview.css({
-            width: Math.round(rx * picWidth) + 'px',
-            height: Math.round(ry * picHeight) + 'px',
-            marginLeft: '-' + Math.round(rx * coords.x) + 'px',
-            marginTop: '-' + Math.round(ry * coords.y) + 'px'
+        $(IMAGE).Jcrop({
+            aspectRatio: 1,
+            setSelect: [start.x, start.y, start.width, start.height]
+        }, function () {
+            jcrop_api = this;
         });
-        current_preview.parents(".picture-upload").find('.picture-input').data("coords", coords);
-        jcrop_api.destroy();
-        $("#image-crop img").attr('src', '');
+
+    }
+
+    $(".lb-save").ready(function() {
+        $(".lb-save").click(function() {
+            saveLightboxImage();
+        });
     });
 
-    $("#upload").click(function() {
-        uploadFiles();
-    });
+    function cropResizeImage (imageElement, coords) {
+        context.drawImage(imageElement, coords.x, coords.y, coords.w, coords.h, 0, 0, 400, 400);
+        return canvas.toDataURL("image/jpeg");
+    }
+
+    function saveLightboxImage () {
+        var modalImage = $(".lb-image")[0];
+        console.log($(modalImage).css("width"));
+        var scale = modalImage.naturalWidth / pixelToInt($(modalImage).css("width"));
+        var coords = jcrop_api.tellSelect();
+        $.each(coords, function(key, value) {
+            coords[key] = value*scale;
+        });
+
+        // get cropped base64 URL
+        var src = cropResizeImage(modalImage, coords);
+
+        // set preview
+        current_preview.attr("src", src);
+
+        // set hidden form element
+        var i = parseInt(current_preview.data("ref"));
+        $("#image" + i).val(src.substring(23));
+
+        // get rid of Jcrop
+        jcrop_api.destroy();
+
+        // get rid of Lightbox
+        $("#lightbox").trigger("click");
+    }
+
+    function pixelToInt (p) {
+        return parseInt(p.substring(0, p.indexOf("px")));
+    }
+
 
     $(".delete-picture").click(function() {
         var INPUT = $(this).parents(".picture-upload").find(".picture-input");
         INPUT.wrap("<form>").parent("form").trigger("reset");
         INPUT.unwrap();
-        INPUT.data("delete", true);
         var url = "http://letschai.s3.amazonaws.com/images/silhouette.png";
         $(this).closest(".picture-upload").find(".picture-preview").attr("src", url);
+
+        // set hidden form element
+        var i = parseInt($(this).data("ref"));
+        $("#image" + i).val("delete");
     });
-
-    function uploadFiles () {
-        var files = [];
-        var inputs = $('.picture-input');
-        inputs.each(function(i, input) {
-            if (input.files && input.files[0]) {
-                var base64image = cropResizeFile(input);
-                $("#image" + i).val(base64image.substring(23));
-            } else if ($(input).data("delete") == true) {
-                $("#image" + i).val("delete");
-            }
-        });
-        $("#to-submit").submit();
-    }
-
-    // requires input Element to have JCrop coordinates in data.coords
-    // returns base64 encoded JPEG of compressed and cropped image
-    function cropResizeFile (inputElement) {
-        var coords = $(inputElement).data("coords");
-        var imageElement = $(inputElement).parent().find(".picture-preview")[0];
-        // canvas.clearRect(0, 0, 400, 400);
-        context.drawImage(imageElement, coords.x, coords.y, coords.w, coords.h, 0, 0, 400, 400);
-        return canvas.toDataURL("image/jpeg");
-    }
 
 </script>
 

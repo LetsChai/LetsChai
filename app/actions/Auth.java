@@ -36,4 +36,13 @@ public class Auth {
 
     }
 
+    @With(NoAuthAction.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.METHOD, ElementType.TYPE})
+    @Inherited
+    @Documented
+    public static @interface None {
+
+    }
+
 }

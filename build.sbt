@@ -3,8 +3,8 @@ name := "LetsChai"
 version := "1.0-SNAPSHOT"
 
 libraryDependencies ++= Seq(
-  javaJdbc,
-  javaEbean,
+  // javaJdbc,
+  // javaEbean,
   cache,
   "com.restfb" % "restfb" % "1.6.14",
   "de.undercouch" % "bson4jackson" % "2.1.0" force(),

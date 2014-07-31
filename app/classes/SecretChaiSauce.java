@@ -2,6 +2,7 @@ package classes;
 
 import models.Chai;
 import models.User;
+import play.Logger;
 import play.libs.F;
 import types.Flag;
 import models.Friends;
@@ -34,6 +35,15 @@ public class SecretChaiSauce {
 
         INSTANCE = new SecretChaiSauce(UserHandler.getInstance(), PincodeHandler.getInstance(), FriendHandler.getInstance(), ChaiHandler.getInstance());
         return INSTANCE;
+    }
+
+    // For the Akka scheduler to use
+    public static void runAsService () {
+        Logger.info("Starting algorithm");
+        SecretChaiSauce sauce = SecretChaiSauce.getInstance();
+        Logger.info("Running...");
+        sauce.run();
+        Logger.info("algorithm complete");
     }
 
     private SecretChaiSauce (UserHandler userHandler, PincodeHandler pincodeHandler, FriendHandler friendHandler, ChaiHandler chaiHandler) {

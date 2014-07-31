@@ -6,15 +6,19 @@ import classes.SecretChaiSauce;
 import clients.LetsChaiFacebookClient;
 import com.google.common.collect.Lists;
 import models.*;
+import play.Logger;
 import play.Play;
+import play.libs.Akka;
 import play.libs.F;
 import play.mvc.Controller;
 import play.mvc.Result;
 import models.Friends;
 import models.Pincode;
+import scala.concurrent.duration.Duration;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -23,10 +27,15 @@ import java.util.stream.StreamSupport;
  */
 public class Test extends Controller {
 
-    @Auth.WithUser
+    @Auth.Basic
     public static Result test() {
-        User user = (User) ctx().args.get("user");
-        return ok(user.getPictureCount().toString());
+
+        Akka.system().scheduler().scheduleOnce(
+                Duration.create(10, TimeUnit.SECONDS),
+                () -> Logger.info("scheduled instance running"),
+                Akka.system().dispatcher()
+        );
+        return ok();
     }
 
     public static Result test2 () {
@@ -35,8 +44,10 @@ public class Test extends Controller {
     }
 
     public static Result algorithm () {
-        SecretChaiSauce sauce = SecretChaiSauce.getInstance();
-        sauce.run();
+        Akka.system().scheduler().scheduleOnce(
+                Duration.create(0, TimeUnit.MILLISECONDS),
+                SecretChaiSauce::runAsService,
+                Akka.system().dispatcher() );
         return ok();
     }
 

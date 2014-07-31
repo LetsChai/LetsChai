@@ -6,17 +6,17 @@ import play.mvc.Http;
 import play.mvc.SimpleResult;
 
 /**
- * Created by kedar on 6/16/14.
+ * Created by kedar on 7/31/14.
  */
-public class AuthAction extends Action.Simple {
+public class NoAuthAction extends Action.Simple {
 
     @Override
     public F.Promise<SimpleResult> call (Http.Context ctx) throws Throwable {
         F.Promise<SimpleResult> ret = null;
 
         // redirect to login if not logged in
-        if (!ctx.session().containsKey("user"))
-            ret = F.Promise.pure(redirect(controllers.routes.Application.landing()));
+        if (ctx.session().containsKey("user"))
+            ret = F.Promise.pure(redirect(controllers.routes.Application.chai()));
         else
             ret = delegate.call(ctx);
 
