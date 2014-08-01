@@ -178,8 +178,12 @@ $("#slides").slidesjs({
 // to make the gray bars on the bottom of the picture slider act smoothly
 $(".slidesjs-pagination-item").click(function() {
     $(".slidesjs-pagination-item").removeClass("active");
-    $(this).addClass("active");
     $(this).find("a").trigger('click');
+});
+
+$(".slidesjs-pagination-item a").click(function(e) {
+    $(this).parent().addClass("active");
+    e.stopPropagation();
 });
 
 // make the first picture the active picture on page load
