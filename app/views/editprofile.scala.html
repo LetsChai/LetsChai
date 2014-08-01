@@ -97,7 +97,7 @@
 @sidebar.content()
 
 <!-- Main -->
-
+<form id="profile-form" method="post" action="editprofile">
 <div id="content">
 
     <!--First time users-->
@@ -128,9 +128,9 @@
                 </div>
             </div>
             <div class="row">
-                <a href="editpictures"><button id="edit-pictures" class="m-btn blue">Edit Pictures</button></a>
+                <a href="editpictures"><button type="button" id="edit-pictures" class="m-btn blue">Edit Pictures</button></a>
             </div>
-            <form id="profile-form" method="post" action="editprofile">
+
             <div class="row">
                 <button type="submit" class="m-btn green" id="save-profile">Save Profile</button>
             </div>
@@ -243,8 +243,10 @@
         </div>
 
     </div>
-</div>
+    </div>
 
+</div>
+<form id="profile-form" method="post" action="editprofile">
 </body>
 
 <script>

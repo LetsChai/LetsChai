@@ -214,11 +214,13 @@
         var i = parseInt(current_preview.data("ref"));
         $("#image" + i).val(src.substring(23));
 
-        // get rid of Jcrop
-        jcrop_api.destroy();
+        destroyImage();
+        $("#lightbox").trigger('click'); // to make lightbox disappear
+    }
 
-        // get rid of Lightbox
-        $("#lightbox").trigger("click");
+    function destroyImage () {
+        jcrop_api.destroy();
+        canvas.clearRect(0,0,400,400);
     }
 
     function pixelToInt (p) {
@@ -238,6 +240,10 @@
         $("#image" + i).val("delete");
     });
 
+    $("form input, form textarea").on("invalid", function () {
+        $(this).addClass("invalid");
+        console.log("invalid");
+    });
 </script>
 
 </body>

@@ -401,7 +401,7 @@
         visibility: "visible"
       });
       console.log("destroying");
-      jcrop_api.destroy();
+      destroyImage();
     };
 
     return Lightbox;
