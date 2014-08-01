@@ -189,7 +189,11 @@
                         <div class="col-md-8 content">
                             <select name="religion" />
                                 @for(religion <- types.Religion.values()) {
-                                    <option value="@religion.toString">@religion.capitalize()</option>
+                                    @if(religion.toString.equals("NO_PREFERENCE")) {
+                                        <option value="@religion.toString">Other</option>
+                                    } else {
+                                        <option value="@religion.toString">@religion.capitalize()</option>
+                                    }
                                 }
                             </select>
                         </div>
@@ -274,8 +278,7 @@ $(document).ready(function() {
 $("[name=month]").val(@profile.getBirthday().getMonth() + 1);
 $("[name=day]").val(@profile.getBirthday().getDate());
 $("[name=year]").val(@profile.getBirthday().getYear() + 1900);
-$("[name=religion]").val(@profile.getReligion.toString());
-
+$("[name=religion]").val("@profile.getReligion.toString()");
 </script>
 
 </html>

@@ -71,6 +71,7 @@ public class Application extends Controller {
         user.setPincode(Integer.parseInt(params.get("pincode")[0]));
         user.setOccupation(params.get("occupation")[0]);
         user.setAnswers(params.get("answer"));
+        user.setReligion(Religion.valueOf(params.get("religion")[0]));
 
         Date birthday = new DateTime(
                 Integer.parseInt(params.get("year")[0]),
