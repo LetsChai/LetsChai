@@ -31,6 +31,11 @@
         #content a {
             font-weight: bold;
         }
+        #content img {
+            display: block;
+            margin: 0 auto;
+            max-width: 100%;
+        }
     </style>
 </head>
 
@@ -44,7 +49,7 @@
 
 <div id="content">
     <div class="row">
-        <div class="col-md-4 col-sm-offset-4">
+        <div class="col-md-4 col-md-offset-4 col-xs-offset-1 col-xs-10">
             <img src='@clients.LetsChaiAWS.s3Link("images/lonelychai.jpg")' />
             <h3>No Matches Here :(</h3>
             <h5>Looks like you haven't been here long enough to get a match yet. Check out your <a class="lc-red" href="chai">Chai of the Day</a>

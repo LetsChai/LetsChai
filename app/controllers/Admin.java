@@ -42,4 +42,18 @@ public class Admin extends Controller {
         return cacher.update(all).map(bool -> ok());
     }
 
+    public static Result deleteUser (String userId) {
+        User user = User.findOne(userId);
+        PlayJongo.getCollection("deleted_users").save(user);
+        User.getCollection().remove("{'userId':'#'}", userId);
+        return ok("deleted " + userId, ": " + user.getName());
+    }
+
+    public static Result restoreUser (String userId) {
+        User user = PlayJongo.getCollection("deleted_users").findOne("{'userId': '#'}", userId).as(User.class);
+        User.getCollection().save(user);
+        PlayJongo.getCollection("deleted_users").remove("{'userId': '#'}", userId);
+        return ok("restored " + userId, ": " + user.getName());
+    }
+
 }

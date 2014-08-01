@@ -103,7 +103,7 @@
     <!--First time users-->
     @if(profile.hasFlag(types.Flag.INCOMPLETE_PROFILE)) {
         <div class="row">
-            <div class="col-md-8 col-sm-offset-2" id="first-timers">
+            <div class="col-md-8 col-md-offset-2" id="first-timers">
                 Tell your matches a little bit about yourself. Honest profiles get more matches so be open. <br/>
                 That's right, go ahead and show off a little!
             </div>
@@ -112,7 +112,7 @@
     <div class="row">
 
         <!--Profile Pictures-->
-        <div class="col-md-4 col-sm-offset-2">
+        <div class="col-md-4 col-md-offset-2">
             <div class="row">
                 <div id="profile-pictures">
                     @if(profile.getPictures().size() == 0) {

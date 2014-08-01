@@ -67,6 +67,7 @@
             margin-top: 3%;
             border-radius: 5px;
         }
+        a[data-lightbox] { display: none}
     </style>
 </head>
 <body>
@@ -93,14 +94,14 @@
 <!--First time users-->
 @if(user.hasFlag(types.Flag.NO_PICTURES)) {
     <div class="row">
-        <div class="col-md-8 col-sm-offset-2" id="first-timers">
+        <div class="col-md-8 col-md-offset-2" id="first-timers">
             Upload atleast <strong class="lc-red">2 good pictures</strong> of yourself. Profiles with fake pictures don't get matches.
             So snap a selfie and let's chai!
         </div>
     </div>
 }
 
-<div class="row"><div class="col-sm-offset-3 col-lg-7">
+<div class="row"><div class="col-md-offset-3 col-lg-7">
     @for((pic,i) <- user.getPictures().zipWithIndex) {
         @if(i%2 == 0) {
             <div class="row">
