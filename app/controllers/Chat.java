@@ -1,21 +1,18 @@
 package controllers;
 
 import actions.Auth;
-import classes.ChaiHandler;
-import com.fasterxml.jackson.databind.JsonNode;
+import classes.Query;
 import clients.LetsChaiChat;
+import com.fasterxml.jackson.databind.JsonNode;
 import exceptions.ChatException;
-import models.Chai;
 import models.Message;
-import models.User;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.WebSocket;
-import uk.co.panaxiom.playjongo.PlayJongo;
+import types.Match;
 import views.html.chat;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Created by kedar on 6/9/14.
@@ -25,22 +22,19 @@ public class Chat extends Controller {
     @Auth.WithUser
     public static Result chat () {
         String userId = session().get("user");
-        List<Chai> matches = ChaiHandler.getMatches(userId);
+        Query query = new Query();
+        List<Match> matches = query.matches(userId);
 
         // no matches? redirect
         if (matches.size() == 0)
             return redirect(controllers.routes.Chat.noMatches());
 
-        List<Chai.HalfChai> halfChais = matches.stream().map(chai -> chai.getOtherHalf(userId)).collect(Collectors.toList());
-        List<Message> messages = Message.find(userId);
-        return ok(chat.render(halfChais, messages, userId));
+        List<Message> messages = query.messages(userId);
+        return ok(chat.render(matches, messages, userId));
     }
 
     public static WebSocket<JsonNode> socket () throws ChatException {
-        String userId = session().get("user");
-        List<Chai> matches = ChaiHandler.getMatches(userId);
-        List<Chai.HalfChai> halfChais = matches.stream().map(chai -> chai.getOtherHalf(userId)).collect(Collectors.toList());
-        LetsChaiChat chat = new LetsChaiChat(session().get("user"), halfChais);
+        LetsChaiChat chat = new LetsChaiChat(session().get("user"));
         return chat.execute();
     }
 

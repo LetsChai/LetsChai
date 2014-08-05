@@ -1,4 +1,4 @@
-@(matches: List[Chai.HalfChai], messages: List[Message], userId: String)
+@(matches: List[types.Match], messages: List[Message], userId: String)
 
 <!DOCTYPE html>
 <html>
@@ -46,8 +46,11 @@
         .message > * {
             display: inline-block;
         }
-        .message .sender { font-weight:bold; }
-        .message .sender { color: #c84A49 }
+        .message .sender {
+            font-weight:bold;
+            color: #c84A49;
+            margin-right: 5px;
+        }
         .message.user-@userId .sender { color: #0C88FE; }
         #new-message {
             height: 50px;
@@ -73,9 +76,9 @@
     <div class="row">
         <div class="col-lg-2 col-sm-3 col-md-offset-2 " id="match-container">
             @for(mate <- matches) {
-                <div class="match" data-user="@mate.getUserId()">
-                    <img class="profile-pic" src="@mate.profilePicURL" />
-                    <span class="name">@mate.getName()</span>
+                <div class="match" data-user="@mate.getTargeted().getReceiver">
+                    <img class="profile-pic" src="@clients.LetsChaiFacebookClient.profilePictureURL(mate.getTargeted().getReceiver)" />
+                    <span class="name">@mate.getTargetName()</span>
                 </div>
             }
         </div>
@@ -100,7 +103,7 @@
     var names = {
         "@userId" : "Me",
         @for(mate <- matches) {
-            "@mate.getUserId()" : "@mate.getName" ,
+            "@mate.getTargeted().getReceiver" : "@mate.getTargetName" ,
         }
     }
     var userId = @userId;

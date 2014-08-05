@@ -1,10 +1,10 @@
 package controllers;
 
-import play.Play;
-import types.ProfileQuestion;
 import classes.QuestionGenerator;
+import play.Play;
 import play.mvc.Controller;
 import play.mvc.Result;
+import types.ProfileQuestion;
 
 import java.util.List;
 

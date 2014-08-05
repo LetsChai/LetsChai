@@ -97,11 +97,15 @@ public class LetsChaiFacebookClient extends DefaultFacebookClient {
     }
 
     public F.Promise<Friends> getMutualFriends (String userId, String friendId) {
+        Friends friends = new Friends(Arrays.asList(userId, friendId));
         return WS.url("https://graph.facebook.com/v2.0/" + friendId)
                 .setQueryParameter("fields", "context.fields(mutual_friends)")
                 .setQueryParameter("access_token", accessToken)
                 .get()
-                .map(response -> new Friends(response.asJson(), Arrays.asList(userId, friendId)));
+                .map(response -> {
+                    friends.setMutualFriends(response.asJson());
+                    return friends;
+                });
     }
 
     public static String profilePictureURL (String userId) {

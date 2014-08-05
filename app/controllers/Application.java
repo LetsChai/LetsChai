@@ -1,9 +1,10 @@
 package controllers;
 
 import actions.Auth;
-import classes.ChaiHandler;
+import classes.Query;
 import clients.LetsChaiAWS;
 import models.Chai;
+import models.Friends;
 import models.User;
 import org.joda.time.DateTime;
 import play.mvc.BodyParser;
@@ -34,14 +35,15 @@ public class Application extends Controller {
     @Auth.WithUser
     public static Result chai () {
         String userId = session().get("user");
-        Chai todaysChai = ChaiHandler.todaysChai(userId);
+        Query query =  new Query();
+        Chai todaysChai = query.todaysChai(userId);
 
         if (todaysChai == null)   // no chai today!
             return redirect(controllers.routes.Application.nochai());
 
-        User myMatch = User.findOne(todaysChai.getOtherHalf(userId).getUserId());
-
-        return ok(chai.render(myMatch, todaysChai));
+        User myMatch = User.findOne(todaysChai.getTarget());
+        Friends friends = query.friends(userId, todaysChai.getTarget());
+        return ok(chai.render(myMatch, todaysChai, friends));
     }
 
     @Auth.WithUser
@@ -170,7 +172,10 @@ public class Application extends Controller {
     @Auth.Basic
     public static Result chaiDecision (Boolean decision) {
         String userId = session().get("user");
-        ChaiHandler.setTodaysDecision(userId, decision);
+        Query query = new Query();
+        Chai today = query.todaysChai(userId);
+        today.setDecision(decision);
+        query.updateChai(userId, today);
         return ok();
     }
 

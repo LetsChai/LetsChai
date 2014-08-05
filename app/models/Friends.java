@@ -5,9 +5,7 @@ import org.apache.commons.lang3.Validate;
 import play.Logger;
 import uk.co.panaxiom.playjongo.PlayJongo;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by kedar on 6/3/14
@@ -15,66 +13,100 @@ import java.util.List;
 public class Friends {
 
     private List<String> users;
-    private HashMap<String, String> friends = new HashMap<>();  // userId, name
-    private int count;
+    private Map<String, String> mutualFriends = new HashMap<>();  // userId, name
+    private boolean friends;    // whether they are facebook friends
+    private int count;  // total number of mutual friends
     private Date timestamp;
-
-    public static Iterable<Friends> getFullCache () {
-        return PlayJongo.getCollection("mutual_friends_cache").find().as(Friends.class);
-    }
 
     private Friends () {}
 
     // from a Facebook mutual friends call
-    public Friends (JsonNode fbResponse, List<String> users) {
+    public Friends (List<String> users) {
+        this.users = users;
+        timestamp = new Date();
+    }
+
+    public void setMutualFriends (JsonNode fbResponse) {
         Validate.notNull(fbResponse);
         Logger.info(fbResponse.toString());
 
         for(JsonNode j: fbResponse.path("context").path("mutual_friends").path("data")) {
-            addFriend(j);
+            mutualFriends.put(j.path("id").asText(), j.path("name").asText());
         }
-        setCount(fbResponse.path("context").path("mutual_friends").path("summary").path("total_count").asInt());
-        this.users = users;
+        count = fbResponse.path("context").path("mutual_friends").path("summary").path("total_count").asInt();
     }
 
-    // from a Facebook User json
-    public void addFriend (JsonNode j) {
-        friends.put(j.path("id").asText(), j.path("name").asText());
-        timestamp = new Date();
-    }
-
-    // returns the count field if it's set, the size of the friends map otherwise
-    public Integer getCount () {
-        if (count != 0)
-            return count;
-        return friends.size();
+    public void setFriends (boolean friends) {
+        this.friends = friends;
     }
 
     public Integer unnamedFriendCount () {
-        return count - friends.size();
-    }
-
-    public void setCount(int count) {
-        this.count = count;
-    }
-
-    public HashMap<String, String> getFriends() {
-        return friends;
+        return count - mutualFriends.size();
     }
 
     public String toString () {
-        return friends.toString() + ", count:" + count;
+        return mutualFriends.toString() + ", count:" + count;
     }
 
     public List<String> getUsers() {
         return users;
     }
 
-    public void setUsers(List<String> users) {
-        this.users = users;
+    public boolean isFriends() {
+        return friends;
     }
 
-    public Boolean containsUsers (String userId1, String userId2) {
-        return users.contains(userId1) && users.contains(userId2);
+    // Friends are equal if they refer to the same 2 users
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Friends friends = (Friends) o;
+
+        // To normalize the orders
+        Collections.sort(users);
+        Collections.sort(friends.users);
+
+        if (!users.equals(friends.users)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        Collections.sort(users); // To normalize the order
+        return users.hashCode();
+    }
+
+    public Map<String, String> getMutualFriends() {
+        return mutualFriends;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public Date getTimestamp() {
+        return timestamp;
+    }
+
+    // pass in one user, returns the other, throws an Exception if the user is not one of the two
+    public String getOtherUser (String userId) {
+        Validate.notNull(userId);
+        Validate.isTrue(users.contains(userId));
+        return users.get(0).equals(userId) ? users.get(1) : users.get(0);
+    }
+
+    // Friends are comparable
+    // The greater Friends is the one with more named mutual friends
+    // The tiebreaker is count
+    public static int compare (Friends friends1, Friends friends2) {
+        if (friends1.getMutualFriends().size() > friends2.getMutualFriends().size())
+            return 1;
+        if (friends2.getMutualFriends().size() > friends1.getMutualFriends().size())
+            return -1;
+        // tiebreaker
+        return Integer.compare(friends1.getCount(), friends2.getCount());
     }
 }

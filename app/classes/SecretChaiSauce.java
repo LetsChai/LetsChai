@@ -1,12 +1,12 @@
 package classes;
 
+import com.google.common.collect.Lists;
 import models.Chai;
 import models.User;
+import org.joda.time.DateTime;
 import play.Logger;
 import play.libs.F;
-import types.Flag;
 import models.Friends;
-import uk.co.panaxiom.playjongo.PlayJongo;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -18,88 +18,81 @@ import java.util.stream.Stream;
 
 public class SecretChaiSauce {
 
-    private static SecretChaiSauce INSTANCE;
-
-    private final Double MINIMUM_REQUIRED_SCORE = 0.01;
-
-    private UserHandler userHandler;
-    private ChaiHandler chaiHandler;
-    private FriendHandler friendHandler;
     private PincodeHandler pincodeHandler;
-    private LetsChaiBooleanChecker checker;
     private LetsChaiScorer scorer;
+    private LetsChaiBooleanChecker checker;
+    private Query query;
 
-    public static SecretChaiSauce getInstance () {
-        if (INSTANCE != null)
-            return INSTANCE;
-
-        INSTANCE = new SecretChaiSauce(UserHandler.getInstance(), PincodeHandler.getInstance(), FriendHandler.getInstance(), ChaiHandler.getInstance());
-        return INSTANCE;
-    }
-
-    // For the Akka scheduler to use
-    public static void runAsService () {
-        Logger.info("Starting algorithm");
-        SecretChaiSauce sauce = SecretChaiSauce.getInstance();
-        Logger.info("Running...");
-        sauce.run();
-        Logger.info("algorithm complete");
-    }
-
-    private SecretChaiSauce (UserHandler userHandler, PincodeHandler pincodeHandler, FriendHandler friendHandler, ChaiHandler chaiHandler) {
-        this.userHandler = userHandler;
+    public SecretChaiSauce (PincodeHandler pincodeHandler) {
         this.pincodeHandler = pincodeHandler;
-        this.friendHandler = friendHandler;
-        this.chaiHandler = chaiHandler;
-        checker = new LetsChaiBooleanChecker(friendHandler, pincodeHandler, chaiHandler);
         scorer = new LetsChaiScorer();
+        checker = new LetsChaiBooleanChecker(pincodeHandler);
+        query = new Query();
     }
 
-    public void run () {
-        List<Chai> todaysChais = new ArrayList<>();
+    // returns null if there's no chai, should be changed to an exception later
+    public Chai nextChai (User user) {
+        String userId = user.getUserId();
+        Logger.info("Getting next chai for " + userId);
 
-        userHandler.valid().stream()
-                .forEach(user -> user.addFlags(pincodeHandler.flags(user.getPincode())));
-
-        List<User> validUsers = userHandler.valid();
-        for (User user: validUsers) {
-            Chai best;
-            try {
-                best = validUsers.stream().filter(candidate -> checker.associatives(user, candidate))
-                        .filter(candidate -> checker.nonAssociatives(user, candidate))
-                        .map(candidate -> chai(user, candidate))
-                        .max(chaiHandler::compare).get();
-            } catch (NoSuchElementException e) {    // thrown by max if no chais are present
-                continue;
-            }
-
-            // don't save really bad matches
-            if (best.getScore() < MINIMUM_REQUIRED_SCORE)
-                continue;
-
-            todaysChais.add(best);
+        // got to be valid
+        if (!checker.individuals(user)) {
+            Logger.info("Invalid user");
+            return null;
         }
 
-        userHandler.overwrite();
-        chaiHandler.insert(todaysChais);
+        // do you already have a chai for today? Let's say for now that there must be atleast 22 hours between generated chais
+        List<Chai> chais = query.chais(userId);
+        DateTime yesterday = new DateTime().minusHours(22);
+        if (chais.stream().filter(chai -> chai.getReceiver().equals(userId) && new DateTime(chai.getReceived()).isAfter(yesterday)).count() > 0) {
+            Logger.info("already has chai");
+            return null;
+        }
+
+        // do you have a lover out there waiting for you?
+        List<Chai> youLikeMe = chais.stream().filter(chai -> chai.getTarget().equals(userId) && chai.getDecision()
+                && !chais.contains(new Chai(chai.getTarget(), chai.getReceiver(), 0.0)))
+                .collect(Collectors.toList());
+        if (youLikeMe.size() > 0)
+            return new Chai(userId, youLikeMe.stream().max(Chai::compare).get().getReceiver(), 0.51);
+
+        // filter out the unwanteds
+        List<Friends> friends = query.friends(userId);
+        List<User> candidates = query.users().stream().filter(candidate -> checker.associatives(user, candidate, friends)
+                && checker.nonAssociatives(user, candidate, chais))
+                .collect(Collectors.toList());
+        if (candidates.size() == 0) { // for the rare match-less user
+            Logger.info("match-less user");
+            return null;
+        }
+
+        // do you have mutual friends with someone?
+        List<Friends> weHaveFriends = friends.stream().filter(friend -> friend.getCount() > 0
+                && candidates.contains(new User(friend.getOtherUser(userId))))
+                .collect(Collectors.toList());
+        if (weHaveFriends.size() > 0) {
+            Friends best = weHaveFriends.stream().max(Friends::compare).get();
+            return new Chai(userId, best.getOtherUser(userId), scorer.mutualFriendScore(best));
+        }
+
+        // do you atleast have a valid pincode?
+        if (pincodeHandler.valid(user.getPincode())) {
+            // cool get the nearest user with a valid pincode
+            Integer userPin = user.getPincode();
+            F.Tuple<User,Double> winner = candidates.stream().filter(candidate -> pincodeHandler.valid(user.getPincode()))
+                    .map(candidate -> new F.Tuple<User,Double>(candidate, scorer.distanceScore(pincodeHandler.distance(userPin, candidate.getPincode()))))
+                    .max((t1, t2) -> Double.compare(t1._2, t2._2)).get();
+            return new Chai(userId, winner._1.getUserId(), winner._2);
+        }
+
+        // fine, you better hope someone has the same shitty pincode as you
+        Random random = new Random();
+        List<User> samePincode = candidates.stream().filter(candidate -> user.getPincode() == candidate.getPincode())
+                .collect(Collectors.toList());
+        if (samePincode.size() > 0)
+            return new Chai(userId, samePincode.get(random.nextInt(samePincode.size())).getUserId(), 0.14);
+
+        // fuck it you're a loser, you get a rando, congratulations
+        return new Chai(userId, candidates.get(random.nextInt(candidates.size())).getUserId(), 0.05);
     }
-
-    private Chai chai (User user, User candidate) {
-        String userId = user.getUserId();
-        String candidateId = candidate.getUserId();
-
-        Friends mutuals = friendHandler.mutualFriends(userId, candidateId);
-        Double distance = pincodeHandler.distance(user.getPincode(), candidate.getPincode());
-        Boolean match = chaiHandler.likedMatchExists(candidateId, userId);
-
-        Double score;
-        if (mutuals == null)
-            score = scorer.partialScore(distance, match);
-        else
-            score = scorer.score(mutuals, distance, match);
-
-        return new Chai(user, candidate, score, mutuals);
-    }
-
-
 }

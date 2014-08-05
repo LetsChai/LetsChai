@@ -1,132 +1,93 @@
 package models;
 
 import clients.LetsChaiFacebookClient;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import org.apache.commons.lang3.Validate;
-import play.Logger;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
- * Created by kedar on 7/25/14.
+ * Created by kedar on 8/1/14.
  */
-public class Chai {
-    // id, name
-    private Map<String, HalfChai> halfChais = new HashMap<>();
+public class Chai implements Comparable<Chai> {
+
+    private String receiver;
+    private String target;
+    private boolean decision;
+    private Date received;
+    private Date decided;
     private Double score;
-    private Friends mutualFriends;
 
     public Chai () {} // Jackson
 
-    public Chai(User active, User passive, Double score, Friends mutualFriends) {
-        halfChais.put(active.getUserId() ,new HalfChai(active.getUserId(), active.getName()));
-        this.halfChais.get(active.getUserId()).setAsReceived();
-        halfChais.put(passive.getUserId(), new HalfChai(passive.getUserId(), passive.getName()));
+    public Chai(String receiver, String target, double score) {
+        this.receiver = receiver;
+        this.target = target;
+        this.received = new Date();
         this.score = score;
-        this.mutualFriends = mutualFriends;
     }
 
-    public Set<String> getUsers() {
-        return halfChais.keySet();
+    public String getReceiver() {
+        return receiver;
     }
 
-    public boolean hasUser (String userId) {
-        return halfChais.containsKey(userId);
+    public String getTarget() {
+        return target;
     }
 
-    public boolean hasUsers (String userId1, String userId2) {
-        return halfChais.containsKey(userId1) && halfChais.containsKey(userId2);
+    public boolean getDecision() {
+        return decision;
+    }
+
+    public Date getReceived() {
+        return received;
+    }
+
+    public Date getDecided() {
+        return decided;
     }
 
     public Double getScore() {
         return score;
     }
 
-    public Friends getMutualFriends() {
-        return mutualFriends;
+    public List<String> getUsers () {
+        return Arrays.asList(receiver, target);
     }
 
-    public Boolean getDecision (String userId) {
-        Validate.isTrue(halfChais.containsKey(userId));
-        return halfChais.get(userId).getDecision();
+    public void setDecision(boolean decision) {
+        this.decision = decision;
+        this.decided = new Date();
     }
 
-    public static enum Reason {
-        BAD_PROFILE, CREEPER
+    public boolean hasDecided () {
+        return decided != null;
     }
 
-    public Boolean isMatch () {
-        for (HalfChai half: halfChais.values()) {
-            if (!half.getDecision())
-                return false;
-        }
+    // a chai is equal if the receiver and target are the same
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Chai chai2 = (Chai) o;
+
+        if (!receiver.equals(chai2.receiver)) return false;
+        if (!target.equals(chai2.target)) return false;
+
         return true;
     }
 
-    // takes thisUser and gives the HalfChai for the other user
-    public HalfChai getOtherHalf (String thisUser) {
-        Validate.isTrue(hasUser(thisUser));
-        for (HalfChai half: halfChais.values()) {
-            if (!half.getUserId().equals(thisUser))
-                return half;
-        }
-        return null; // will never reach this point
+    @Override
+    public int hashCode() {
+        int result = receiver.hashCode();
+        result = 31 * result + target.hashCode();
+        return result;
     }
 
+    public int compareTo(Chai chai2) {
+        return Chai.compare(this, chai2);
+    }
 
-
-    public static class HalfChai {
-
-        private Date received;
-        private Date decided;
-        private Boolean decision = false;
-        private String userId;
-        private String name;
-        private Reason reason;
-
-        public HalfChai (String userId, String name) {
-            this.userId = userId;
-            this.name = name;
-            this.decision = false;
-        }
-
-        public HalfChai () {} // for Jackson
-
-        public void setDecision (Boolean decision) {
-            this.decision = decision;
-        }
-
-        public Date getReceived() {
-            return received;
-        }
-
-        public void setAsReceived () { received = new Date(); }
-
-        public Date getDecided() {
-            return decided;
-        }
-
-        public Boolean getDecision() {
-            return decision;
-        }
-
-        public String getUserId() {
-            return userId;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public Reason getReason() {
-            return reason;
-        }
-
-        public String profilePicURL () {
-            return LetsChaiFacebookClient.profilePictureURL(userId);
-        }
+    public static int compare (Chai chai1, Chai chai2) {
+        return Double.compare(chai1.getScore(), chai2.getScore());
     }
 }

@@ -2,26 +2,18 @@ package clients;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.collect.Lists;
-import leodagdag.play2morphia.MorphiaPlugin;
-import models.*;
+import exceptions.ChatException;
 import org.jivesoftware.smack.*;
-import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jongo.MongoCollection;
-import org.mongodb.morphia.Morphia;
 import play.Logger;
 import play.libs.F;
 import play.libs.Json;
 import play.mvc.WebSocket;
-import exceptions.ChatException;
 import uk.co.panaxiom.playjongo.PlayJongo;
-import views.html.chat;
 
-import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -48,7 +40,7 @@ public class LetsChaiChat {
         return PlayJongo.getCollection("chats");
     }
 
-    public LetsChaiChat(String userId, List<Chai.HalfChai> matches) throws ChatException {
+    public LetsChaiChat(String userId) throws ChatException {
         connect();
         try { loginUser(userId); }
         catch (ChatException e) { // if the login fails, the user probably doesn't exist, try creating it
@@ -70,15 +62,6 @@ public class LetsChaiChat {
                 chats.put(stripDomain(chat.getParticipant()), chat);
             }
         });
-
-        // create chats with all matches, incoming chats will overwrite these if need be
-        for (Chai.HalfChai match: matches) {
-            try {
-                chats.put(match.getUserId(), chatManager.createChat(userWithDomain(match.getUserId()), messageListener()));
-            } catch (Exception e) {
-                Logger.error("Could not create chat with " + match.getUserId());
-            }
-        }
     }
 
     public void connect () throws ChatException {
@@ -142,6 +125,8 @@ public class LetsChaiChat {
     }
 
     private void sendChat (String from, String to, String message) throws ChatException {
+        if (!chats.containsKey(to))
+            chats.put(to, chatManager.createChat(userWithDomain(to), messageListener()));
         try {
             chats.get(to).sendMessage(message);
             new models.Message(from, to, message).save();

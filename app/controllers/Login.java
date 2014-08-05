@@ -1,26 +1,23 @@
 package controllers;
 
 import clients.LetsChaiFacebookClient;
-import com.restfb.FacebookClient;
 import com.restfb.types.TestUser;
 import models.User;
-import org.apache.commons.lang3.Validate;
 import play.Logger;
-import play.libs.F;
-import types.AgeRange;
-import types.Gender;
 import play.Play;
 import play.data.DynamicForm;
 import play.data.Form;
+import play.libs.F;
 import play.mvc.Controller;
 import play.mvc.Result;
+import types.AgeRange;
+import types.Gender;
 import types.Permission;
 import uk.co.panaxiom.playjongo.PlayJongo;
 import views.html.nobirthday;
 import views.html.thankyou;
 import views.html.unverified;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -65,7 +62,7 @@ public class Login extends Controller {
 
                 // no pre-processing required, straight redirect
                 session().put("user", user.getUserId());
-                return F.Promise.promise(() -> redirect(controllers.routes.Application.chai()));
+                return F.Promise.pure(redirect(controllers.routes.Application.chai()));
             }
             // user doesn't exist
             return register(post, fbUser);

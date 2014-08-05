@@ -23,7 +23,7 @@ public final class LetsChaiScorer {
 
     public Double mutualFriendScore (Friends friends) {
         int count = friends.getCount();
-        Double unweighted = friends.getFriends().size() > 0 ? 1.0 :
+        Double unweighted = friends.getMutualFriends().size() > 0 ? 1.0 :
             count <= 0 ? 0.0 :
             count == 1 ? 0.5 :
             count == 2 ? 0.65 :

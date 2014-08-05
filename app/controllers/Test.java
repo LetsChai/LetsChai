@@ -1,41 +1,37 @@
 package controllers;
 
 import actions.Auth;
-import classes.ChaiHandler;
+import classes.PincodeHandler;
+import classes.Query;
 import classes.SecretChaiSauce;
+import classes.Service;
 import clients.LetsChaiFacebookClient;
-import com.google.common.collect.Lists;
-import models.*;
+import models.Chai;
+import models.Friends;
+import models.User;
+import org.bson.types.ObjectId;
+import org.joda.time.DateTime;
 import play.Logger;
 import play.Play;
 import play.libs.Akka;
 import play.libs.F;
 import play.mvc.Controller;
 import play.mvc.Result;
-import models.Friends;
-import models.Pincode;
 import scala.concurrent.duration.Duration;
+import uk.co.panaxiom.playjongo.PlayJongo;
 
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 /**
  * Created by kedar on 5/23/14.
  */
 public class Test extends Controller {
 
-    @Auth.Basic
     public static Result test() {
-
-        Akka.system().scheduler().scheduleOnce(
-                Duration.create(10, TimeUnit.SECONDS),
-                () -> Logger.info("scheduled instance running"),
-                Akka.system().dispatcher()
-        );
-        return ok();
+        Query query = new Query();
+        Chai today = query.todaysChai(session().get("user"));
+        return ok(today.toString());
     }
 
     public static Result test2 () {
@@ -45,9 +41,10 @@ public class Test extends Controller {
 
     public static Result algorithm () {
         Akka.system().scheduler().scheduleOnce(
-                Duration.create(0, TimeUnit.MILLISECONDS),
-                SecretChaiSauce::runAsService,
-                Akka.system().dispatcher() );
+                Duration.Zero(),
+                Service::algorithm,
+                Akka.system().dispatcher()
+        );
         return ok();
     }
 

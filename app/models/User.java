@@ -3,9 +3,6 @@ package models;
 import classes.QuestionGenerator;
 import clients.LetsChaiAWS;
 import clients.LetsChaiFacebookClient;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
@@ -14,21 +11,20 @@ import com.restfb.FacebookClient;
 import org.joda.time.DateTime;
 import org.joda.time.Years;
 import org.jongo.MongoCollection;
+import org.jongo.marshall.jackson.oid.ObjectId;
 import play.Logger;
-import play.Play;
 import play.libs.F;
 import types.*;
 import uk.co.panaxiom.playjongo.PlayJongo;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.util.*;
-import java.util.Base64;
 
 /**
  * Created by kedar on 5/22/14.
  */
 public class User {
+    @ObjectId
+    private Object _id;
 
     // from com.restfb.types.User
     private String userId;
@@ -56,6 +52,7 @@ public class User {
     private EnumSet<Permission> permissions = EnumSet.noneOf(Permission.class);
     private List<String> pictures = new ArrayList<>();
     private Date lastLogin;
+    private Date created;
 
     // non-stored fields
     @JsonIgnore
@@ -77,12 +74,12 @@ public class User {
         this.verified = user.getVerified();
         if (user.getLocation() != null)
             this.city = user.getLocation().getName();
+        created = new Date();
     }
 
-    public User(String id, String firstName, String lastName) {
-        this.userId = id;
-        this.firstName = firstName;
-        this.lastName = lastName;
+    // for equals and contains
+    public User(String userId) {
+        this.userId = userId;
     }
 
     public static MongoCollection getCollection() {
@@ -118,6 +115,10 @@ public class User {
         getCollection().update("{'userId': '#'}", userId).with(query, parameters);
     }
 
+    public de.undercouch.bson4jackson.types.ObjectId getObjectId () {
+        return (de.undercouch.bson4jackson.types.ObjectId) _id;
+    }
+
     public List<Education> getEducationForView () {
         List<Education> result = new ArrayList<Education>();
         for (Education e: education) {
@@ -145,6 +146,10 @@ public class User {
         DateTime born = new DateTime(getBirthday());
         DateTime now = new DateTime();
         return Years.yearsBetween(born, now).getYears();
+    }
+
+    public Date getCreated() {
+        return created;
     }
 
     public Date getBirthday () {
@@ -397,6 +402,24 @@ public class User {
             setPermissions(perms);
             return true;
         });
+    }
+
+    // users are equal if their userId is equal
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        User user = (User) o;
+
+        if (!userId.equals(user.userId)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return userId.hashCode();
     }
 
     /**
