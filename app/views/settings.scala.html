@@ -5,8 +5,7 @@
 <head>
     <title>LetsChai - Account Settings</title>
 
-    <!-- Favicon -->
-    <link rel="shortcut icon" href='@clients.LetsChaiAWS.s3Link("images/favicon.png")' />
+    @sitewide.head()
 
     <!-- Bootstrap CDN -->
     <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet" />
@@ -87,19 +86,19 @@
 
                         <div class="row entry">
                             <div class="col-md-3 col-md-offset-1">
-                                <label for="subscribe">Subscribe</label>
+                                <label for="subscribe">Subscribe (coming soon)</label>
                             </div>
                             <div class="col-md-8">
                                 <div>
-                                    <input type="checkbox" id="chai-mail"/>
+                                    <input type="checkbox" id="chai-mail" disabled/>
                                     <label for="chai-mail">Chai of the Day</label>
                                 </div>
                                 <div>
-                                    <input type="checkbox" id="tips-mail" />
+                                    <input type="checkbox" id="tips-mail" disabled/>
                                     <label for="tips-mail">Tips and Info</label>
                                 </div>
                                 <div>
-                                    <input type="checkbox" id="matches-mail" />
+                                    <input type="checkbox" id="matches-mail" disabled/>
                                     <label for="matches-mail">Matches and Message Alerts</label>
                                 </div>
                             </div>
@@ -119,19 +118,19 @@
                     <div id="deactivate" class="col-md-6 col-md-offset-3">
                         <h4>Deactivate</h4>
                         <div class="row entry">
-                            <input type="radio" name="reason"/>
+                            <input type="radio" name="reason" required/>
                             <label>I found my match on Let's Chai</label>
                         </div>
                         <div class="row entry">
-                            <input type="radio" name="reason"/>
+                            <input type="radio" name="reason" required/>
                             <label>I am not satisfied with the service</label>
                         </div>
                         <div class="row entry">
-                            <input type="radio" name="reason"/>
+                            <input type="radio" name="reason" required/>
                             <label>Temporary, I will be back soon</label>
                         </div>
                         <div class="row entry">
-                            <input type="radio" id="other" name="reason"/>
+                            <input type="radio" id="other" name="reason" required/>
                             <label for="other">Other</label>
                             <input type="text"/>
                         </div>

@@ -5,8 +5,7 @@
 <head>
     <title>LetsChai - Edit Profile</title>
 
-    <!-- Favicon -->
-    <link rel="shortcut icon" href='@clients.LetsChaiAWS.s3Link("images/favicon.png")' />
+    @sitewide.head()
 
     <!-- Bootstrap CDN -->
     <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet" />
@@ -76,6 +75,9 @@
         }
         #question-answer .answer textarea {
             width:100%;
+        }
+        input:invalid:focus, textarea:invalid:focus {
+            border-color:red;
         }
 
     </style>
@@ -189,11 +191,7 @@
                         <div class="col-md-8 content">
                             <select name="religion" />
                                 @for(religion <- types.Religion.values()) {
-                                    @if(religion.toString.equals("NO_PREFERENCE")) {
-                                        <option value="@religion.toString">Other</option>
-                                    } else {
-                                        <option value="@religion.toString">@religion.capitalize()</option>
-                                    }
+                                    <option value="@religion.toString">@religion.profileText</option>
                                 }
                             </select>
                         </div>
@@ -286,6 +284,7 @@ $("[name=month]").val(@profile.getBirthday().getMonth() + 1);
 $("[name=day]").val(@profile.getBirthday().getDate());
 $("[name=year]").val(@profile.getBirthday().getYear() + 1900);
 $("[name=religion]").val("@profile.getReligion.toString()");
+$(".education-input").first().attr("required", "required");
 </script>
 
 </html>

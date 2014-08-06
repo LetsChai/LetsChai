@@ -1,9 +1,13 @@
 package classes;
 
+import clients.LetsChaiFacebookClient;
 import models.Chai;
 import models.User;
 import org.joda.time.DateTime;
 import play.Logger;
+import play.libs.F;
+import types.Flag;
+import types.Permission;
 
 import java.util.Date;
 import java.util.List;
@@ -28,26 +32,29 @@ public class Service {
     }
 
     // duration is in milliseconds, states how far back we should look for new users
-    public static void newUserActions (int duration) {
+    public static void newUserActions () {
         Query query = new Query();
         FriendCacher cacher = new FriendCacher(PincodeHandler.getInstance());
 
-        //
-        Date since = new DateTime().minusMillis(duration).toDate();
-        List<User> newUsers = query.newUsers(since);
+        // get new users
+        List<User> newUsers = query.newUsers();
 
-
-        Logger.info("Starting friend caching");
-        cacher.cache(newUsers).onRedeem(bool -> {
-            Logger.info("Finished caching friends");
+        // cache friends
+        Logger.info("Starting friend caching for new users");
+        cacher.cache(newUsers).map(bool -> {
+            Logger.info("Finished caching friends for new users");
+            return true;
         });
-    }
 
-    // everytime a user logs in, conduct the following
-    // currently not in use
-    public static void onLogin (String userId, String tempAccessToken) {
-        // update the lastLogin field for user
-        // swap the tempAccessToken for an extended one then update the user
-
+        // update user permissions
+        Logger.info("Updating new user permissions");
+        for (User user: newUsers) {
+            LetsChaiFacebookClient fb = new LetsChaiFacebookClient(user.getAccessToken().getAccessToken());
+            fb.getPermissions(user.getUserId()).onRedeem(permissions -> {
+                query.updatePermissions(user.getUserId(), permissions);
+                query.deleteFlag(user.getUserId(), Flag.NEW_USER);
+                Logger.info("Updated permissions for user " + user.getUserId());
+            });
+        }
     }
 }

@@ -53,6 +53,7 @@ public class User {
     private List<String> pictures = new ArrayList<>();
     private Date lastLogin;
     private Date created;
+    private boolean admin;
 
     // non-stored fields
     @JsonIgnore
@@ -420,6 +421,10 @@ public class User {
     @Override
     public int hashCode() {
         return userId.hashCode();
+    }
+
+    public boolean isAdmin() {
+        return admin;
     }
 
     /**

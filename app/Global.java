@@ -1,6 +1,7 @@
 import akka.actor.Cancellable;
 import classes.Service;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import play.Application;
 import play.GlobalSettings;
 import play.libs.Akka;
@@ -14,6 +15,7 @@ import scala.concurrent.duration.FiniteDuration;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -25,6 +27,11 @@ public class Global extends GlobalSettings {
 
     @Override
     public void onStart(Application app) {
+        // set default Timezone (IST)
+        System.setProperty("user.timezone", "Asia/Kolkata");
+        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Kolkata"));
+        DateTimeZone.setDefault(DateTimeZone.forID("Asia/Kolkata"));
+
         // find time until 4AM
         DateTime fourAM = new DateTime().withHourOfDay(4).withMinuteOfHour(0);
         DateTime nextFourAM = fourAM.isBeforeNow() ? fourAM.plusDays(1) : fourAM;
@@ -43,7 +50,7 @@ public class Global extends GlobalSettings {
         Cancellable cacher = Akka.system().scheduler().schedule(
                 frequency,
                 frequency,
-                () -> Service.newUserActions((int) frequency.toMillis()),
+                Service::newUserActions,
                 Akka.system().dispatcher());
         services.add(cacher);
     }

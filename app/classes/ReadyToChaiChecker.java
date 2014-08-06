@@ -25,6 +25,7 @@ public class ReadyToChaiChecker {
             for (ProfileQuestion q: user.getQuestions()) {
                 Validate.isTrue(!q.getAnswer().trim().equals(""));
             }
+            user.removeFlag(Flag.INCOMPLETE_PROFILE);
         } catch (Exception e) {
             user.addFlag(Flag.INCOMPLETE_PROFILE);
             return false;
@@ -33,12 +34,11 @@ public class ReadyToChaiChecker {
         // picture check
         try {
             Validate.isTrue(user.getPictureCount() > 1); // minimum two pictures
+            user.removeFlag(Flag.NO_PICTURES);
         } catch (Exception e) {
             user.addFlag(Flag.NO_PICTURES);
             return false;
         }
-        user.removeFlag(Flag.INCOMPLETE_PROFILE);
-        user.removeFlag(Flag.NO_PICTURES);
         user.addFlag(Flag.READY_TO_CHAI);
         return true;
     }

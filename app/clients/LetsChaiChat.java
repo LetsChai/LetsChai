@@ -8,6 +8,7 @@ import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jongo.MongoCollection;
 import play.Logger;
+import play.Play;
 import play.libs.F;
 import play.libs.Json;
 import play.mvc.WebSocket;
@@ -21,11 +22,11 @@ import java.util.Map;
  */
 public class LetsChaiChat {
 
-    private final String ADMIN_USERNAME = "admin";
-    private final String ADMIN_PASSWORD = "1n1H23m";
-    private final String DOMAIN = "letschai-localhost/Smack";
-    private final String SERVER_ADDRESS = "localhost";
-    private final Integer SERVER_PORT = 5222;
+    private final String ADMIN_USERNAME = Play.application().configuration().getString("openfire.admin.username");
+    private final String ADMIN_PASSWORD = Play.application().configuration().getString("openfire.admin.password");
+    private final String DOMAIN = Play.application().configuration().getString("openfire.name") + "/Smack";
+    private final String SERVER_ADDRESS = Play.application().configuration().getString("openfire.host");
+    private final Integer SERVER_PORT = Play.application().configuration().getInt("openfire.port");
 
     private XMPPConnection smack;
     private ChatManager chatManager;

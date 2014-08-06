@@ -45,4 +45,13 @@ public class Auth {
 
     }
 
+    @With({AuthAction.class, AdminAuthAction.class})
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.METHOD, ElementType.TYPE})
+    @Inherited
+    @Documented
+    public static @interface Admin {
+
+    }
+
 }

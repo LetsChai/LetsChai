@@ -128,4 +128,5 @@ public class LetsChaiFacebookClient extends DefaultFacebookClient {
                     return permissions;
                 });
     }
+
 }

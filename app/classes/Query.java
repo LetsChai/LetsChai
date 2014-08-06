@@ -6,9 +6,7 @@ import models.*;
 import org.joda.time.DateTime;
 import org.jongo.MongoCollection;
 import org.jongo.Oid;
-import types.AgeRange;
-import types.Match;
-import types.Religion;
+import types.*;
 import uk.co.panaxiom.playjongo.PlayJongo;
 
 import java.util.*;
@@ -83,7 +81,19 @@ public class Query {
         FRIENDS.insert(friends.toArray());
     }
 
-    public List<User> newUsers (Date since) {
-        return Lists.newArrayList(USERS.find("{'created': {'$gt': #}}", since).as(User.class));
+    public List<User> newUsers () {
+        return Lists.newArrayList(USERS.find("{'flags': 'NEW_USER'}").as(User.class));
+    }
+
+    public void updatePermissions (String userId, List<Permission> permissions) {
+        USERS.update("{'userId': '#'}", userId).with("{'$set': {'permissions': #}}", permissions);
+    }
+
+    public void pushFlag (String userId, Flag flag) {
+        USERS.update("{'userId': '#'}", userId).with("{'$push': {'flags': #}}", flag);
+    }
+
+    public void deleteFlag (String userId, Flag flag) {
+        USERS.update("{'userId': '#'}", userId).with("{'$pull': {'flags': #}}", flag);
     }
 }

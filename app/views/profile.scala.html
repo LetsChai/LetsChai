@@ -5,8 +5,7 @@
 <head>
     <title>LetsChai - Chai of the Day</title>
 
-    <!-- Favicon -->
-    <link rel="shortcut icon" href='@clients.LetsChaiAWS.s3Link("images/favicon.png")' />
+    @sitewide.head()
 
     <!-- Bootstrap CDN -->
     <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet" />
@@ -130,7 +129,7 @@
                     </div>
                     <div class="row entry">
                         <div class="col-md-4 field">Religion</div>
-                        <div class="col-md-8 content">@profile.getReligion().capitalize()</div>
+                        <div class="col-md-8 content">@profile.getReligion().profileText()</div>
                     </div>
                     <div class="row entry">
                         <div class="col-md-4 field">Education</div>

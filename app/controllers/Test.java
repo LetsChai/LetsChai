@@ -11,6 +11,7 @@ import models.Friends;
 import models.User;
 import org.bson.types.ObjectId;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import play.Logger;
 import play.Play;
 import play.libs.Akka;
@@ -29,14 +30,11 @@ import java.util.List;
 public class Test extends Controller {
 
     public static Result test() {
-        Query query = new Query();
-        Chai today = query.todaysChai(session().get("user"));
-        return ok(today.toString());
+        return ok(Play.application().configuration().getString("openfire.name"));
     }
 
     public static Result test2 () {
-        String arpita = Play.application().configuration().getString("fb.arpita");
-        return ok();
+        return ok(DateTimeZone.getDefault().toString());
     }
 
     public static Result algorithm () {

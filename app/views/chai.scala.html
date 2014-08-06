@@ -5,8 +5,7 @@
 <head>
     <title>LetsChai - Chai of the Day</title>
 
-    <!-- Favicon -->
-    <link rel="shortcut icon" href='@clients.LetsChaiAWS.s3Link("/images/favicon.png")' />
+    @sitewide.head()
 
     <!-- Bootstrap CDN -->
     <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet" />
@@ -42,7 +41,7 @@
         #pass-like button {
             width: 45%;
             font-variant: small-caps;
-            font-size: 17px;
+            font-size: 1.3em;
         }
         #pass-like button.chosen {
             transition: 1s;
@@ -80,10 +79,10 @@
             border:1px solid #0C88FE;
         }
         #fb-mutuals {
-            font-size: 17px;
+            font-size: 1.3em;
         }
         #lc-mutuals {
-            font-size: 18px;
+            font-size: 1.4em;
             font-weight: bold;
         }
         #question-answer {
@@ -94,7 +93,7 @@
         }
         #question-answer .question {
             color: #C84A49;
-            font-size: 16px;
+            font-size: 1.2em;
             font-weight:bold;
         }
         #question-answer .answer textarea {
@@ -193,7 +192,7 @@
                     </div>
                     <div class="row entry">
                         <div class="col-md-4 field">Religion</div>
-                        <div class="col-md-8 content">@profile.getReligion().capitalize()</div>
+                        <div class="col-md-8 content">@profile.getReligion().profileText()</div>
                     </div>
                     <div class="row entry">
                         <div class="col-md-4 field">Education</div>

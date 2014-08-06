@@ -17,6 +17,11 @@ public enum Religion {
     public String capitalize () {
         return WordUtils.capitalize(lowerCase());
     }
+
+    public String profileText () {
+        return this.equals(Religion.NO_PREFERENCE) ? "Other" : capitalize();
+    }
+
     // because Scala can't access the class attribute
     public static Religion[] getValues () {
         return Religion.class.getEnumConstants();

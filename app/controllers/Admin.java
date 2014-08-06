@@ -1,5 +1,6 @@
 package controllers;
 
+import actions.Auth;
 import classes.FriendCacher;
 import classes.PincodeHandler;
 import classes.Query;
@@ -15,6 +16,7 @@ import java.util.List;
 /**
  * Created by kedar on 7/23/14.
  */
+@Auth.Admin
 public class Admin extends Controller {
 
     @SuppressWarnings("unchecked")

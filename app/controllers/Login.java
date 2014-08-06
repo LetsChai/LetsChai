@@ -11,6 +11,7 @@ import play.libs.F;
 import play.mvc.Controller;
 import play.mvc.Result;
 import types.AgeRange;
+import types.Flag;
 import types.Gender;
 import types.Permission;
 import uk.co.panaxiom.playjongo.PlayJongo;
@@ -87,7 +88,6 @@ public class Login extends Controller {
 
         // make Facebook API calls
         F.Promise<User.AccessToken> extendedTokenPromise = fb.obtainExtendedAccessTokenAsync();
-        F.Promise<List<Permission>> permissionsPromise = fb.getPermissions(user.getUserId());
 
         // set POST properties while we wait
         user.setPincode(pincode);
@@ -95,13 +95,13 @@ public class Login extends Controller {
         user.generateQuestions();
         user.setPreferences(new User.Preferences(Gender.valueOf(genderPref), new AgeRange(ageMin, ageMax)));
         user.updateLastLogin();
+        user.addFlag(Flag.NEW_USER);
 
         // set extended token and permissions
-        extendedTokenPromise.onRedeem(user::setAccessToken);
-        permissionsPromise.onRedeem(user::setPermissions);
-
-        // when it's all done
-        return permissionsPromise.zip(extendedTokenPromise).map(p -> {
+        return extendedTokenPromise.map(extendedToken -> {
+            user.setAccessToken(extendedToken);
+            return user;
+        }).map(p -> {
             // verifications and checks
             if (!user.isVerified()) {
                 PlayJongo.getCollection("unverified_users").save(user);

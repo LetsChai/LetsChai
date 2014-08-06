@@ -3,6 +3,8 @@
 <head>
     <title>LetsChai - New User</title>
 
+    @sitewide.head()
+
     <!-- Bootstrap CDN -->
     <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet" />
 
@@ -128,21 +130,6 @@
         }
     </style>
 
-    <!--Google Analytics-->
-    <script>
-        @googleanalytics.api()
-
-        ga('send', 'screenView', {'screenName': 'NewUserSurvey age and gender' });
-
-        function gaScreenTrack (slide) {
-            console.log(slide);
-            if (slide == 1)
-                ga('send', 'screenView', {'screenName': 'NewUserSurvey pincode' });
-            else if (slide == 2)
-                ga('send', 'screenView', {'screenName': 'NewUserSurvey facebook login' });
-        }
-    </script>
-
 </head>
 <body>
 
@@ -153,7 +140,7 @@
 @header.content()
 
 <!--Survey-->
-<form id="survey" method="post" action="login" class="col-md-5 col-md-offset-3 col-sm-8 col-md-offset-2">
+<form id="survey" method="post" action="login" class="col-md-4 col-md-offset-4">
 
     <!--Age, Gender, Orientation-->
     <div class="survey-question" id="ageGender" data-slide="0">
