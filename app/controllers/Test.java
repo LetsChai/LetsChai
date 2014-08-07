@@ -6,6 +6,7 @@ import classes.Query;
 import classes.SecretChaiSauce;
 import classes.Service;
 import clients.LetsChaiFacebookClient;
+import com.google.common.collect.Lists;
 import models.Chai;
 import models.Friends;
 import models.User;
@@ -21,6 +22,7 @@ import play.mvc.Result;
 import scala.concurrent.duration.Duration;
 import uk.co.panaxiom.playjongo.PlayJongo;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -30,7 +32,18 @@ import java.util.List;
 public class Test extends Controller {
 
     public static Result test() {
-        return ok(Play.application().configuration().getString("openfire.name"));
+        Query query = new Query();
+        List<User> production = Lists.newArrayList(PlayJongo.getCollection("production_users").find().as(User.class));
+        List<User> permissioned = Lists.newArrayList(PlayJongo.getCollection("users_permissions").find().as(User.class));
+        for(User user: production) {
+            for (User perm: permissioned) {
+                if (user.equals(perm)) {
+                    user.setPermissions(perm.getPermissions());
+                    PlayJongo.getCollection("users_export").save(user);
+                }
+            }
+        }
+        return ok("Success");
     }
 
     public static Result test2 () {

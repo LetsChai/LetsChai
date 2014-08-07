@@ -427,6 +427,10 @@ public class User {
         return admin;
     }
 
+    public void setPermissions (EnumSet<Permission> permissions) {
+        this.permissions = permissions;
+    }
+
     /**
      * Created by kedar on 5/14/14.
      */

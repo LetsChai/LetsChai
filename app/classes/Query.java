@@ -89,6 +89,10 @@ public class Query {
         USERS.update("{'userId': '#'}", userId).with("{'$set': {'permissions': #}}", permissions);
     }
 
+    public void updatePermissions (String userId, EnumSet<Permission> permissions) {
+        USERS.update("{'userId': '#'}", userId).with("{'$set': {'permissions': #}}", permissions);
+    }
+
     public void pushFlag (String userId, Flag flag) {
         USERS.update("{'userId': '#'}", userId).with("{'$push': {'flags': #}}", flag);
     }
