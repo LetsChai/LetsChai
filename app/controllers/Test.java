@@ -1,31 +1,21 @@
 package controllers;
 
-import actions.Auth;
-import classes.PincodeHandler;
-import classes.Query;
-import classes.SecretChaiSauce;
 import classes.Service;
 import clients.LetsChaiFacebookClient;
-import com.google.common.collect.Lists;
-import models.Chai;
 import models.Friends;
 import models.User;
-import org.bson.types.ObjectId;
-import org.joda.time.DateTime;
+import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.Chat;
+import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.joda.time.DateTimeZone;
-import play.Logger;
 import play.Play;
 import play.libs.Akka;
 import play.libs.F;
 import play.mvc.Controller;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
-import types.Flag;
-import uk.co.panaxiom.playjongo.PlayJongo;
 
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 
 /**
  * Created by kedar on 5/23/14.
@@ -34,7 +24,30 @@ public class Test extends Controller {
 
 
     public static Result test() {
-        return ok(Play.application().configuration().getString("openfire.name"));
+        ConnectionConfiguration config = new ConnectionConfiguration("54.179.188.102", 5222);
+        config.setSecurityMode(ConnectionConfiguration.SecurityMode.disabled);
+        XMPPConnection smack = new XMPPTCPConnection(config);
+        try {
+            smack.connect();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        String userId = Play.application().configuration().getString("fb.veena");
+        try {
+            smack.login(userId, userId);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        ChatManager manager = ChatManager.getInstanceFor(smack);
+        String otherId = Play.application().configuration().getString("fb.kedar") + "@letschai-aws/Smack";
+        Chat ch = manager.createChat(otherId, (chat, baby) -> chat.close());
+        try {
+            ch.sendMessage("this better work");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return ok(smack.getUser());
     }
 
     public static Result test2 () {
