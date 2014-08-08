@@ -6,6 +6,7 @@ import clients.LetsChaiChat;
 import com.fasterxml.jackson.databind.JsonNode;
 import exceptions.ChatException;
 import models.Message;
+import play.Logger;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.WebSocket;
@@ -34,7 +35,13 @@ public class Chat extends Controller {
     }
 
     public static WebSocket<JsonNode> socket () throws ChatException {
-        LetsChaiChat chat = new LetsChaiChat(session().get("user"));
+        LetsChaiChat chat = null;
+        try {
+            chat = new LetsChaiChat(session().get("user"));
+        } catch (ChatException e) {
+            Logger.error(e.getMessage(), e);
+            throw e;
+        }
         return chat.execute();
     }
 

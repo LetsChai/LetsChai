@@ -20,6 +20,7 @@ import play.libs.F;
 import play.mvc.Controller;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
+import types.Flag;
 import uk.co.panaxiom.playjongo.PlayJongo;
 
 import java.util.Arrays;

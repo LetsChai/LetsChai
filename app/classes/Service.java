@@ -50,11 +50,13 @@ public class Service {
         Logger.info("Updating new user permissions");
         for (User user: newUsers) {
             LetsChaiFacebookClient fb = new LetsChaiFacebookClient(user.getAccessToken().getAccessToken());
-            fb.getPermissions(user.getUserId()).onRedeem(permissions -> {
+            F.Promise<List<Permission>> promise = fb.getPermissions(user.getUserId());
+            promise.onRedeem(permissions -> {
                 query.updatePermissions(user.getUserId(), permissions);
                 query.deleteFlag(user.getUserId(), Flag.NEW_USER);
                 Logger.info("Updated permissions for user " + user.getUserId());
             });
+            promise.onFailure(e -> Logger.error(e.getMessage(), e));
         }
     }
 }
