@@ -43,6 +43,7 @@ public class LetsChaiChat {
     }
 
     public LetsChaiChat(String userId) throws ChatException {
+        Logger.info("opening connection");
         connect();
         try { loginUser(userId); }
         catch (ChatException e) { // if the login fails, the user probably doesn't exist, try creating it
@@ -73,6 +74,7 @@ public class LetsChaiChat {
         try {
             smack.connect();
         } catch (Exception e) {
+            Logger.error("Failed to connect");
             throw new ChatException("Connection failure, check to see if chat server is running", e);
         }
     }
@@ -96,6 +98,7 @@ public class LetsChaiChat {
     private void loginUser (String userId) throws ChatException {
         try {
             smack.login(userId, userId);
+            Logger.info("Openfire: logged in user");
         } catch (Exception e) {
             throw new ChatException("failed to login user " + userId, e);
         }
