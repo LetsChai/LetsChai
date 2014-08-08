@@ -68,6 +68,8 @@ public class LetsChaiChat {
     }
 
     public void connect () throws ChatException {
+        Logger.info(SERVER_PORT.toString());
+        Logger.info(SERVER_ADDRESS);
         ConnectionConfiguration config = new ConnectionConfiguration(SERVER_ADDRESS, SERVER_PORT);
         config.setSecurityMode(ConnectionConfiguration.SecurityMode.disabled);
         smack = new XMPPTCPConnection(config);

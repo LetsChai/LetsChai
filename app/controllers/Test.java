@@ -8,7 +8,9 @@ import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.joda.time.DateTimeZone;
+import play.Logger;
 import play.Play;
+import play.api.mvc.WebSocket;
 import play.libs.Akka;
 import play.libs.F;
 import play.mvc.Controller;
@@ -80,6 +82,17 @@ public class Test extends Controller {
             return ok(String.format("facebook: %d, database (read+update): %d", end.getTime() - startPromise.getTime(), database.getTime() - start.getTime()));
         });
 
+    }
+
+    public static play.mvc.WebSocket<String> socket () {
+        return new play.mvc.WebSocket<String>() {
+            @Override
+            public void onReady(In<String> stringIn, Out<String> stringOut) {
+                stringOut.write("hello");
+                stringIn.onMessage(stringOut::write);
+                stringIn.onClose(() -> Logger.info("socket closed"));
+            }
+        };
     }
 
 }
