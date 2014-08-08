@@ -39,9 +39,10 @@
             margin-right: 5%;
         }
         #chat-history {
-            min-height: 400px;
+            height: 400px;
             padding: 3%;
             border: 1px solid lightgray;
+            overflow-y:scroll;
         }
         .message > * {
             display: inline-block;
@@ -113,6 +114,14 @@
         setName(el);
     });
 
+    // scroll to the bottom
+    scrollChatWindowDown();
+
+    function scrollChatWindowDown () {
+        var chatWindow = document.getElementById("chat-history");
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
     // get the socket rolling
     var socket = new WebSocket("ws://localhost:9000/chat/socket");
     socket.onopen = function (event) {
@@ -179,6 +188,7 @@
             .append( $("<div class='text'>").text(chat.message) )
         setName(el);
         el.appendTo("#chat-history");
+        scrollChatWindowDown();
     }
 </script>
 

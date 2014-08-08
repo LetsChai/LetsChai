@@ -145,7 +145,7 @@ public class LetsChaiChat {
                 ObjectNode json = Json.newObject();
                 json.put("from", stripDomain(message.getFrom()));
                 json.put("message", message.getBody());
-                json.put("to", message.getTo());
+                json.put("to", stripDomain(message.getTo()));
                 Logger.info("message received from " + message.getFrom());
                 Logger.info(json.toString());
                 socketOut.write(json);
