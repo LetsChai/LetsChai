@@ -55,15 +55,17 @@
 
         .sign-up-wrapper {
             margin: 4% auto;
-            margin-bottom: 1%;
             text-align: center;
             padding: 1% 0;
+            width: 25%;
         }
-
         .sign-up-wrapper > * {
             margin: 2% auto;
         }
-        #get-started-btn {
+        .sign-up-wrapper a {
+            text-decoration: none;
+        }
+        .login-button {
             background-color: #C84A49;
             border: none;
             height: 55px;
@@ -74,14 +76,12 @@
             cursor: pointer;
             font-weight: bold;
             box-shadow: -1px 5px 5px gray;
+            margin: 3% auto;
+            display: block;
+            width: 100%;
         }
         #login {
-            font-size: 20px;
-        }
-        #login a {
-            color: #C84A49;
-            cursor: pointer;
-            font-weight: bold;
+            background: #35aa47
         }
 
         h1 {
@@ -148,8 +148,10 @@
     </div>
 
     <div class="sign-up-wrapper">
-        <a href="newusersurvey"><button id="get-started-btn">Request Exclusive Access</button></a>
-        <div id="login">Existing user? <a>Login Here</a></div>
+        <div class="row">
+            <a href="newusersurvey"><button class="login-button" id="register">Sign Up!</button></a>
+            <button class="login-button m-btn green" id="login">Login</button>
+        </div>
     </div>
 
     <form id="login-form" method="post" action="login">
@@ -185,7 +187,7 @@
     <div id="about-text" class="">Dating doesn't have to be hard. Forget the awkward bride/groom seeking meetings under parental guidance.
         Don't waste your time glancing at your "potential spouse" across the room when you can meet someone interesting
         through a common friend. Better yet, over a steaming cup of chai. <span class="red-text">Let's Chai</span> connects
-        people with common interets on a secure platform. With a little help from us, your online chai-walas, find your right
+        people with common interests on a secure platform. With a little help from us, your online chai-walas, find your right
         cup of chai today.
     </div>
 

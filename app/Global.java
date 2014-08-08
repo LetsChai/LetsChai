@@ -38,12 +38,12 @@ public class Global extends GlobalSettings {
         Long msUntil = nextFourAM.getMillis() - new DateTime().getMillis();
 
         // schedule Chai service
-        Cancellable algorithm = Akka.system().scheduler().schedule(
-                Duration.create(msUntil, TimeUnit.MILLISECONDS),
-                Duration.create(1, TimeUnit.DAYS),
-                Service::algorithm,
-                Akka.system().dispatcher() );
-        services.add(algorithm);
+//        Cancellable algorithm = Akka.system().scheduler().schedule(
+//                Duration.create(msUntil, TimeUnit.MILLISECONDS),
+//                Duration.create(1, TimeUnit.DAYS),
+//                Service::algorithm,
+//                Akka.system().dispatcher() );
+//        services.add(algorithm);
 
         // schedule friend caching service
         FiniteDuration frequency = Duration.create(20, TimeUnit.MINUTES);
