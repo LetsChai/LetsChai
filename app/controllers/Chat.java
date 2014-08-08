@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import exceptions.ChatException;
 import models.Message;
 import play.Logger;
+import play.Play;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.WebSocket;
@@ -30,18 +31,13 @@ public class Chat extends Controller {
         if (matches.size() == 0)
             return redirect(controllers.routes.Chat.noMatches());
 
+        String socketURL = Play.application().configuration().getString("chat.socket.url");
         List<Message> messages = query.messages(userId);
-        return ok(chat.render(matches, messages, userId));
+        return ok(chat.render(matches, messages, userId, socketURL));
     }
 
     public static WebSocket<JsonNode> socket () throws ChatException {
-        LetsChaiChat chat = null;
-        try {
-            chat = new LetsChaiChat(session().get("user"));
-        } catch (ChatException e) {
-            Logger.error(e.getMessage(), e);
-            throw e;
-        }
+        LetsChaiChat chat = new LetsChaiChat(session().get("user"));
         return chat.execute();
     }
 

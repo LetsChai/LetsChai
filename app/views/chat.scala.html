@@ -1,4 +1,4 @@
-@(matches: List[types.Match], messages: List[Message], userId: String)
+@(matches: List[types.Match], messages: List[Message], userId: String, socketURL: String)
 
 <!DOCTYPE html>
 <html>
@@ -123,7 +123,7 @@
     }
 
     // get the socket rolling
-    var socket = new WebSocket("ws://localhost:9000/chat/socket");
+    var socket = new WebSocket("@socketURL");
     socket.onopen = function (event) {
         socket.onmessage = function (event) {
             console.log(event);
