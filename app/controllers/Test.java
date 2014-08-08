@@ -51,7 +51,7 @@ public class Test extends Controller {
     }
 
     public static Result test2 () {
-        return ok(DateTimeZone.getDefault().toString());
+        return ok(Play.application().configuration().getString("openfire.name"));
     }
 
     public static Result algorithm () {
