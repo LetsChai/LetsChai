@@ -31,19 +31,9 @@ import java.util.List;
  */
 public class Test extends Controller {
 
+
     public static Result test() {
-        Query query = new Query();
-        List<User> production = Lists.newArrayList(PlayJongo.getCollection("production_users").find().as(User.class));
-        List<User> permissioned = Lists.newArrayList(PlayJongo.getCollection("users_permissions").find().as(User.class));
-        for(User user: production) {
-            for (User perm: permissioned) {
-                if (user.equals(perm)) {
-                    user.setPermissions(perm.getPermissions());
-                    PlayJongo.getCollection("users_export").save(user);
-                }
-            }
-        }
-        return ok("Success");
+        return ok(Play.application().configuration().getString("openfire.name"));
     }
 
     public static Result test2 () {
