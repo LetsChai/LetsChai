@@ -3,10 +3,14 @@ package classes;
 import clients.LetsChaiFacebookClient;
 import models.Chai;
 import models.User;
+import org.apache.commons.mail.DefaultAuthenticator;
+import org.apache.commons.mail.EmailException;
+import org.apache.commons.mail.SimpleEmail;
 import org.joda.time.DateTime;
 import play.Logger;
 import play.libs.F;
 import types.Flag;
+import types.Match;
 import types.Permission;
 
 import java.util.Date;
@@ -58,5 +62,24 @@ public class Service {
             });
             promise.onFailure(e -> Logger.error(e.getMessage(), e));
         }
+    }
+
+    public static void matchEmail () {
+        SimpleEmail mail = new SimpleEmail();
+        mail.setHostName("smtp.gmail.com");
+        mail.setSmtpPort(465);
+        mail.setAuthenticator(new DefaultAuthenticator("kedarmail@gmail.com", "K3rn3LTo3"));
+        try {
+            mail.setFrom("do-not-reply@letschai.com", "Let's Chai");
+            mail.addTo("varun@letschai.com");
+            mail.addCc("kedariyer26@gmail.com");
+            mail.setMsg("Test email from the server");
+            mail.setSubject("Test email");
+            mail.setSSLOnConnect(true);
+            mail.send();
+        } catch (EmailException e) {
+            e.printStackTrace();
+        }
+
     }
 }

@@ -43,6 +43,7 @@ GET     /admin/permissions          controllers.Admin.updateAllPermissions()
 GET     /admin/friends/:number      controllers.Admin.cacheFBData(number: Integer)
 GET     /admin/:user/delete         controllers.Admin.deleteUser(user: String)
 GET     /admin/:user/restore        controllers.Admin.restoreUser(user: String)
+GET     /admin/users                controllers.Admin.users()
 
 # Testing Routes
 GET     /session/populate           controllers.Session.populate(id: String ?= "arpita")

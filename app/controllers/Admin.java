@@ -10,6 +10,7 @@ import play.libs.F;
 import play.mvc.Controller;
 import play.mvc.Result;
 import uk.co.panaxiom.playjongo.PlayJongo;
+import views.html.admin;
 
 import java.util.List;
 
@@ -55,4 +56,8 @@ public class Admin extends Controller {
         return ok("restored " + userId + ": " + user.getName());
     }
 
+    public static Result users () {
+        Query q = new Query();
+        return ok(admin.render(q.users()));
+    }
 }

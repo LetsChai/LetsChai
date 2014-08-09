@@ -54,4 +54,13 @@ public class Auth {
 
     }
 
+    @With(LocalAction.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.METHOD, ElementType.TYPE})
+    @Inherited
+    @Documented
+    public static @interface Local {
+
+    }
+
 }

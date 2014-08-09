@@ -43,7 +43,6 @@ public class LetsChaiChat {
     }
 
     public LetsChaiChat(String userId) throws ChatException {
-        Logger.info("opening connection");
         connect();
         try { loginUser(userId); }
         catch (ChatException e) { // if the login fails, the user probably doesn't exist, try creating it
@@ -61,7 +60,6 @@ public class LetsChaiChat {
         chatManager.addChatListener((chat, createdLocally) -> {
             if (!createdLocally) {
                 chat.addMessageListener(messageListener());
-                Logger.info("Chat started by " + chat.getParticipant());
                 chats.put(stripDomain(chat.getParticipant()), chat);
             }
         });
@@ -100,7 +98,6 @@ public class LetsChaiChat {
     private void loginUser (String userId) throws ChatException {
         try {
             smack.login(userId, userId);
-            Logger.info("Openfire: logged in user");
         } catch (Exception e) {
             throw new ChatException("failed to login user " + userId, e);
         }
@@ -137,7 +134,6 @@ public class LetsChaiChat {
         try {
             chats.get(to).sendMessage(message);
             new models.Message(from, to, message).save();
-            Logger.info("Message sent");
         } catch (Exception e) {
             throw new ChatException("Error sending chat", e);
         }
@@ -166,8 +162,7 @@ public class LetsChaiChat {
                 String to = json.get("to").asText();
                 String from = json.get("from").asText();
                 String message = json.get("message").asText();
-                Logger.info("sending message...");
-                Logger.info(json.toString());
+
                 try {
                     sendChat(from, to, message);
                 } catch (Exception e) {
