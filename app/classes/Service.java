@@ -13,8 +13,10 @@ import types.Flag;
 import types.Match;
 import types.Permission;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by kedar on 8/5/14.
@@ -33,6 +35,14 @@ public class Service {
                 Logger.info("saving for user " + user.getUserId());
             }
         }
+    }
+
+    public static void friendUpdate () {
+        Query query = new Query();
+        FriendCacher cacher = new FriendCacher(PincodeHandler.getInstance());
+
+        Logger.info("Caching friends for 5 random users");
+        cacher.cache(query.randomUsers(5)).onRedeem(bool -> Logger.info("Friend caching complete"));
     }
 
     // duration is in milliseconds, states how far back we should look for new users

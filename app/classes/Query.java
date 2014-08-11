@@ -100,4 +100,34 @@ public class Query {
     public void deleteFlag (String userId, Flag flag) {
         USERS.update("{'userId': '#'}", userId).with("{'$pull': {'flags': #}}", flag);
     }
+
+    public long userCount () {
+        return USERS.count();
+    }
+
+    public List<User> randomUsers (int amount) {
+        Random random = new Random();
+
+        int count = (int) userCount();
+        List<Integer> randoms = new ArrayList<>();
+        for (int i=0; i < 5; i++) {
+            randoms.add(random.nextInt(count));
+        }
+
+        List<User> users = new ArrayList<>();
+        for (Integer i: randoms) {
+            users.add(USERS.find().skip(i).limit(1).as(User.class).iterator().next());
+        }
+
+        return users;
+    }
+
+    public void updateFriends (Friends friends) {
+        FRIENDS.save(friends);
+    }
+
+    public long readyUserCount () {
+        return USERS.count("{'flags':'READY_TO_CHAI'}");
+    }
+
 }

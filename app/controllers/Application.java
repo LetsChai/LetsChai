@@ -43,6 +43,8 @@ public class Application extends Controller {
 
         User myMatch = User.findOne(todaysChai.getTarget());
         Friends friends = query.friends(userId, todaysChai.getTarget());
+        if (friends == null)
+            friends = new Friends(Arrays.asList(userId, myMatch.getUserId()));
         return ok(chai.render(myMatch, todaysChai, friends));
     }
 

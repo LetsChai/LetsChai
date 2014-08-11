@@ -3,6 +3,7 @@ package clients;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.restfb.*;
+import com.restfb.exception.FacebookException;
 import com.restfb.types.TestUser;
 import models.User;
 import org.jongo.MongoCollection;
@@ -96,14 +97,19 @@ public class LetsChaiFacebookClient extends DefaultFacebookClient {
         });
     }
 
-    public F.Promise<Friends> getMutualFriends (String userId, String friendId) {
-        Friends friends = new Friends(Arrays.asList(userId, friendId));
+    public F.Promise<JsonNode> getMutualFriendsJSON (String friendId) {
         return WS.url("https://graph.facebook.com/v2.0/" + friendId)
                 .setQueryParameter("fields", "context.fields(mutual_friends)")
                 .setQueryParameter("access_token", accessToken)
                 .get()
+                .map(WS.Response::asJson);
+    }
+
+    public F.Promise<Friends> getMutualFriends (String userId, String friendId) {
+        Friends friends = new Friends(Arrays.asList(userId, friendId));
+        return getMutualFriendsJSON(friendId)
                 .map(response -> {
-                    friends.setMutualFriends(response.asJson());
+                    friends.setMutualFriends(response);
                     return friends;
                 });
     }
@@ -113,8 +119,6 @@ public class LetsChaiFacebookClient extends DefaultFacebookClient {
     }
 
     public F.Promise<List<Permission>> getPermissions (String userId) {
-
-        String url = String.format("https://graph.facebook.com/v2.0/%s/permissions?access_token=%s", userId, accessToken);
         ObjectMapper mapper = new ObjectMapper();
         List<Permission> permissions = new ArrayList<>();
 
@@ -122,7 +126,11 @@ public class LetsChaiFacebookClient extends DefaultFacebookClient {
                 .setQueryParameter("access_token", accessToken)
                 .get()
                 .map(response -> {
-                    for (JsonNode j : mapper.readTree(response.getBody()).path("data")) {
+                    JsonNode json = mapper.readTree(response.getBody());
+                    if (json.has("error"))
+                        throw new exceptions.FacebookException(json.asText());
+
+                    for (JsonNode j : json.path("data")) {
                         permissions.add(Permission.valueOf(j.path("permission").asText().toUpperCase()));
                     }
                     return permissions;

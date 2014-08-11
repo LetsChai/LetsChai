@@ -44,9 +44,10 @@ GET     /admin/friends/:number      controllers.Admin.cacheFBData(number: Intege
 GET     /admin/:user/delete         controllers.Admin.deleteUser(user: String)
 GET     /admin/:user/restore        controllers.Admin.restoreUser(user: String)
 GET     /admin/users                controllers.Admin.users()
+GET     /admin/chai/:user           controllers.Admin.chai(user: String)
 
 # Testing Routes
-GET     /session/populate           controllers.Session.populate(id: String ?= "arpita")
+GET     /session/populate           controllers.Session.populate(id: String)
 GET     /session/dump               controllers.Session.dump()
 GET     /session/clear              controllers.Session.clear()
 GET     /test/test                  controllers.Test.test()

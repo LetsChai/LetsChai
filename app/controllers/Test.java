@@ -1,6 +1,9 @@
 package controllers;
 
 import actions.Auth;
+import classes.FriendCacher;
+import classes.PincodeHandler;
+import classes.Query;
 import classes.Service;
 import clients.LetsChaiFacebookClient;
 import models.Friends;
@@ -17,6 +20,7 @@ import play.libs.F;
 import play.mvc.Controller;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
+import uk.co.panaxiom.playjongo.PlayJongo;
 
 import java.util.Date;
 
@@ -27,7 +31,7 @@ import java.util.Date;
 public class Test extends Controller {
 
     public static Result test() {
-        Service.matchEmail();
+        Service.algorithm();
         return ok();
     }
 

@@ -45,7 +45,7 @@ public class Global extends GlobalSettings {
 //                Akka.system().dispatcher() );
 //        services.add(algorithm);
 
-        // schedule friend caching service
+        // schedule new user service
         FiniteDuration frequency = Duration.create(20, TimeUnit.MINUTES);
         Cancellable cacher = Akka.system().scheduler().schedule(
                 frequency,
@@ -53,6 +53,16 @@ public class Global extends GlobalSettings {
                 Service::newUserActions,
                 Akka.system().dispatcher());
         services.add(cacher);
+
+        // schedule friend caching service
+        frequency = Duration.create(5, TimeUnit.MINUTES);
+        Cancellable friendCacher = Akka.system().scheduler().schedule(
+                frequency,
+                frequency,
+                Service::friendUpdate,
+                Akka.system().dispatcher()
+        );
+        services.add(friendCacher);
     }
 
     @Override

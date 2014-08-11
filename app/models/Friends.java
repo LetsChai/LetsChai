@@ -2,6 +2,7 @@ package models;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.Validate;
+import org.jongo.marshall.jackson.oid.ObjectId;
 import play.Logger;
 import uk.co.panaxiom.playjongo.PlayJongo;
 
@@ -11,19 +12,20 @@ import java.util.*;
  * Created by kedar on 6/3/14
  */
 public class Friends {
+    @ObjectId
+    private Object _id;
 
     private List<String> users;
     private Map<String, String> mutualFriends = new HashMap<>();  // userId, name
     private boolean friends;    // whether they are facebook friends
     private int count;  // total number of mutual friends
-    private Date timestamp;
+    private Date timestamp; // gets set every time mutual friends is updated
 
-    private Friends () {}
+    private Friends () {}   // Jackson
 
     // from a Facebook mutual friends call
     public Friends (List<String> users) {
         this.users = users;
-        timestamp = new Date();
     }
 
     public void setMutualFriends (JsonNode fbResponse) {
@@ -34,6 +36,7 @@ public class Friends {
             mutualFriends.put(j.path("id").asText(), j.path("name").asText());
         }
         count = fbResponse.path("context").path("mutual_friends").path("summary").path("total_count").asInt();
+        timestamp = new Date();
     }
 
     public void setFriends (boolean friends) {
@@ -45,7 +48,7 @@ public class Friends {
     }
 
     public String toString () {
-        return mutualFriends.toString() + ", count:" + count;
+        return "users:" + users.toString() + ", mutualFriends: " + mutualFriends.toString() + ", count:" + count + ", friends:" + String.valueOf(friends);
     }
 
     public List<String> getUsers() {
@@ -89,6 +92,10 @@ public class Friends {
 
     public Date getTimestamp() {
         return timestamp;
+    }
+
+    public de.undercouch.bson4jackson.types.ObjectId getObjectId () {
+        return (de.undercouch.bson4jackson.types.ObjectId) _id;
     }
 
     // pass in one user, returns the other, throws an Exception if the user is not one of the two

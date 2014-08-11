@@ -5,13 +5,17 @@ import classes.FriendCacher;
 import classes.PincodeHandler;
 import classes.Query;
 import com.google.common.collect.Lists;
+import models.Chai;
+import models.Friends;
 import models.User;
 import play.libs.F;
 import play.mvc.Controller;
 import play.mvc.Result;
 import uk.co.panaxiom.playjongo.PlayJongo;
 import views.html.admin;
+import views.html.chai;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -59,5 +63,19 @@ public class Admin extends Controller {
     public static Result users () {
         Query q = new Query();
         return ok(admin.render(q.users()));
+    }
+
+    public static Result chai (String userId) {
+        Query query =  new Query();
+        Chai todaysChai = query.todaysChai(userId);
+
+        if (todaysChai == null)   // no chai today!
+            return ok("no chai today");
+
+        User myMatch = User.findOne(todaysChai.getTarget());
+        Friends friends = query.friends(userId, todaysChai.getTarget());
+        if (friends == null)
+            friends = new Friends(Arrays.asList(userId, myMatch.getUserId()));
+        return ok(chai.render(myMatch, todaysChai, friends));
     }
 }

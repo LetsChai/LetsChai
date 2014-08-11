@@ -3,6 +3,7 @@ package classes;
 import clients.LetsChaiFacebookClient;
 import models.Friends;
 import models.User;
+import org.joda.time.DateTime;
 import play.Logger;
 import play.libs.F;
 
@@ -29,8 +30,10 @@ public class FriendCacher {
             return F.Promise.pure(true);
 
         User user = users.get(0);
-        users.remove(0);
-        return cache(user).flatMap(bool -> cache(users));
+
+        List<User> clone = new ArrayList<>(users);
+        clone.remove(0);
+        return cache(user).flatMap(bool -> cache(clone));
     }
 
     public F.Promise<Boolean> cache (User user) {
@@ -44,13 +47,31 @@ public class FriendCacher {
         List<User> users = query.users();
         List<User> toCache = users.stream().filter(candidate -> checker.associatives(user, candidate, cache))
                 .collect(Collectors.toList());
-
         for (User candidate: toCache) {
             String candidateId = candidate.getUserId();
 
-            // ignore repeats for now
-            if (cache.contains(new Friends(Arrays.asList(userId, candidateId))))
+            // update repeats if they're more than 3 days old, then continue on regardless
+            Friends compare = new Friends(Arrays.asList(userId, candidateId));
+            List<Friends> cacheMatch = cache.stream().filter(item -> item.equals(compare))
+                    .collect(Collectors.toList());
+            if (cacheMatch.size() > 0) {
+                Friends inCache = cacheMatch.get(0);
+
+                // check how long ago the data was cached, update it if it's too old
+                DateTime cutoff = new DateTime().minusDays(3);
+                if (new DateTime(inCache.getTimestamp()).isBefore(cutoff)) {
+                    fb.getMutualFriendsJSON(candidateId)
+                            .zip(fb.areFriends(userId, candidate.getUserId()))
+                            .onRedeem(t -> {
+                                inCache.setMutualFriends(t._1);
+                                inCache.setFriends(t._2);
+                                query.updateFriends(inCache);
+                            });
+                }
+
+                // continue on all cached items
                 continue;
+            }
 
             // API calls
             F.Promise<Friends> promise = fb.getMutualFriends(userId, candidateId)
