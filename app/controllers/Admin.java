@@ -12,6 +12,7 @@ import models.User;
 import play.libs.F;
 import play.mvc.Controller;
 import play.mvc.Result;
+import types.Flag;
 import uk.co.panaxiom.playjongo.PlayJongo;
 import views.html.admin;
 import views.html.chai;
@@ -90,5 +91,19 @@ public class Admin extends Controller {
     public static Result profile (String userId) {
         User user = User.findOne(userId);
         return ok(profile.render(user));
+    }
+
+    public static Result forceMutualChai (String user1, String user2) {
+        Query query = new Query();
+        query.saveChai(new Chai(user1, user2, 0.49));
+        query.saveChai(new Chai(user2, user1, 0.49));
+        return ok("Successfully created chai");
+    }
+
+    public static Result deactivateUser (String userId) {
+        Query query = new Query();
+        query.pushFlag(userId, Flag.DEACTIVATED);
+        query.pushFlag(userId, Flag.ADMIN_DEACTIVATED);
+        return ok("successfully deactivated user");
     }
 }
