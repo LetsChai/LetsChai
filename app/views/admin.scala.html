@@ -1,4 +1,4 @@
-@(users: List[User])
+@(users: List[User], stats: classes.UserStatistics)
 
 <!DOCTYPE html>
 <html>
@@ -11,13 +11,43 @@
         th {
             font-weight: bold;
         }
+        #stats {
+            border-collapse: collapse;
+        }
+        #stats th, #stats td {
+            border: 1px solid black;
+        }
     </style>
 
 </head>
 <body>
 
-<i>* Click on a column heading to sort by it</i>
+<h1>Stats</h1>
+<table id="stats">
+    <thead>
+        <tr>
+            <th>Total Users</th>
+            <th>Ready to Chai</th>
+            <th>In Bangalore</th>
+            <th>Total Female</th>
+            <th>Ready in Bangalore</th>
+            <th>Female, Ready, In Bangalore</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>@stats.count</td>
+            <td>@stats.readyCount</td>
+            <td>@stats.bangaloreCount</td>
+            <td>@stats.femaleCount</td>
+            <td>@stats.readyBangaloreCount</td>
+            <td>@stats.readyBangaloreFemaleCount</td>
+        </tr>
+    </tbody>
+</table>
 
+<h1>Users</h1>
+<i>* Click on a column heading to sort by it</i>
 <table>
     <thead>
         <tr>
