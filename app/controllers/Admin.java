@@ -15,6 +15,7 @@ import play.mvc.Result;
 import uk.co.panaxiom.playjongo.PlayJongo;
 import views.html.admin;
 import views.html.chai;
+import views.html.profile;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -84,5 +85,10 @@ public class Admin extends Controller {
         if (friends == null)
             friends = new Friends(Arrays.asList(userId, myMatch.getUserId()));
         return ok(chai.render(myMatch, todaysChai, friends));
+    }
+
+    public static Result profile (String userId) {
+        User user = User.findOne(userId);
+        return ok(profile.render(user));
     }
 }
