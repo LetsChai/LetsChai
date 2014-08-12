@@ -66,6 +66,7 @@
             <th>Flags</th>
             <th>Last Login</th>
             <th>Today's Chai</th>
+            <th>Chai Target Id</th>
             <th>Chai Target Profile</th>
             <th>Gender Preference</th>
             <th>Age Preference</th>
@@ -100,6 +101,11 @@
                 </td>
                 <td>@user.getLastLogin</td>
                 <td><a target="_blank" href="/admin/chai/@user.getUserId">Today's Chai</a></td>
+                <td>
+                    @if(chais.get(user.getUserId) != null) {
+                        @chais.get(user.getUserId).getTarget
+                    }
+                </td>
                 <td>
                     @if(chais.get(user.getUserId) != null) {
                         <a target="_blank" href="http://facebook.com/@chais.get(user.getUserId).getTarget">Chai Target Profile</a>

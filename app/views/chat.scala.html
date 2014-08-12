@@ -79,7 +79,7 @@
             @for(mate <- matches) {
                 <div class="match" data-user="@mate.getTargeted().getReceiver">
                     <img class="profile-pic" src="@clients.LetsChaiFacebookClient.profilePictureURL(mate.getTargeted().getReceiver)" />
-                    <span class="name">@mate.getTargetName()</span>
+                    <span class="name">@mate.getTargetFirstName()</span>
                 </div>
             }
         </div>

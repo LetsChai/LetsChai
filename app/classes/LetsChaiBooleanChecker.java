@@ -23,7 +23,10 @@ public final class LetsChaiBooleanChecker {
     }
 
     // true if they pass, false if they don't
-    public Boolean associatives (User current, User candidate, List<Friends> friendList) {  // i don't like this friendList business, should change later
+    public boolean associatives (User current, User candidate, List<Friends> friendList) {  // i don't like this friendList business, should change later
+        if (!individuals(current) || !individuals(candidate))
+            return false;
+
         String currentId = current.getUserId();
         String candidateId = candidate.getUserId();
         User.Preferences currentPref = current.getPreferences();
@@ -32,26 +35,21 @@ public final class LetsChaiBooleanChecker {
         boolean friends;
         List <Friends> entry = friendList.stream().filter(obj -> obj.getUsers().containsAll(Arrays.asList(currentId, candidateId)))
                 .collect(Collectors.toList());
-        if (entry.size() > 0)
-            friends = entry.get(0).isFriends();
-        else
-            friends = false; // default
+        friends = entry.size() > 0 && entry.get(0).isFriends(); // defaults to false
 
         return  !current.equals(candidate) && !friends   // same user & friends
-                && current.hasFlag(Flag.READY_TO_CHAI) && candidate.hasFlag(Flag.READY_TO_CHAI)
                 && currentPref.getAge().contains(candidate.getAge()) && candidatePref.getAge().contains(current.getAge())   // age
-                && currentPref.getGender().equals(candidate.getGenderGiven()) && candidatePref.getGender().equals(current.getGenderGiven()) // gender
-                && Religion.contains(currentPref.getReligion(), candidate.getReligion()) && Religion.contains(candidatePref.getReligion(), current.getReligion())   // religion
-                && pincodeHandler.distance(current.getPincode(), candidate.getPincode()) < 50; // distance
+                && currentPref.getGender().toString().equals(candidate.getGender().toUpperCase()) && candidatePref.getGender().toString().equals(current.getGender().toUpperCase()) // gender
+                && Religion.contains(currentPref.getReligion(), candidate.getReligion()) && Religion.contains(candidatePref.getReligion(), current.getReligion());   // religion
     }
 
     // true if they pass
-    public Boolean nonAssociatives (User user, User candidate, List<Chai> userChais) {
+    public boolean nonAssociatives (User user, User candidate, List<Chai> userChais) {
         return !userChais.contains(new Chai(user.getUserId(), candidate.getUserId(), 0)); // user doesn't have previous Chai for partner
     }
 
     // here for reference, these checks actually happen in UserHandler
-    public Boolean individuals (User user) {
+    public boolean individuals (User user) {
         return !user.hasFlag(Flag.DEACTIVATED)
                 && pincodeHandler.inBangalore(user.getPincode())
                 && user.hasFlag(Flag.READY_TO_CHAI);

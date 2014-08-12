@@ -115,7 +115,7 @@ public class Login extends Controller {
                 PlayJongo.getCollection("too_young_users").save(user);
                 return redirect(controllers.routes.Login.tooYoung());
             }
-            if (user.getAge() > 30) {
+            if (user.getAge() > 34) {
                 PlayJongo.getCollection("too_old_users").save(user);
                 return redirect(controllers.routes.Login.tooOld());
             }

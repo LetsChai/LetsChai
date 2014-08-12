@@ -41,9 +41,7 @@ public class PincodeHandler {
     }
 
     public Boolean inBangalore (Integer pin) {
-        if (pin > 560000 && pin < 561000)
-            return true;
-        return false;
+        return pin > 560000 && pin < 561000;
     }
 
     public Double distance (Integer pin1, Integer pin2) {

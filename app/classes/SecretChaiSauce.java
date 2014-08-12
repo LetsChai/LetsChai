@@ -49,19 +49,30 @@ public class SecretChaiSauce {
             return null;
         }
 
+        // get your friends
+        List<Friends> friends = query.friends(userId);
+
         // do you have a lover out there waiting for you?
         List<Chai> youLikeMe = chais.stream().filter(chai -> chai.getTarget().equals(userId) && chai.getDecision()
                 && !chais.contains(new Chai(chai.getTarget(), chai.getReceiver(), 0.0)))
                 .collect(Collectors.toList());
-        if (youLikeMe.size() > 0)
-            return new Chai(userId, youLikeMe.stream().max(Chai::compare).get().getReceiver(), 0.51);
 
-        // filter out the unwanteds
-        List<Friends> friends = query.friends(userId);
-        List<User> candidates = query.users().stream().filter(candidate -> checker.associatives(user, candidate, friends)
+        // if so those are your candidates, else get all the users
+        List<User> unfiltered;
+        if (youLikeMe.size() > 0) {
+            List<String> ids = youLikeMe.stream().map(Chai::getReceiver).collect(Collectors.toList());
+            unfiltered = query.users(ids);
+        } else {
+            unfiltered = query.users();
+        }
+
+        // filter out unwanteds
+        List<User> candidates = unfiltered.stream().filter(candidate -> checker.associatives(user, candidate, friends)
                 && checker.nonAssociatives(user, candidate, chais))
                 .collect(Collectors.toList());
-        if (candidates.size() == 0) { // for the rare match-less user
+
+        // for the rare match-less user
+        if (candidates.size() == 0) {
             Logger.info("match-less user");
             return null;
         }

@@ -58,8 +58,6 @@ public class User {
     // non-stored fields
     @JsonIgnore
     private Friends friends;
-    @JsonIgnore
-    private Integer alternatePincode;
 
     // for Jackson
     private User () {}
@@ -356,25 +354,6 @@ public class User {
                 i++;
         }
         return i;
-    }
-
-    public Integer getAlternatePincode() {
-        return alternatePincode;
-    }
-
-    public void setAlternatePincode(Integer alternatePincode) {
-        this.alternatePincode = alternatePincode;
-    }
-
-    // checks if there's an alternate pincode (which means the real pincode) is invalid, and gives it if it exists, else gives the real pincode
-    public int getValidPincode () {
-        if (alternatePincode == null)
-            return pincode;
-        return alternatePincode;
-    }
-
-    public boolean hasAlternatePincode () {
-        return alternatePincode != null;
     }
 
     public boolean hasFlag(Flag flag) {

@@ -135,4 +135,7 @@ public class Query {
         return Lists.newArrayList(CHAIS.find("{'received': {'$gt': #} }", yesterday).as(Chai.class));
     }
 
+    public List<User> users (List<String> ids) {
+        return Lists.newArrayList(USERS.find("{'userId': {'$in': # }}", ids).as(User.class));
+    }
 }

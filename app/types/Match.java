@@ -31,6 +31,10 @@ public class Match {
         return targetName;
     }
 
+    public String getTargetFirstName () {
+        return targetName.split(" ")[0];
+    }
+
     public void setTargetName(String targetName) {
         this.targetName = targetName;
     }
