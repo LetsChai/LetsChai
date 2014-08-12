@@ -4,6 +4,7 @@ import actions.Auth;
 import classes.FriendCacher;
 import classes.PincodeHandler;
 import classes.Query;
+import classes.UserStatistics;
 import com.google.common.collect.Lists;
 import models.Chai;
 import models.Friends;
@@ -62,7 +63,9 @@ public class Admin extends Controller {
 
     public static Result users () {
         Query q = new Query();
-        return ok(admin.render(q.users()));
+        List<User> users = q.users();
+        UserStatistics stats = new UserStatistics(users);
+        return ok(admin.render(users, stats));
     }
 
     public static Result chai (String userId) {
