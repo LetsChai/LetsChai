@@ -54,6 +54,7 @@
             <th>First Name</th>
             <th>Last Name</th>
             <th>Id</th>
+            <th>Age</th>
             <th>Email</th>
             <th>Let's Chai Profile</th>
             <th>Facebook Profile</th>
@@ -66,6 +67,9 @@
             <th>Last Login</th>
             <th>Today's Chai</th>
             <th>Chai Target Profile</th>
+            <th>Gender Preference</th>
+            <th>Age Preference</th>
+            <th>Religion Preference</th>
         </tr>
     </thead>
     <tbody>
@@ -74,6 +78,7 @@
                 <td>@user.getFirstName</td>
                 <td>@user.getLastName</td>
                 <td>@user.getUserId</td>
+                <td>@user.getAge</td>
                 <td>@user.getEmail</td>
                 <td><a target="_blank" href="/admin/profile/@user.getUserId">Let's Chai Profile</a></td>
                 <td><a target="_blank" href="@user.getLink">Facebook Profile</a></td>
@@ -100,6 +105,9 @@
                         <a target="_blank" href="http://facebook.com/@chais.get(user.getUserId).getTarget">Chai Target Profile</a>
                     }
                 </td>
+                <td>@user.getPreferences.getGender</td>
+                <td>@user.getPreferences.getAge.getMinimum.toString to @user.getPreferences.getAge.getMaximum.toString</td>
+                <td>@user.getPreferences.getReligion.toString</td>
             </tr>
         }
     </tbody>
