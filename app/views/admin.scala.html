@@ -1,4 +1,4 @@
-@(users: List[User], stats: classes.UserStatistics)
+@(users: List[User], stats: classes.UserStatistics, chais: Map[String,Chai])
 
 <!DOCTYPE html>
 <html>
@@ -64,6 +64,7 @@
             <th>Flags</th>
             <th>Last Login</th>
             <th>Today's Chai</th>
+            <th>Chai Target Profile</th>
         </tr>
     </thead>
     <tbody>
@@ -92,6 +93,11 @@
                 </td>
                 <td>@user.getLastLogin</td>
                 <td><a target="_blank" href="/admin/chai/@user.getUserId">Today's Chai</a></td>
+                <td>
+                    @if(chais.get(user.getUserId) != null) {
+                        <a target="_blank" href="http://facebook.com/@chais.get(user.getUserId).getTarget">Chai Target Profile</a>
+                    }
+                </td>
             </tr>
         }
     </tbody>

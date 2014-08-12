@@ -130,4 +130,9 @@ public class Query {
         return USERS.count("{'flags':'READY_TO_CHAI'}");
     }
 
+    public List<Chai> todaysChais () {
+        Date yesterday = new DateTime().minusDays(1).toDate();
+        return Lists.newArrayList(CHAIS.find("{'received': {'$gt': #} }", yesterday).as(Chai.class));
+    }
+
 }

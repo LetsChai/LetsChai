@@ -17,7 +17,10 @@ import views.html.admin;
 import views.html.chai;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Created by kedar on 7/23/14.
@@ -65,7 +68,8 @@ public class Admin extends Controller {
         Query q = new Query();
         List<User> users = q.users();
         UserStatistics stats = new UserStatistics(users);
-        return ok(admin.render(users, stats));
+        Map<String,Chai> chais = q.todaysChais().stream().collect(Collectors.toMap(Chai::getReceiver, chai -> chai));
+        return ok(admin.render(users, stats, chais));
     }
 
     public static Result chai (String userId) {
