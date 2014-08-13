@@ -1,6 +1,8 @@
 package models;
 
 import clients.LetsChaiFacebookClient;
+import org.joda.time.DateTime;
+import org.jongo.marshall.jackson.oid.ObjectId;
 
 import java.util.*;
 
@@ -8,6 +10,9 @@ import java.util.*;
  * Created by kedar on 8/1/14.
  */
 public class Chai implements Comparable<Chai> {
+
+    @ObjectId
+    private Object _id;
 
     private String receiver;
     private String target;
@@ -89,5 +94,13 @@ public class Chai implements Comparable<Chai> {
 
     public static int compare (Chai chai1, Chai chai2) {
         return Double.compare(chai1.getScore(), chai2.getScore());
+    }
+
+    public de.undercouch.bson4jackson.types.ObjectId getObjectId () {
+        return (de.undercouch.bson4jackson.types.ObjectId) _id;
+    }
+
+    public void repeatDate () {
+        received = new DateTime(received).plusDays(1).toDate();
     }
 }

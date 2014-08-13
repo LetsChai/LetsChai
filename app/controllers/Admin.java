@@ -9,6 +9,7 @@ import com.google.common.collect.Lists;
 import models.Chai;
 import models.Friends;
 import models.User;
+import org.joda.time.DateTime;
 import play.libs.F;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -19,10 +20,7 @@ import views.html.admin;
 import views.html.chai;
 import views.html.profile;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -114,5 +112,22 @@ public class Admin extends Controller {
         query.deleteFlag(userId, Flag.DEACTIVATED);
         query.deleteFlag(userId, Flag.ADMIN_DEACTIVATED);
         return ok("successfully activated user");
+    }
+
+    public static Result repeatNoDecisionChais () {
+        Query q = new Query();
+        List<Chai> chais = q.todaysChaisNoDecision();
+        Map<String,User> users = q.users().stream().collect(Collectors.toMap(User::getUserId, user -> user));
+        for (Chai chai: chais) {
+            if (new DateTime(chai.getReceived()).isAfterNow())
+                continue;
+            DateTime lastLogin = new DateTime(users.get(chai.getReceiver()).getLastLogin());
+            DateTime yesterday = new DateTime().minusDays(1);
+            if (!chai.hasDecided() && lastLogin.isBefore(yesterday)) {
+                chai.repeatDate();
+                q.updateChai(chai);
+            }
+        }
+        return ok("successfully repeated chais");
     }
 }

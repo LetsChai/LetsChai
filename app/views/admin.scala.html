@@ -155,8 +155,10 @@
         <tr>
             <th>User 1 ID</th>
             <th>User 1 Name</th>
+            <th>User 1 Profile</th>
             <th>User 2 ID</th>
             <th>User 2 Name</th>
+            <th>User 2 Profile</th>
             <th>Match Date</th>
         </tr>
     </thead>
@@ -165,8 +167,10 @@
             <tr>
                 <td>@m.getReceiver</td>
                 <td>@users.get(m.getReceiver).getName</td>
+                <td><a target="_blank" href="/admin/profile/@m.getReceiver">User 1 Profile</a></td>
                 <td>@m.getTarget</td>
                 <td>@users.get(m.getTarget).getName</td>
+                <td><a target="_blank" href="/admin/profile/@m.getTarget">User 2 Profile</a></td>
                 <td>@m.matchDate</td>
             </tr>
         }

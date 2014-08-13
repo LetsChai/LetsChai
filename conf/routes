@@ -44,6 +44,7 @@ GET     /admin/friends/:number      controllers.Admin.cacheFBData(number: Intege
 GET     /admin/:user/delete         controllers.Admin.deleteUser(user: String)
 GET     /admin/:user/restore        controllers.Admin.restoreUser(user: String)
 GET     /admin/users                controllers.Admin.users()
+GET     /admin/chai/repeatnodecisions   controllers.Admin.repeatNoDecisionChais()
 GET     /admin/chai/:user           controllers.Admin.chai(user: String)
 GET     /admin/profile/:user        controllers.Admin.profile(user: String)
 GET     /admin/chai/:user1/force/:user2  controllers.Admin.forceMutualChai(user1: String, user2: String)

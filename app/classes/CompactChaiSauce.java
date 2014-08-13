@@ -22,6 +22,7 @@ public class CompactChaiSauce implements MatchingAlgo {
     private LetsChaiScorer scorer;
     private LetsChaiBooleanChecker checker;
     private Query query;
+    Random random = new Random();
 
     public CompactChaiSauce(PincodeHandler pincodeHandler) {
         this.pincodeHandler = pincodeHandler;
@@ -59,6 +60,8 @@ public class CompactChaiSauce implements MatchingAlgo {
             UserScore winner = candidates.stream()
                     .map(cand -> new UserScore(cand, score(friends, user, cand, usersLikeMe.contains(cand.getUserId()))))
                     .max((t1, t2) -> Double.compare(t1.score, t2.score)).get();
+            if (winner.score == 0)   // randomize if the best score they can get is 0 so not everyone gets Swetha
+                winner = new UserScore(candidates.get(random.nextInt(candidates.size())), 0);
             return new Chai(userId, winner.user.getUserId(), winner.score);
         } catch (NoSuchElementException e) {
             Logger.info("No matches for " + userId);

@@ -81,7 +81,7 @@ public class Query {
         List<Chai> chais = likeChais();
         for (Chai chai1: chais) {
             for (Chai chai2: chais) {
-                if (chai1.getReceiver().equals(chai2.getTarget())) {
+                if (chai1.getReceiver().equals(chai2.getTarget()) && chai1.getTarget().equals(chai2.getReceiver())) {
                     matches.add(new Match(chai1, chai2));
                 }
             }
@@ -166,6 +166,15 @@ public class Query {
     public void deleteUser (User user) {
         DELETED_USERS.save(user);
         USERS.remove("{'userId': '#'}", user.getUserId());
+    }
+
+    public List<Chai> todaysChaisNoDecision () {
+        Date yesterday = new DateTime().minusDays(1).toDate();
+        return Lists.newArrayList(CHAIS.find("{'decided': {'$exists':false}, 'received': {'$gt': #}}", yesterday).as(Chai.class));
+    }
+
+    public void updateChai (Chai chai) {
+        CHAIS.save(chai);
     }
 
 }

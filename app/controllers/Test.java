@@ -3,11 +3,13 @@ package controllers;
 import actions.Auth;
 import classes.*;
 import clients.LetsChaiFacebookClient;
+import models.Chai;
 import models.Friends;
 import models.User;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
+import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import play.Logger;
 import play.Play;
@@ -19,7 +21,11 @@ import play.mvc.Result;
 import scala.concurrent.duration.Duration;
 import uk.co.panaxiom.playjongo.PlayJongo;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Created by kedar on 5/23/14.
@@ -33,7 +39,20 @@ public class Test extends Controller {
     }
 
     public static Result test2 () {
-        return ok(Play.application().configuration().getString("openfire.name"));
+        Query q = new Query();
+        List<Chai> chais = q.todaysChaisNoDecision();
+        Map<String,User> users = q.users().stream().collect(Collectors.toMap(User::getUserId, user -> user));
+        List<Chai> toUpdate = new ArrayList<>();
+        for (Chai chai: chais) {
+            if (new DateTime(chai.getReceived()).isAfterNow())
+                continue;
+            DateTime lastLogin = new DateTime(users.get(chai.getReceiver()).getLastLogin());
+            DateTime yesterday = new DateTime().minusDays(1);
+            if (!chai.hasDecided() && lastLogin.isBefore(yesterday))
+                toUpdate.add(chai);
+        }
+
+        return ok(String.valueOf(toUpdate.size()));
     }
 
     public static Result algorithm () {
