@@ -85,6 +85,22 @@
             font-size: 1.4em;
             font-weight: bold;
         }
+        .lc-mutual-holder {
+            position:relative;
+        }
+        .lc-mutual-name {
+            display: none;
+            position: absolute;
+            top: -200%;
+            font-size: 0.8em;
+            left: -100%;
+            font-weight: normal;
+            color: white;
+            background: black;
+            border-radius: 5px;
+            white-space: nowrap;
+            padding: 0 2%;
+        }
         #question-answer {
             padding-left: 2%;
         }
@@ -138,7 +154,10 @@
                             <span>Let's Chai Mutual Friends: </span>
                             <span>
                                 @for((id,name) <- friends.getMutualFriends()) {
-                                    <img src="@clients.LetsChaiFacebookClient.profilePictureURL(id)" title="@name"/>
+                                    <span class="lc-mutual-holder">
+                                        <img class="lc-mutual-image" src="@clients.LetsChaiFacebookClient.profilePictureURL(id)"/>
+                                        <span class="lc-mutual-name">@name</span>
+                                    </span>
                                 }
                             </span>
                         </div>
@@ -280,6 +299,13 @@ $("#like").click(function() {
         $("#like").addClass("chosen");
         $("#pass").hide();
     });
+});
+
+// Show Mutual Friend Name
+$(".lc-mutual-image").on("mouseenter", function() {
+    $(this).siblings(".lc-mutual-name").show();
+}).on("mouseleave", function () {
+    $(this).siblings(".lc-mutual-name").hide();
 });
 
 </script>

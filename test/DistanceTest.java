@@ -6,9 +6,9 @@ import org.jongo.Jongo;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.springframework.util.Assert;
 import play.test.FakeApplication;
 import play.test.Helpers;
+import org.junit.Assert;
 
 import java.net.UnknownHostException;
 import java.util.HashMap;
@@ -35,15 +35,22 @@ public class DistanceTest {
 
     @Test
     public void initials () {
-        Assert.notNull(handler);
-        Assert.isTrue(handler.valid(560001));
-        Assert.isTrue(handler.valid(560014));
+        Assert.assertNotNull(handler);
+        Assert.assertTrue(handler.valid(560001));
+        Assert.assertTrue(handler.valid(560014));
+        Assert.assertFalse(handler.valid(560012));
     }
 
     @Test
     public void bangaloreDistances () {
-        Assert.isTrue(handler.distance(560001,560014) > 12);
-        Assert.isTrue(handler.distance(560001,560014) < 13);
+        Assert.assertTrue(handler.distance(560014,560001) > 12);
+        Assert.assertTrue(handler.distance(560001,560014) > 12);
+        Assert.assertTrue(handler.distance(560014,560001) < 13);
+        Assert.assertTrue(handler.distance(560001,560014) < 13);
+        Assert.assertTrue(handler.distance(560001, 560012) == 10000);
+        Assert.assertTrue(handler.distance(560012, 560001) == 10000);
+        Assert.assertTrue(handler.distance(560001, 560001) == 0);
+        Assert.assertTrue(handler.distance(754321, 754321) == 0);
     }
 
     @AfterClass

@@ -6,6 +6,7 @@ import models.*;
 import org.joda.time.DateTime;
 import org.jongo.MongoCollection;
 import org.jongo.Oid;
+import play.Logger;
 import types.*;
 import uk.co.panaxiom.playjongo.PlayJongo;
 
@@ -20,6 +21,7 @@ public class Query {
     private MongoCollection USERS = PlayJongo.getCollection("users");
     private MongoCollection FRIENDS = PlayJongo.getCollection("friends");
     private MongoCollection MESSAGES = PlayJongo.getCollection("chats");
+    private MongoCollection DELETED_USERS = PlayJongo.getCollection("deleted_users");
 
     public List<Chai> chais (String userId) {
         return Lists.newArrayList(CHAIS.find("{'$or': [{'receiver': '#'}, {'target': '#'}] }", userId, userId).as(Chai.class));
@@ -52,15 +54,16 @@ public class Query {
     }
 
     public List<Match> matches (String userId) {
-        Iterable<Chai> likes = CHAIS.find("{'receiver': '#', 'decision': true}", userId).as(Chai.class);
-        Iterable<Chai> likeBacks = CHAIS.find("{'target': '#', 'decision': true}", userId).as(Chai.class);
+        List<Chai> likes = Lists.newArrayList(CHAIS.find("{'receiver': '#', 'decision': true}", userId).as(Chai.class));
+        List<Chai> likeBacks = Lists.newArrayList(CHAIS.find("{'target': '#', 'decision': true}", userId).as(Chai.class));
         List<Match> matches = new ArrayList<>();
         List<String> matchIds = new ArrayList<>();
         for (Chai like: likes) {
             for (Chai likeBack: likeBacks) {
-                if (like.getTarget().equals(likeBack.getReceiver()))
+                if (like.getTarget().equals(likeBack.getReceiver())) {
                     matches.add(new Match(like, likeBack));
                     matchIds.add(like.getTarget());
+                }
             }
         }
         for (User user: USERS.find("{'userId': {'$in': #}}", matchIds).as(User.class)) {
@@ -71,6 +74,27 @@ public class Query {
         }
 
         return matches;
+    }
+
+    public List<Match> matchesNoNames () {
+        Set<Match> matches = new HashSet<>();
+        List<Chai> chais = likeChais();
+        for (Chai chai1: chais) {
+            for (Chai chai2: chais) {
+                if (chai1.getReceiver().equals(chai2.getTarget())) {
+                    matches.add(new Match(chai1, chai2));
+                }
+            }
+        }
+        return matches.stream().collect(Collectors.toList());
+    }
+
+    public List<Chai> chais () {
+        return Lists.newArrayList(CHAIS.find().as(Chai.class));
+    }
+
+    public List<Chai> likeChais () {
+        return Lists.newArrayList(CHAIS.find("{'decision':true}").as(Chai.class));
     }
 
     public List<Message> messages (String userId) {
@@ -138,4 +162,10 @@ public class Query {
     public List<User> users (List<String> ids) {
         return Lists.newArrayList(USERS.find("{'userId': {'$in': # }}", ids).as(User.class));
     }
+
+    public void deleteUser (User user) {
+        DELETED_USERS.save(user);
+        USERS.remove("{'userId': '#'}", user.getUserId());
+    }
+
 }

@@ -48,6 +48,7 @@ GET     /admin/chai/:user           controllers.Admin.chai(user: String)
 GET     /admin/profile/:user        controllers.Admin.profile(user: String)
 GET     /admin/chai/:user1/force/:user2  controllers.Admin.forceMutualChai(user1: String, user2: String)
 GET     /admin/:user/deactivate     controllers.Admin.deactivateUser(user: String)
+GET     /admin/:user/activate       controllers.Admin.activateUser(user: String)
 
 # Testing Routes
 GET     /session/populate           controllers.Session.populate(id: String)

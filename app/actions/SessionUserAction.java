@@ -19,9 +19,14 @@ public class SessionUserAction extends Action.Simple {
         User user = User.findOne(ctx.session().get("user"));
         String path = ctx.request().path();
 
-        // No deactivated users allowed
-        if (user.hasFlag(Flag.DEACTIVATED) && !path.contains("activate") && !ctx.request().method().equals("post"))
-            return F.Promise.promise(() -> redirect(controllers.routes.Application.deactivatedUser()));
+        // Admin deactivated users
+        if (user.hasFlag(Flag.ADMIN_DEACTIVATED) && !path.contains("editprofile") && !path.contains("editpictures") && !path.contains("deactivated"))
+            return F.Promise.pure(redirect(controllers.routes.Application.deactivatedUser()));
+
+        // Deactivated users
+        boolean activatePage = path.contains("activate") && ctx.request().method().equals("POST");
+        if (user.hasFlag(Flag.DEACTIVATED) && !user.hasFlag(Flag.ADMIN_DEACTIVATED) && !activatePage && !path.contains("deactivated"))
+            return F.Promise.pure(redirect(controllers.routes.Application.deactivatedUser()));
 
         // make sure user profile is ready to go
         if (!user.hasFlag(Flag.READY_TO_CHAI) && !path.contains("editprofile") && !path.contains("editpictures")) {

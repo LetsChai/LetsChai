@@ -1,10 +1,7 @@
 package controllers;
 
 import actions.Auth;
-import classes.FriendCacher;
-import classes.PincodeHandler;
-import classes.Query;
-import classes.Service;
+import classes.*;
 import clients.LetsChaiFacebookClient;
 import models.Friends;
 import models.User;

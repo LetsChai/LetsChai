@@ -13,6 +13,7 @@ import play.libs.F;
 import play.mvc.Controller;
 import play.mvc.Result;
 import types.Flag;
+import types.Match;
 import uk.co.panaxiom.playjongo.PlayJongo;
 import views.html.admin;
 import views.html.chai;
@@ -68,10 +69,11 @@ public class Admin extends Controller {
 
     public static Result users () {
         Query q = new Query();
-        List<User> users = q.users();
-        UserStatistics stats = new UserStatistics(users);
+        Map<String,User> users = q.users().stream().collect(Collectors.toMap(User::getUserId, user -> user));
+        UserStatistics stats = new UserStatistics(users.values().stream().collect(Collectors.toList()));
         Map<String,Chai> chais = q.todaysChais().stream().collect(Collectors.toMap(Chai::getReceiver, chai -> chai));
-        return ok(admin.render(users, stats, chais));
+        List<Match> matches = q.matchesNoNames();
+        return ok(admin.render(users, stats, chais, matches));
     }
 
     public static Result chai (String userId) {
@@ -105,5 +107,12 @@ public class Admin extends Controller {
         query.pushFlag(userId, Flag.DEACTIVATED);
         query.pushFlag(userId, Flag.ADMIN_DEACTIVATED);
         return ok("successfully deactivated user");
+    }
+
+    public static Result activateUser (String userId) {
+        Query query = new Query();
+        query.deleteFlag(userId, Flag.DEACTIVATED);
+        query.deleteFlag(userId, Flag.ADMIN_DEACTIVATED);
+        return ok("successfully activated user");
     }
 }

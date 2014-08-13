@@ -58,6 +58,10 @@
             float:right;
             margin-top: 1%;
         }
+        #deactivate #deactivate-help-text {
+            font-style: italic;
+            margin-left: 5%;
+        }
 
     </style>
 </head>
@@ -135,7 +139,12 @@
                             <input type="text"/>
                         </div>
                         <div class="row entry">
-                            <button type="submit">Deactivate</button>
+                            <button type="submit" name="deactivate">Deactivate Account</button>
+                            <button type="submit" name="delete">Delete Account</button>
+                        </div>
+                        <div class="row entry" id="deactivate-help-text">
+                            <div>* Deactivating your account preserves your chais and messages</div>
+                            <div>* Deleting your account erases all user information. It is permanent.</div>
                         </div>
                     </div>
                 </form>

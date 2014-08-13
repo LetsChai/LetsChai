@@ -7,10 +7,12 @@ import models.Chai;
 import models.Friends;
 import models.User;
 import org.joda.time.DateTime;
+import play.Logger;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
 import types.*;
+import uk.co.panaxiom.playjongo.PlayJongo;
 import views.html.*;
 
 import java.util.*;
@@ -152,7 +154,7 @@ public class Application extends Controller {
         int i = 0;
         for (String key: keys) {
             String base64Image = formData.get(key)[0];
-            if (base64Image == "" || base64Image == null); // do nothing
+            if (base64Image.equals("") || base64Image == null); // do nothing
             else if (base64Image.equals("delete")) {
                 user.removePicture(i);
             }
@@ -181,11 +183,20 @@ public class Application extends Controller {
         return ok();
     }
 
-    @Auth.UpdateUser
+    @Auth.WithUser
     public static Result deactivate () {
         User user = (User) ctx().args.get("user");
-        user.addFlag(Flag.DEACTIVATED);
-        return redirect(controllers.routes.Application.deactivatedUser());
+        Map<String, String[]> params = request().body().asFormUrlEncoded();
+        Query query = new Query();
+
+        if (params.containsKey("delete")) {
+            query.deleteUser(user);
+            return redirect(controllers.routes.Login.logout());
+        } else {    // deactivate
+            user.addFlag(Flag.DEACTIVATED);
+            user.update();
+            return redirect(controllers.routes.Application.deactivatedUser());
+        }
     }
 
     @Auth.UpdateUser
@@ -201,8 +212,9 @@ public class Application extends Controller {
     }
 
     // limit to deactivated users only
-    @Auth.Basic
+    @Auth.WithUser
     public static Result deactivatedUser () {
-        return ok(deactivated.render());
+        User user = (User) ctx().args.get("user");
+        return ok(deactivated.render(user));
     }
 }

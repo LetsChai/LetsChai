@@ -44,18 +44,11 @@ public class PincodeHandler {
         return pin > 560000 && pin < 561000;
     }
 
-    public Double distance (Integer pin1, Integer pin2) {
-        return distance(pin1, pin2, ALTERNATE_PINCODE);
-    }
-
-    // distance between two pincodes
-    // uses alternate pin for any invalid pins
-    public Double distance (Integer pin1, Integer pin2, Integer alternatePin) {
-        Validate.isTrue(valid(alternatePin));
-        if (!valid(pin1))
-            pin1 = alternatePin;
-        if (!valid(pin2))
-            pin2 = alternatePin;
+    public Double distance (int pin1, int pin2) {
+        if (pin1 == pin2)
+            return 0.0;
+        if (!valid(pin1) || !valid(pin2))
+            return 10000.0;
 
         return latLongDistanceKm(
                 pincodes.get(pin1).getLatitude(),

@@ -1,4 +1,4 @@
-@(users: List[User], stats: classes.UserStatistics, chais: Map[String,Chai])
+@(users: Map[String,User], stats: classes.UserStatistics, chais: Map[String,Chai], matches: List[types.Match])
 
 <!DOCTYPE html>
 <html>
@@ -10,6 +10,10 @@
     <style>
         th {
             font-weight: bold;
+            cursor: pointer;
+        }
+        td, th {
+            white-space: nowrap;
         }
         #stats {
             border-collapse: collapse;
@@ -22,7 +26,13 @@
 </head>
 <body>
 
-<h1>Stats</h1>
+<div>
+    <a href="#users">Users</a>
+    <a href="#chais">Today's Chais</a>
+    <a href="#matches">Matches</a>
+</div>
+
+<h1>User Statistics</h1>
 <table id="stats">
     <thead>
         <tr>
@@ -48,7 +58,7 @@
 
 <h1>Users</h1>
 <i>* Click on a column heading to sort by it</i>
-<table>
+<table id="users">
     <thead>
         <tr>
             <th>First Name</th>
@@ -65,16 +75,13 @@
             <th>Current City</th>
             <th>Flags</th>
             <th>Last Login</th>
-            <th>Today's Chai</th>
-            <th>Chai Target Id</th>
-            <th>Chai Target Profile</th>
             <th>Gender Preference</th>
             <th>Age Preference</th>
             <th>Religion Preference</th>
         </tr>
     </thead>
     <tbody>
-        @for(user <- users) {
+        @for(user <- users.values) {
             <tr>
                 <td>@user.getFirstName</td>
                 <td>@user.getLastName</td>
@@ -100,17 +107,6 @@
                     }
                 </td>
                 <td>@user.getLastLogin</td>
-                <td><a target="_blank" href="/admin/chai/@user.getUserId">Today's Chai</a></td>
-                <td>
-                    @if(chais.get(user.getUserId) != null) {
-                        @chais.get(user.getUserId).getTarget
-                    }
-                </td>
-                <td>
-                    @if(chais.get(user.getUserId) != null) {
-                        <a target="_blank" href="http://facebook.com/@chais.get(user.getUserId).getTarget">Chai Target Profile</a>
-                    }
-                </td>
                 <td>@user.getPreferences.getGender</td>
                 <td>@user.getPreferences.getAge.getMinimum.toString to @user.getPreferences.getAge.getMaximum.toString</td>
                 <td>@user.getPreferences.getReligion.toString</td>
@@ -119,6 +115,63 @@
     </tbody>
 </table>
 
+<h1>Today's Chais</h1>
+<table id="chais">
+    <thead>
+        <tr>
+            <th>Receiver ID</th>
+            <th>Receiver Name</th>
+            <th>Target ID</th>
+            <th>Target Name</th>
+            <th>Has Decided</th>
+            <th>Decision</th>
+            <th>Score</th>
+            <th>Chai Page</th>
+            <th>Receiver's Facebook</th>
+            <th>Target's Facebook</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for(chai <- chais.values()) {
+            <tr>
+                <td>@chai.getReceiver</td>
+                <td>@users.get(chai.getReceiver).getName</td>
+                <td>@chai.getTarget</td>
+                <td>@users.get(chai.getTarget).getName</td>
+                <td>@chai.hasDecided.toString</td>
+                <td>@chai.getDecision.toString</td>
+                <th>@chai.getScore</th>
+                <th><a target="_blank" href="/admin/chai/@chai.getReceiver">Chai Page</a></th>
+                <th><a target="_blank" href="http://facebook.com/@chai.getReceiver">Receiver Facebook</a></th>
+                <th><a target="_blank" href="http://facebook.com/@chai.getTarget">Target Facebook</a></th>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h1>Matches</h1>
+<table id="matches">
+    <thead>
+        <tr>
+            <th>User 1 ID</th>
+            <th>User 1 Name</th>
+            <th>User 2 ID</th>
+            <th>User 2 Name</th>
+            <th>Match Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for(m <- matches) {
+            <tr>
+                <td>@m.getReceiver</td>
+                <td>@users.get(m.getReceiver).getName</td>
+                <td>@m.getTarget</td>
+                <td>@users.get(m.getTarget).getName</td>
+                <td>@m.matchDate</td>
+            </tr>
+        }
+    </tbody>
+</table>
 
 <script>
     $(document).ready(function() {

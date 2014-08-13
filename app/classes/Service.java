@@ -6,17 +6,12 @@ import models.User;
 import org.apache.commons.mail.DefaultAuthenticator;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.SimpleEmail;
-import org.joda.time.DateTime;
 import play.Logger;
 import play.libs.F;
 import types.Flag;
-import types.Match;
 import types.Permission;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Random;
 
 /**
  * Created by kedar on 8/5/14.
@@ -24,7 +19,7 @@ import java.util.Random;
 public class Service {
 
     public static void algorithm () {
-        SecretChaiSauce sauce = new SecretChaiSauce(PincodeHandler.getInstance());
+        MatchingAlgo sauce = new CompactChaiSauce(PincodeHandler.getInstance());
         Query query = new Query();
         List<User> users = query.users();
 
