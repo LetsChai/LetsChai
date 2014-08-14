@@ -51,6 +51,18 @@ public class Application extends Controller {
     }
 
     @Auth.WithUser
+    public static Result previousChai (String target) {
+        String userId = session().get("user");
+        Query query = new Query();
+        Chai todaysChai = query.chai(userId, target);
+        User targetUser = User.findOne(target);
+        Friends friends = query.friends(userId, target);
+        if (friends == null)
+            friends = new Friends(Arrays.asList(userId, target));
+        return ok(chai.render(targetUser, todaysChai, friends));
+    }
+
+    @Auth.WithUser
     public static Result profile () {
         User user = (User) ctx().args.get("user");
         user.forceNoCachePictures();

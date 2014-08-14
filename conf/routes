@@ -12,7 +12,7 @@ GET     /tooold                     controllers.Login.tooOld()
 POST    /updatebirthday             controllers.Login.noBirthdayToVerified()
 GET     /nobirthday                 controllers.Login.noBirthday()
 
-# Full Launch
+# User Pages
 GET     /chai                       controllers.Application.chai()
 GET     /editprofile                controllers.Application.editProfile()
 POST    /editprofile                controllers.Application.updateProfile()
@@ -30,6 +30,8 @@ POST    /activate                   controllers.Application.activate()
 GET     /nochai                     controllers.Application.nochai()
 GET     /deactivated                controllers.Application.deactivatedUser()
 GET     /nomatches                  controllers.Chat.noMatches()
+GET     /chai/previous/:user        controllers.Application.previousChai(user: String)
+
 
 # AJAX-only
 GET    /chai/decision/:choice       controllers.Application.chaiDecision(choice: Boolean)

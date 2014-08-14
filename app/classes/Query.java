@@ -185,4 +185,8 @@ public class Query {
         CHAIS.insert(chais.toArray());
     }
 
+    public Chai chai (String receiver, String target) {
+        return CHAIS.findOne("{'receiver': '#', 'target': '#'}", receiver, target).as(Chai.class);
+    }
+
 }
