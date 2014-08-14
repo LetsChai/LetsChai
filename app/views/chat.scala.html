@@ -104,7 +104,7 @@
     var names = {
         "@userId" : "Me",
         @for(mate <- matches) {
-            "@mate.getTargeted().getReceiver" : "@mate.getTargetName" ,
+            "@mate.getTargeted().getReceiver" : "@mate.getTargetFirstName" ,
         }
     }
     var userId = "@userId";
@@ -152,6 +152,10 @@
         var from = "@userId";
         var to = $(".match.active").data("user");
         var message = $("#new-message").val();
+
+        if(message == "")
+            return false;
+
         sendMessage(from, to, message);
         $("#new-message").val('');
     });
