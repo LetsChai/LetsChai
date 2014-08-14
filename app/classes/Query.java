@@ -177,4 +177,12 @@ public class Query {
         CHAIS.save(chai);
     }
 
+    public void saveMessage (Message message) {
+        MESSAGES.save(message);
+    }
+
+    public void insertChais (List<Chai> chais) {
+        CHAIS.insert(chais.toArray());
+    }
+
 }

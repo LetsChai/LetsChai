@@ -34,7 +34,9 @@ import java.util.stream.Collectors;
 public class Test extends Controller {
 
     public static Result test() {
-        Service.algorithm();
+        String varun = Play.application().configuration().getString("fb.varun");
+        String kedar = Play.application().configuration().getString("fb.kedar");
+        Admin.forceMatch(varun , kedar);
         return ok();
     }
 

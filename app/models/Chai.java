@@ -103,4 +103,8 @@ public class Chai implements Comparable<Chai> {
     public void repeatDate () {
         received = new DateTime(received).plusDays(1).toDate();
     }
+
+    public void backdate () {
+        received = new DateTime().minusYears(5).toDate();
+    }
 }

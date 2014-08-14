@@ -37,6 +37,7 @@ GET    /chai/decision/:choice       controllers.Application.chaiDecision(choice:
 # Chat
 GET     /chat                       controllers.Chat.chat()
 GET     /chat/socket                controllers.Chat.socket()
+POST    /chat/save                  controllers.Chat.save()
 
 # Admin
 GET     /admin/permissions          controllers.Admin.updateAllPermissions()

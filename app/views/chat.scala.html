@@ -64,6 +64,14 @@
             height: 50px;
             margin: 0;
         }
+        .chat-broken {
+            display: none;
+            background: pink;
+            border-radius: 10px;
+            margin-bottom: 2%;
+            text-align:center;
+            padding: 1% 2%;
+        }
     </style>
 </head>
 <body>
@@ -74,6 +82,13 @@
 @sidebar.content()
 
 <div id="content">
+    <div class="row">
+        <div class="col-md-offset-2 col-md-8 chat-broken">
+            Our chat feature doesn't seem to be working on your browser. Messages you send will still be saved, but
+            you'll have to refresh the page to view new messages, sorry.
+        </div>
+    </div>
+
     <div class="row">
         <div class="col-lg-2 col-sm-3 col-md-offset-2 " id="match-container">
             @for(mate <- matches) {
@@ -93,7 +108,7 @@
                 }
             </div>
             <div id="new-chat">
-                <textarea id="new-message" placeholder="Press ENTER to send"></textarea>
+                <textarea id="new-message" placeholder="TAB -> ENTER to send"></textarea>
                 <button id="send" class="m-btn green">Send</button>
             </div>
         </div>
@@ -143,6 +158,7 @@
         var user = $(this).data("user");
         $(".message").hide();
         $(".message[data-with=" + user + "]").show();
+        scrollChatWindowDown();
     });
 
     // set the first chat person to active
@@ -174,7 +190,11 @@
             from: from,
             message: message
         }
-        socket.send(JSON.stringify(chat));
+        if (socket.readyState == 1)
+            socket.send(JSON.stringify(chat));
+        else {
+            chatBrokenFallback(chat);
+        }
         drawChat(chat);
     }
 
@@ -193,6 +213,12 @@
         setName(el);
         el.appendTo("#chat-history");
         scrollChatWindowDown();
+    }
+
+    function chatBrokenFallback (chat) {
+        var url = "/chat/save";
+        $.post(url, chat);
+        $(".chat-broken").show();
     }
 </script>
 
