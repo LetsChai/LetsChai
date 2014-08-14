@@ -1,6 +1,7 @@
 package classes;
 
 import clients.LetsChaiFacebookClient;
+import controllers.Admin;
 import models.Chai;
 import models.User;
 import org.apache.commons.mail.DefaultAuthenticator;
@@ -86,5 +87,9 @@ public class Service {
             e.printStackTrace();
         }
 
+    }
+
+    public static void chaiRepeats () {
+        Admin.repeatNoDecisionChais();
     }
 }

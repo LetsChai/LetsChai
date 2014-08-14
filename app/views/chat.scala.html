@@ -45,7 +45,7 @@
             overflow-y:scroll;
         }
         .message > * {
-            display: inline-block;
+            display: inline;
         }
         .message .sender {
             font-weight:bold;
@@ -149,9 +149,9 @@
     var socket = new WebSocket("@socketURL");
     socket.onopen = function (event) {
         socket.onmessage = function (event) {
-            console.log(event);
             var json = JSON.parse(event.data);
             drawChat(json);
+            $(".match[data-user=" + json.from + "]").addClass("unread");
         }
     }
 
@@ -232,6 +232,26 @@
         var url = "/chat/save";
         $.post(url, chat);
         $(".chat-broken").show();
+    }
+
+    // pass true to turn on, false to turn off
+    var intervalFunction;
+    function flashTitle (toggle) {
+        clearInterval(intervalFunction);
+        if (toggle) {
+            intervalFunction = setInterval(function() {
+                toggleTitle();
+            }, 1500);
+        }
+        else
+            $("title").text("Let's Chai - Chat");
+    }
+
+    function toggleTitle () {
+        if ($("title").text() == "New Message")
+            $("title").text("Let's Chai - Chat");
+        else
+            $("title").text("New Message");
     }
 </script>
 

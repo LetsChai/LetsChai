@@ -32,14 +32,10 @@ public class Global extends GlobalSettings {
         TimeZone.setDefault(TimeZone.getTimeZone("Asia/Kolkata"));
         DateTimeZone.setDefault(DateTimeZone.forID("Asia/Kolkata"));
 
-        // find time until 4AM
-        DateTime fourAM = new DateTime().withHourOfDay(4).withMinuteOfHour(0);
-        DateTime nextFourAM = fourAM.isBeforeNow() ? fourAM.plusDays(1) : fourAM;
-        Long msUntil = nextFourAM.getMillis() - new DateTime().getMillis();
-
         // schedule Chai service
+        DateTime fourAM = new DateTime().withHourOfDay(4).withMinuteOfHour(0);
         Cancellable algorithm = Akka.system().scheduler().schedule(
-                Duration.create(msUntil, TimeUnit.MILLISECONDS),
+                Duration.create(msUntil(fourAM), TimeUnit.MILLISECONDS),
                 Duration.create(1, TimeUnit.DAYS),
                 Service::algorithm,
                 Akka.system().dispatcher() );
@@ -63,11 +59,27 @@ public class Global extends GlobalSettings {
                 Akka.system().dispatcher()
         );
         services.add(friendCacher);
+
+        // schedule chai repeater service
+        DateTime threeAM = new DateTime().withHourOfDay(3).withMinuteOfHour(0);
+        Cancellable chaiRepeater = Akka.system().scheduler().schedule(
+                Duration.create(msUntil(threeAM), TimeUnit.MILLISECONDS),
+                Duration.create(1, TimeUnit.DAYS),
+                Service::chaiRepeats,
+                Akka.system().dispatcher()
+        );
+        services.add(chaiRepeater);
+
     }
 
     @Override
     public void onStop (Application app) {
         services.stream().forEach(Cancellable::cancel);
+    }
+
+    private long msUntil (DateTime time) {
+        DateTime nextInstance = time.isBeforeNow() ? time.plusDays(1) : time;
+        return nextInstance.getMillis() - new DateTime().getMillis();
     }
 
 }
