@@ -8,11 +8,13 @@ import classes.UserStatistics;
 import com.google.common.collect.Lists;
 import models.Chai;
 import models.Friends;
+import models.Message;
 import models.User;
 import org.joda.time.DateTime;
 import play.libs.F;
 import play.mvc.Controller;
 import play.mvc.Result;
+import types.ChaiResults;
 import types.Flag;
 import types.Match;
 import uk.co.panaxiom.playjongo.PlayJongo;
@@ -71,7 +73,8 @@ public class Admin extends Controller {
         UserStatistics stats = new UserStatistics(users.values().stream().collect(Collectors.toList()));
         Map<String,Chai> chais = q.todaysChais().stream().collect(Collectors.toMap(Chai::getReceiver, chai -> chai));
         List<Match> matches = q.matchesNoNames();
-        return ok(admin.render(users, stats, chais, matches));
+        Map<String, ChaiResults> rates = q.chaiResults();
+        return ok(admin.render(users, stats, chais, matches, q, rates));
     }
 
     public static Result chai (String userId) {

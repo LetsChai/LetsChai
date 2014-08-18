@@ -189,4 +189,26 @@ public class Query {
         return CHAIS.findOne("{'receiver': '#', 'target': '#'}", receiver, target).as(Chai.class);
     }
 
+    public List<Message> messages () {
+        return Lists.newArrayList(MESSAGES.find().as(Message.class));
+    }
+
+    public boolean hasMessaged (String from, String to) {
+        return MESSAGES.find("{'from': '#', 'to': '#'}", from , to).as(Message.class).iterator().hasNext();
+    }
+
+    public Map<String,ChaiResults> chaiResults () {
+        List<Chai> chais = chais();
+        Map<String, ChaiResults> results = new HashMap<>();
+        for (Chai chai: chais) {
+            try {
+                results.get(chai.getTarget()).addChai(chai);
+            } catch (NullPointerException e) {
+                ChaiResults r = new ChaiResults(chai.getTarget());
+                r.addChai(chai);
+                results.put(chai.getTarget(), r);
+            }
+        }
+        return results;
+    }
 }

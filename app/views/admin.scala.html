@@ -1,4 +1,4 @@
-@(users: Map[String,User], stats: classes.UserStatistics, chais: Map[String,Chai], matches: List[types.Match])
+@(users: Map[String,User], stats: classes.UserStatistics, chais: Map[String,Chai], matches: List[types.Match], query: classes.Query, rates: Map[String,types.ChaiResults])
 
 <!DOCTYPE html>
 <html>
@@ -75,9 +75,11 @@
             <th>Current City</th>
             <th>Flags</th>
             <th>Last Login</th>
+            <th>Created On</th>
             <th>Gender Preference</th>
             <th>Age Preference</th>
             <th>Religion Preference</th>
+            <th>Acceptance Rate</th>
         </tr>
     </thead>
     <tbody>
@@ -107,9 +109,16 @@
                     }
                 </td>
                 <td>@user.getLastLogin</td>
+                <td>@user.getCreated</td>
                 <td>@user.getPreferences.getGender</td>
                 <td>@user.getPreferences.getAge.getMinimum.toString to @user.getPreferences.getAge.getMaximum.toString</td>
                 <td>@user.getPreferences.getReligion.toString</td>
+                <td>@if(rates.get(user.getUserId) != null) {
+                        @rates.get(user.getUserId).weighted()
+                    } else {
+                        -1
+                    }
+                </td>
             </tr>
         }
     </tbody>
@@ -160,6 +169,8 @@
             <th>User 2 Name</th>
             <th>User 2 Profile</th>
             <th>Match Date</th>
+            <th>User 1 Messaged</th>
+            <th>User 2 Messaged</th>
         </tr>
     </thead>
     <tbody>
@@ -172,6 +183,8 @@
                 <td>@users.get(m.getTarget).getName</td>
                 <td><a target="_blank" href="/admin/profile/@m.getTarget">User 2 Profile</a></td>
                 <td>@m.matchDate</td>
+                <td>@query.hasMessaged(m.getReceiver, m.getTarget)</td>
+                <td>@query.hasMessaged(m.getTarget, m.getReceiver)</td>
             </tr>
         }
     </tbody>
