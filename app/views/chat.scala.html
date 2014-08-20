@@ -150,8 +150,11 @@
     socket.onopen = function (event) {
         socket.onmessage = function (event) {
             var json = JSON.parse(event.data);
-            drawChat(json);
-            $(".match[data-user=" + json.from + "]").addClass("unread");
+            var currentChat = $(".match.active").data("user");
+            if (json.from == currentChat)
+                drawChat(json);
+            else
+                $(".match[data-user=" + json.from + "]").addClass("unread");
         }
     }
 

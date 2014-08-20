@@ -66,8 +66,6 @@ public class LetsChaiChat {
     }
 
     public void connect () throws ChatException {
-        Logger.info(SERVER_PORT.toString());
-        Logger.info(SERVER_ADDRESS);
         ConnectionConfiguration config = new ConnectionConfiguration(SERVER_ADDRESS, SERVER_PORT);
         config.setSecurityMode(ConnectionConfiguration.SecurityMode.disabled);
         smack = new XMPPTCPConnection(config);
@@ -147,7 +145,6 @@ public class LetsChaiChat {
                 json.put("message", message.getBody());
                 json.put("to", stripDomain(message.getTo()));
                 Logger.info("message received from " + message.getFrom());
-                Logger.info(json.toString());
                 socketOut.write(json);
             }
         };
@@ -161,13 +158,7 @@ public class LetsChaiChat {
                 String to = json.get("to").asText();
                 String from = json.get("from").asText();
                 String message = json.get("message").asText();
-
-                try {
-                    sendChat(from, to, message);
-                } catch (Exception e) {
-                    // inform sender of error here
-                    e.printStackTrace();
-                }
+                sendChat(from, to, message);
             }
         };
     }
