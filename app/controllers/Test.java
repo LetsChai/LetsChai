@@ -21,6 +21,7 @@ import play.mvc.Result;
 import scala.concurrent.duration.Duration;
 import uk.co.panaxiom.playjongo.PlayJongo;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -34,9 +35,6 @@ import java.util.stream.Collectors;
 public class Test extends Controller {
 
     public static Result test() {
-        String varun = Play.application().configuration().getString("fb.varun");
-        String kedar = Play.application().configuration().getString("fb.kedar");
-        Admin.forceMatch(varun , kedar);
         return ok();
     }
 

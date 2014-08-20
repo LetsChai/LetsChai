@@ -16,7 +16,7 @@ public class LocalAction extends Action.Simple {
         F.Promise<SimpleResult> ret = null;
 
         // redirect to login if not logged in
-        if (Play.application().configuration().getString("openfire.name").equals("letschai-localhost"))
+        if (Play.application().configuration().getString("application.environment").equals("dev"))
             return delegate.call(ctx);
 
         return F.Promise.pure(forbidden("Cannot access from production environment"));
