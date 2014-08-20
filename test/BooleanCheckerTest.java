@@ -45,8 +45,8 @@ public class BooleanCheckerTest {
 
     @Before
     public void setup () {
-        user1 = jongo.getCollection("defaults").findOne("{'userId':'1'}").as(User.class);
-        user2 = jongo.getCollection("defaults").findOne("{'userId':'2'}").as(User.class);
+        user1 = jongo.getCollection("test_users").findOne("{'userId':'1'}").as(User.class);
+        user2 = jongo.getCollection("test_users").findOne("{'userId':'2'}").as(User.class);
 
         flagSet("r", "r");
         pincodeSet(560001, 560001);

@@ -48,11 +48,16 @@ public final class LetsChaiBooleanChecker {
         return !userChais.contains(new Chai(user.getUserId(), candidate.getUserId(), 0)); // user doesn't have previous Chai for partner
     }
 
-    // here for reference, these checks actually happen in UserHandler
     public boolean individuals (User user) {
         return !user.hasFlag(Flag.DEACTIVATED)
                 && pincodeHandler.inBangalore(user.getPincode())
                 && user.hasFlag(Flag.READY_TO_CHAI);
+    }
+
+    // an active user is in Bangalore and not deactivated
+    public boolean active (User user) {
+        return pincodeHandler.inBangalore(user.getPincode())
+                && !user.hasFlag(Flag.DEACTIVATED);
     }
 
 }

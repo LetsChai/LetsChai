@@ -38,8 +38,14 @@ public class Chat extends Controller {
     }
 
     public static WebSocket<JsonNode> socket () throws ChatException {
-        LetsChaiChat chat = new LetsChaiChat(session().get("user"));
-        return chat.execute();
+        LetsChaiChat chat = null;
+        try {
+            chat = new LetsChaiChat(session().get("user"));
+            return chat.execute();
+        } catch (ChatException e) {
+            Logger.error(e.getMessage());
+            throw e;
+        }
     }
 
     @Auth.Basic

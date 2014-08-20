@@ -6,6 +6,7 @@ import models.User;
 import org.joda.time.DateTime;
 import play.Logger;
 import play.libs.F;
+import types.Permission;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,6 +39,23 @@ public class FriendCacher {
 
     public F.Promise<Boolean> cache (User user) {
         String userId = user.getUserId();
+
+        // check to see if the access token is valid
+        if(new DateTime(user.getAccessToken().getExpires()).isBeforeNow()) {
+            Logger.info("Access token for " + userId + " is expired");
+            return F.Promise.pure(false);
+        }
+        // check to see if user is valid
+        if (!checker.individuals(user)) {
+            Logger.info("Invalid user " + userId);
+            return F.Promise.pure(false);
+        }
+        // check to see if user has given friends permission
+        if (!user.getPermissions().contains(Permission.USER_FRIENDS)) {
+            Logger.info("No friends permission: " + userId);
+            return F.Promise.pure(false);
+        }
+
         LetsChaiFacebookClient fb = new LetsChaiFacebookClient(user.getAccessToken().getAccessToken());
         List<Friends> cache = query.friends(userId);
         List<F.Promise<Friends>> promises = new ArrayList<>();
@@ -60,6 +78,7 @@ public class FriendCacher {
                 // check how long ago the data was cached, update it if it's too old
                 DateTime cutoff = new DateTime().minusDays(3);
                 if (new DateTime(inCache.getTimestamp()).isBefore(cutoff)) {
+                    Logger.info("Renewing for friend " + candidateId);
                     fb.getMutualFriendsJSON(candidateId)
                             .zip(fb.areFriends(userId, candidate.getUserId()))
                             .onRedeem(t -> {
@@ -74,6 +93,7 @@ public class FriendCacher {
             }
 
             // API calls
+            Logger.info("Getting fresh for friend " + candidateId);
             F.Promise<Friends> promise = fb.getMutualFriends(userId, candidateId)
                     .zip(fb.areFriends(userId, candidate.getUserId()))
                     .map(t -> {

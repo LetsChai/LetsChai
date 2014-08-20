@@ -135,12 +135,15 @@ public class Admin extends Controller {
     }
 
     public static Result forceMatch (String userId1, String userId2) {
+        Query q = new Query();
+        if (q.todaysChai(userId1) != null || q.todaysChai(userId2) != null)
+            return ok("Chai already exists for specified user");
+
         List<Chai> chais = Arrays.asList(new Chai(userId1, userId2, 0), new Chai(userId2, userId1,0));
         chais.get(0).backdate();
         chais.get(1).backdate();
         chais.get(0).setDecision(true);
         chais.get(1).setDecision(true);
-        Query q = new Query();
         q.insertChais(chais);
         return ok("successfully forced match");
     }

@@ -30,7 +30,6 @@ public class Friends {
 
     public void setMutualFriends (JsonNode fbResponse) {
         Validate.notNull(fbResponse);
-        Logger.info(fbResponse.toString());
 
         for(JsonNode j: fbResponse.path("context").path("mutual_friends").path("data")) {
             mutualFriends.put(j.path("id").asText(), j.path("name").asText());

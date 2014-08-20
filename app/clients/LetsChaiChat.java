@@ -74,7 +74,6 @@ public class LetsChaiChat {
         try {
             smack.connect();
         } catch (Exception e) {
-            Logger.error("Failed to connect");
             throw new ChatException("Connection failure, check to see if chat server is running", e);
         }
     }
