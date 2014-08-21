@@ -49,6 +49,7 @@ public class LetsChaiChat {
         connect();
         try { loginUser(userId); }
         catch (ChatException e) { // if the login fails, the user probably doesn't exist, try creating it
+            Logger.info("Login failed, creating user " + userId);
             disconnect();
             connect();
             loginAdmin();
