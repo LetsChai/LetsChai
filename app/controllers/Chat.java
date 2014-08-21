@@ -43,7 +43,7 @@ public class Chat extends Controller {
             chat = new LetsChaiChat(session().get("user"));
             return chat.execute();
         } catch (ChatException e) {
-            Logger.error(e.getMessage());
+            Logger.error(e.getMessage(), e);
             throw e;
         }
     }

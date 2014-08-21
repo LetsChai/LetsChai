@@ -3,6 +3,7 @@ package clients;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import exceptions.ChatException;
+import org.apache.commons.lang3.Validate;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
@@ -44,6 +45,7 @@ public class LetsChaiChat {
     }
 
     public LetsChaiChat(String userId) throws ChatException {
+        Validate.notNull(userId);
         connect();
         try { loginUser(userId); }
         catch (ChatException e) { // if the login fails, the user probably doesn't exist, try creating it
