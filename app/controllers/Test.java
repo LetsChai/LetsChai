@@ -35,8 +35,7 @@ import java.util.stream.Collectors;
 public class Test extends Controller {
 
     public static Result test() {
-        Service.algorithm();
-        return ok();
+        return ok(Play.application().configuration().getString("application.environment"));
     }
 
     public static Result test2 () {
