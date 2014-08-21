@@ -15,6 +15,7 @@ import play.libs.Json;
 import play.mvc.WebSocket;
 import uk.co.panaxiom.playjongo.PlayJongo;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -144,6 +145,7 @@ public class LetsChaiChat {
                 json.put("from", stripDomain(message.getFrom()));
                 json.put("message", message.getBody());
                 json.put("to", stripDomain(message.getTo()));
+                json.put("timestamp", new Date().getTime());
                 Logger.info("message received from " + message.getFrom());
                 socketOut.write(json);
             }
