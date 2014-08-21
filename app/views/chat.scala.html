@@ -7,13 +7,12 @@
 
     @sitewide.head()
 
+
     <!-- Bootstrap -->
     <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet" />
+
     <!--Buttons-->
     <link href="/assets/modern-buttons/css/m-buttons.css" rel="stylesheet" />
-
-    <!-- jQuery -->
-    <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
 
     <style>
         @sitewide.style()
@@ -83,10 +82,13 @@
 </head>
 <body>
 
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+
 <!--Page Header-->
 @header.content()
 <!-- Sidebar -->
-@sidebar.content()
+@sidebar.content(0)
 
 <div id="content">
     <div class="row">
@@ -131,6 +133,7 @@
         }
     }
     var userId = "@userId";
+    var notified = [];  // users that have been sent notifications
 
     // set names
     $(".message").each(function(i, el) {
@@ -212,6 +215,13 @@
         else {
             chatBrokenFallback(chat);
         }
+        if (notified.indexOf(to) == -1) {
+            var url = "/chat/" + to + "/notify/" + from;
+            $.get(url).done(function() {
+                notified.push(to);
+            });
+        }
+
         drawChat(chat);
     }
 

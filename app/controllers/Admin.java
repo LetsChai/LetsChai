@@ -88,7 +88,7 @@ public class Admin extends Controller {
         Friends friends = query.friends(userId, todaysChai.getTarget());
         if (friends == null)
             friends = new Friends(Arrays.asList(userId, myMatch.getUserId()));
-        return ok(chai.render(myMatch, todaysChai, friends));
+        return ok(chai.render(myMatch, todaysChai, friends, 0));
     }
 
     public static Result profile (String userId) {

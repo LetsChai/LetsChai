@@ -1,4 +1,4 @@
-@(pref: User.Preferences)
+@(pref: User.Preferences, notifications: Integer)
 
 <!DOCTYPE html>
 <html>
@@ -58,7 +58,7 @@
 <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
 
 @header.content()
-@sidebar.content()
+@sidebar.content(notifications)
 
 <form method="post" action="preferences">
 

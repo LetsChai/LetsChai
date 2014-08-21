@@ -54,6 +54,7 @@ public class User {
     private Date lastLogin;
     private Date created;
     private boolean admin;
+    private Set<String> chatNotifications = new HashSet<>();
 
     // non-stored fields
     @JsonIgnore
@@ -273,6 +274,22 @@ public class User {
 
     public Date getLastLogin() {
         return lastLogin;
+    }
+
+    public Set<String> getChatNotifications() {
+        return chatNotifications;
+    }
+
+    public void clearChatNotifications () {
+        chatNotifications.clear();
+    }
+
+    public void addChatNotification (String userId) {
+        chatNotifications.add(userId);
+    }
+
+    public int notificationCount () {
+        return chatNotifications.size();
     }
 
     public void updateLastLogin() {

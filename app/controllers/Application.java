@@ -37,6 +37,7 @@ public class Application extends Controller {
     @Auth.WithUser
     public static Result chai () {
         String userId = session().get("user");
+        User user = (User) ctx().args.get("user");
         Query query =  new Query();
         Chai todaysChai = query.todaysChai(userId);
 
@@ -47,19 +48,20 @@ public class Application extends Controller {
         Friends friends = query.friends(userId, todaysChai.getTarget());
         if (friends == null)
             friends = new Friends(Arrays.asList(userId, myMatch.getUserId()));
-        return ok(chai.render(myMatch, todaysChai, friends));
+        return ok(chai.render(myMatch, todaysChai, friends, user.notificationCount()));
     }
 
     @Auth.WithUser
     public static Result previousChai (String target) {
         String userId = session().get("user");
+        User user = (User) ctx().args.get("user");
         Query query = new Query();
         Chai todaysChai = query.chai(userId, target);
         User targetUser = User.findOne(target);
         Friends friends = query.friends(userId, target);
         if (friends == null)
             friends = new Friends(Arrays.asList(userId, target));
-        return ok(chai.render(targetUser, todaysChai, friends));
+        return ok(chai.render(targetUser, todaysChai, friends,  user.notificationCount()));
     }
 
     @Auth.WithUser
@@ -112,7 +114,7 @@ public class Application extends Controller {
     @Auth.WithUser
     public static Result preferences () {
         User user = (User) ctx().args.get("user");
-        return ok(preferences.render(user.getPreferences()));
+        return ok(preferences.render(user.getPreferences(), user.notificationCount()));
     }
 
     @Auth.UpdateUser
@@ -218,9 +220,10 @@ public class Application extends Controller {
         return redirect(controllers.routes.Application.profile());
     }
 
-    @Auth.Basic
+    @Auth.WithUser
     public static Result nochai () {
-        return ok(nochai.render());
+        User user = (User) ctx().args.get("user");
+        return ok(nochai.render(user));
     }
 
     // limit to deactivated users only

@@ -211,4 +211,12 @@ public class Query {
         }
         return results;
     }
+
+    public void addUserNotification (String userId, String fromId) {
+        USERS.update("{'userId': '#'}", userId).with("{'$push':{'chatNotifications':'#'}}", fromId);
+    }
+
+    public void clearUserNotifications (String userId) {
+        USERS.update("{'userId': '#'}", userId).with("{'$set': {'chatNotifications':[] } }");
+    }
 }

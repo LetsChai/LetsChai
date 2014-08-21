@@ -6,6 +6,7 @@ import clients.LetsChaiChat;
 import com.fasterxml.jackson.databind.JsonNode;
 import exceptions.ChatException;
 import models.Message;
+import models.User;
 import play.Logger;
 import play.Play;
 import play.mvc.Controller;
@@ -34,6 +35,8 @@ public class Chat extends Controller {
 
         String socketURL = Play.application().configuration().getString("chat.socket.url");
         List<Message> messages = query.messages(userId);
+        query.clearUserNotifications(userId);
+
         return ok(chat.render(matches, messages, userId, socketURL));
     }
 
@@ -43,14 +46,15 @@ public class Chat extends Controller {
             chat = new LetsChaiChat(session().get("user"));
             return chat.execute();
         } catch (ChatException e) {
-            Logger.error(e.getMessage(), e);
+            Logger.error(e.getMessage());
             throw e;
         }
     }
 
-    @Auth.Basic
+    @Auth.WithUser
     public static Result noMatches () {
-        return ok(views.html.nomatches.render());
+        User user = (User) ctx().args.get("user");
+        return ok(views.html.nomatches.render(user));
     }
 
     // backup route for when the chat server is down
@@ -64,5 +68,11 @@ public class Chat extends Controller {
         Query query = new Query();
         query.saveMessage(chat);
         return ok("chat saved");
+    }
+
+    public static Result notifyUser (String userId, String fromId) {
+        Query query = new Query();
+        query.addUserNotification(userId, fromId);
+        return ok("user notified");
     }
 }

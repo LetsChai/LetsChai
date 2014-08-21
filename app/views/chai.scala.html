@@ -1,4 +1,4 @@
-@(profile: User, chai: Chai, friends: Friends)
+@(profile: User, chai: Chai, friends: Friends, notifications: Integer)
 
 <!DOCTYPE html>
 <html>
@@ -128,7 +128,7 @@
 @header.content()
 
 <!-- Sidebar -->
-@sidebar.content()
+@sidebar.content(notifications)
 
 <!-- Main -->
 <div id="content">

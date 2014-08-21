@@ -89,7 +89,7 @@
 @header.content()
 
 <!-- Sidebar -->
-@sidebar.content()
+@sidebar.content(user.notificationCount)
 
 <!--First time users-->
 @if(user.hasFlag(types.Flag.NO_PICTURES)) {

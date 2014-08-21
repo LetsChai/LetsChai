@@ -1,3 +1,5 @@
+@(notifications: Integer)
+
 <div id="sidebar-mobile" class="hidden-md hidden-lg">
     <a href="/chai"><button>
         <img src='@clients.LetsChaiAWS.s3Link("images/chaioftheday-icon.jpg")' />
@@ -29,6 +31,8 @@
     <a href="/chat"><button>
         <img src='@clients.LetsChaiAWS.s3Link("images/my-matches-icon.jpg")' />
         My Matches
-        <span class="notification"></span>
+        @if(notifications > 0) {
+            <span class="notification">@notifications</span>
+        }
     </button></a>
 </div>
