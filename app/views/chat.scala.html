@@ -48,9 +48,6 @@
         .message > * {
             display: inline;
         }
-        .message {
-            display: none;
-        }
         .message .sender {
             font-weight:bold;
             color: #c84A49;
@@ -253,12 +250,15 @@
         else
             withId = chat.to;
 
+        console.log(withId);
         var el = $("<div class='message'></div>").addClass("user-" + chat.from)
             .attr('data-from', chat.from)
             .attr('data-with', withId)
             .append( $("<div class='sender'>") )
             .append( $("<div class='text'>").text(chat.message) )
+        console.log(el);
         setName(el);
+        console.log(el);
         el.appendTo("#chat-history");
         scrollChatWindowDown();
     }
