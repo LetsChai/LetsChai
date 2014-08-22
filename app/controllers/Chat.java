@@ -28,6 +28,7 @@ public class Chat extends Controller {
         String userId = session().get("user");
         Query query = new Query();
         List<Match> matches = query.matches(userId);
+        User user = (User) ctx().args.get("user");
 
         // no matches? redirect
         if (matches.size() == 0)
@@ -36,7 +37,7 @@ public class Chat extends Controller {
         String socketURL = Play.application().configuration().getString("chat.socket.url");
         List<Message> messages = query.messages(userId);
 
-        return ok(chat.render(matches, messages, userId, socketURL));
+        return ok(chat.render(matches, messages, user, socketURL));
     }
 
     public static WebSocket<JsonNode> socket () throws ChatException {

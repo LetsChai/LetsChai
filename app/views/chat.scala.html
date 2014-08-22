@@ -1,4 +1,4 @@
-@(matches: List[types.Match], messages: List[Message], userId: String, socketURL: String)
+@(matches: List[types.Match], messages: List[Message], user: User, socketURL: String)
 
 <!DOCTYPE html>
 <html>
@@ -48,12 +48,15 @@
         .message > * {
             display: inline;
         }
+        .message {
+            display: none;
+        }
         .message .sender {
             font-weight:bold;
             color: #c84A49;
             margin-right: 5px;
         }
-        .message.user-@userId .sender { color: #0C88FE; }
+        .message.user-@user.getUserId .sender { color: #0C88FE; }
         #new-message {
             height: 50px;
             width: 80%;
@@ -90,7 +93,7 @@
 <!--Page Header-->
 @header.content()
 <!-- Sidebar -->
-@sidebar.content(0)
+@sidebar.content(user.notificationCount)
 
 <div id="content">
     <div class="row">
@@ -103,8 +106,12 @@
     <div class="row">
         <div class="col-lg-2 col-sm-3 col-md-offset-2 " id="match-container">
             @for(mate <- matches) {
-                <div class="match" data-user="@mate.getTargeted().getReceiver">
-                    <img class="profile-pic" src="@clients.LetsChaiFacebookClient.profilePictureURL(mate.getTargeted().getReceiver)" />
+                @if(user.getChatNotifications.contains(mate.getTarget)) {
+                    <div class="match unread" data-user="@mate.getTarget">
+                } else {
+                    <div class="match" data-user="@mate.getTarget">
+                }
+                    <img class="profile-pic" src="@clients.LetsChaiFacebookClient.profilePictureURL(mate.getTarget)" />
                     <span class="name">@mate.getTargetFirstName()</span>
                 </div>
             }
@@ -113,7 +120,7 @@
         <div class="col-lg-5 col-md-6 col-sm-7" id="chat-container">
             <div id="chat-history">
                 @for(message <- messages) {
-                    <div class="message user-@message.getFrom()" data-from="@message.getFrom" data-with="@message.getOtherUser(userId)" data-timestamp="@message.getTimestamp.getTime">
+                    <div class="message user-@message.getFrom()" data-from="@message.getFrom" data-with="@message.getOtherUser(user.getUserId)" data-timestamp="@message.getTimestamp.getTime">
                         <div class="sender"></div>
                         <div class="text">@message.getMessage()</div>
                     </div>
@@ -129,12 +136,12 @@
 
 <script>
     var names = {
-        "@userId" : "Me",
+        "@user.getUserId" : "Me",
         @for(mate <- matches) {
             "@mate.getTargeted().getReceiver" : "@mate.getTargetFirstName" ,
         }
     }
-    var userId = "@userId";
+    var userId = "@user.getUserId";
     var notified = [];  // users that have been sent notifications
 
     // set names
@@ -192,7 +199,7 @@
     $(".match").first().trigger("click");
 
     $("#send").click(function() {
-        var from = "@userId";
+        var from = userId;
         var to = $(".match.active").data("user");
         var message = $("#new-message").val();
 
@@ -234,7 +241,7 @@
             }
             socket.send(JSON.stringify(json));
         } else {
-            var url = "/chat/" + userId + "/unnotify/" + user;
+            var url = "/chat/" + user + "/unnotify/" + from;
             $.get(url);
         }
     }
