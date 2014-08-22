@@ -20,6 +20,8 @@
         @sidebar.style()
 
         #content { margin-top: 4%; }
+        #match-container { padding-right: 0; }
+        #chat-container { padding-left: 0; }
         .match {
             padding: 5% 2%;
             border: 1px solid lightgray;
@@ -154,8 +156,10 @@
         socket.onmessage = function (event) {
             var json = JSON.parse(event.data);
             var currentChat = $(".match.active").data("user");
-            if (json.from == currentChat)
+            if (json.from == currentChat) {
+                unnotify(userId, json.from);
                 drawChat(json);
+            }
             else
                 $(".match[data-user=" + json.from + "]").addClass("unread");
         }
@@ -174,6 +178,9 @@
         // Change right pane
         $("#chai-link").attr("href", "/chai/previous/" + user);
         $("#chai-link").text("View " + names[user] + "'s Profile");
+
+        // Remove user notification
+        unnotify(userId, user);
 
         // display messages
         $(".message").hide();
@@ -195,6 +202,7 @@
         sendMessage(from, to, message);
         $("#new-message").val('');
     });
+
     $(".unread").click(function() {
         $(this).removeClass("unread");
     });
@@ -215,14 +223,20 @@
         else {
             chatBrokenFallback(chat);
         }
-        if (notified.indexOf(to) == -1) {
-            var url = "/chat/" + to + "/notify/" + from;
-            $.get(url).done(function() {
-                notified.push(to);
-            });
-        }
-
         drawChat(chat);
+    }
+
+    function unnotify (user, from) {
+        if (socket.readyState == 1) {
+            var json = {
+                unnotify: user,
+                from: from
+            }
+            socket.send(JSON.stringify(json));
+        } else {
+            var url = "/chat/" + userId + "/unnotify/" + user;
+            $.get(url);
+        }
     }
 
     function drawChat (chat) {
@@ -248,27 +262,6 @@
         $(".chat-broken").show();
     }
 
-    // currently unused
-    // pass true to turn on, false to turn off
-    var intervalFunction;
-    function flashTitle (toggle) {
-        clearInterval(intervalFunction);
-        if (toggle) {
-            intervalFunction = setInterval(function() {
-                toggleTitle();
-            }, 1500);
-        }
-        else
-            $("title").text("Let's Chai - Chat");
-    }
-
-    // currently unused
-    function toggleTitle () {
-        if ($("title").text() == "New Message")
-            $("title").text("Let's Chai - Chat");
-        else
-            $("title").text("New Message");
-    }
 </script>
 
 </body>

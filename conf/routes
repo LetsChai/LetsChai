@@ -40,18 +40,19 @@ GET    /chai/decision/:choice       controllers.Application.chaiDecision(choice:
 GET     /chat                       controllers.Chat.chat()
 GET     /chat/socket                controllers.Chat.socket()
 POST    /chat/save                  controllers.Chat.save()
-GET     /chat/:user/notify/:from  controllers.Chat.notifyUser(user: String, from: String)
+GET     /chat/:user/notify/:from    controllers.Chat.notifyUser(user: String, from: String)
+GET     /chat/:user/unnotify/:from  controllers.Chat.unnotifyUser(user: String, from: String)
 
 # Admin
 GET     /admin/permissions          controllers.Admin.updateAllPermissions()
 GET     /admin/friends/:number      controllers.Admin.cacheFBData(number: Integer)
-GET     /admin/:user/delete         controllers.Admin.deleteUser(user: String)
-GET     /admin/:user/restore        controllers.Admin.restoreUser(user: String)
 GET     /admin/users                controllers.Admin.users()
-GET     /admin/chai/repeatnodecisions   controllers.Admin.repeatNoDecisionChais()
 GET     /admin/chai/:user           controllers.Admin.chai(user: String)
 GET     /admin/profile/:user        controllers.Admin.profile(user: String)
 GET     /admin/chai/:user1/force/:user2  controllers.Admin.forceMutualChai(user1: String, user2: String)
+GET     /admin/notifymatches        controllers.Admin.notifyAllMatches()
+GET     /admin/:user/delete         controllers.Admin.deleteUser(user: String)
+GET     /admin/:user/restore        controllers.Admin.restoreUser(user: String)
 GET     /admin/:user/deactivate     controllers.Admin.deactivateUser(user: String)
 GET     /admin/:user/activate       controllers.Admin.activateUser(user: String)
 

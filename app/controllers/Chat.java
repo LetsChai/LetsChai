@@ -35,20 +35,13 @@ public class Chat extends Controller {
 
         String socketURL = Play.application().configuration().getString("chat.socket.url");
         List<Message> messages = query.messages(userId);
-        query.clearUserNotifications(userId);
 
         return ok(chat.render(matches, messages, userId, socketURL));
     }
 
     public static WebSocket<JsonNode> socket () throws ChatException {
-        LetsChaiChat chat = null;
-        try {
-            chat = new LetsChaiChat(session().get("user"));
-            return chat.execute();
-        } catch (ChatException e) {
-            Logger.error(e.getMessage());
-            throw e;
-        }
+        LetsChaiChat chat = new LetsChaiChat(session().get("user"));
+        return chat.execute();
     }
 
     @Auth.WithUser
@@ -74,5 +67,11 @@ public class Chat extends Controller {
         Query query = new Query();
         query.addUserNotification(userId, fromId);
         return ok("user notified");
+    }
+
+    public static Result unnotifyUser (String userId, String fromId) {
+        Query query = new Query();
+        query.removeUserNotification(userId, fromId);
+        return ok("removed user notification");
     }
 }

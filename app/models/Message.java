@@ -43,19 +43,6 @@ public class Message {
         return timestamp;
     }
 
-    public static MongoCollection getCollection () {
-        return PlayJongo.getCollection("chats");
-    }
-
-    public static List<models.Message> find (String userId) {
-        return Lists.newArrayList(getCollection().find(String.format("{$or:[{'from':'%s'}, {'to': '%s'}] }", userId, userId))
-                .as(models.Message.class));
-    }
-
-    public void save () {
-        getCollection().save(this);
-    }
-
     public Boolean hasUser (String userId) {
         return from.equals(userId) || to.equals(userId);
     }

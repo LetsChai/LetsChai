@@ -147,4 +147,14 @@ public class Admin extends Controller {
         q.insertChais(chais);
         return ok("successfully forced match");
     }
+
+    public static Result notifyAllMatches () {
+        Query query = new Query();
+        List<Match> matches = query.matchesNoNames();
+        for (Match match: matches) {
+            query.addUserNotification(match.getReceiver(), match.getTarget());
+            query.addUserNotification(match.getTarget(), match.getReceiver());
+        }
+        return ok("all matches notified");
+    }
 }

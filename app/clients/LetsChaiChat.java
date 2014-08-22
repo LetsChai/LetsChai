@@ -1,5 +1,6 @@
 package clients;
 
+import classes.Query;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import exceptions.ChatException;
@@ -130,12 +131,16 @@ public class LetsChaiChat {
     }
 
     private void sendChat (String from, String to, String message) throws ChatException {
+        Query query = new Query();
+
         if (!chats.containsKey(to))
             chats.put(to, chatManager.createChat(userWithDomain(to), messageListener()));
         try {
-            chats.get(to).sendMessage(message);
-            new models.Message(from, to, message).save();
+            chats.get(to).sendMessage(message);new models.Message(from, to, message);
+            Logger.info("about to save message");
+            query.saveMessage(new models.Message(from, to, message));
         } catch (Exception e) {
+            Logger.error("Error sending chat", e);
             throw new ChatException("Error sending chat", e);
         }
     }
@@ -160,10 +165,20 @@ public class LetsChaiChat {
         return new F.Callback<JsonNode>() {
             @Override
             public void invoke(JsonNode json) throws Throwable {
-                String to = json.get("to").asText();
-                String from = json.get("from").asText();
-                String message = json.get("message").asText();
-                sendChat(from, to, message);
+                // unnotify
+                if (json.has("unnotify")) {
+                    Query query = new Query();
+                    String user = json.get("unnotify").asText();
+                    String from = json.get("from").asText();
+                    query.removeUserNotification(user, from);
+                }
+                // send message
+                else {
+                    String to = json.get("to").asText();
+                    String from = json.get("from").asText();
+                    String message = json.get("message").asText();
+                    sendChat(from, to, message);
+                }
             }
         };
     }

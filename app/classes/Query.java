@@ -178,7 +178,9 @@ public class Query {
     }
 
     public void saveMessage (Message message) {
+        Logger.info("Saving message");
         MESSAGES.save(message);
+        addUserNotification(message.getTo(), message.getFrom());
     }
 
     public void insertChais (List<Chai> chais) {
@@ -218,5 +220,9 @@ public class Query {
 
     public void clearUserNotifications (String userId) {
         USERS.update("{'userId': '#'}", userId).with("{'$set': {'chatNotifications':[] } }");
+    }
+
+    public void removeUserNotification (String userId, String fromId) {
+        USERS.update("{'userId': '#'}", userId).with("{'$pull':{'chatNotifications':'#'}}", fromId);
     }
 }
