@@ -12,6 +12,9 @@
     <a href="/chat"><button>
         <img src='@clients.LetsChaiAWS.s3Link("images/my-matches-icon.jpg")' />
         My Matches
+        @if(notifications > 0) {
+            <span class="notification">@notifications</span>
+        }
     </button></a>
 </div>
 

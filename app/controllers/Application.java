@@ -194,6 +194,18 @@ public class Application extends Controller {
         Chai today = query.todaysChai(userId);
         today.setDecision(decision);
         query.updateChai(userId, today);
+
+        // check for match
+        if (today.getDecision()) {
+            String targetId = today.getTarget();
+            Chai other = query.chai(targetId, userId);
+            if (other != null && other.getDecision()) {
+                // match notifications here
+                query.addUserNotification(userId, targetId);
+                query.addUserNotification(targetId, userId);
+            }
+        }
+
         return ok();
     }
 
